@@ -3,10 +3,12 @@ package po
 import (
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/language"
 )
 
 // Po 文件结构说明
@@ -31,6 +33,91 @@ type File struct {
 	messages map[string]*message
 }
 
+const (
+	HeaderPluralForms = "Plural-Forms" // 表明该语言的复数形式
+	HeaderLanguage    = "Language"     // 表明该文件是什么语言
+)
+
+func (f *File) GetHeader(key string) (string, bool) {
+	v, ok := f.headers[key]
+	return v, ok
+}
+
+func (f *File) GetLanguage() (language.Tag, bool) {
+	lang, ok := f.GetHeader(HeaderLanguage)
+	if !ok {
+		return language.Und, false
+	}
+	tag, err := language.Default.Parse(lang)
+	if err != nil {
+		return language.Und, false
+	}
+	return tag, true
+}
+
+func (f *File) getPluralArr() ([]string, bool) {
+	forms, ok := f.GetHeader(HeaderPluralForms)
+	if !ok {
+		return nil, false
+	}
+	find := rePlurals.FindAllStringSubmatch(forms, -1)
+	if len(find) != 1 || len(find[0]) != 3 {
+		return nil, false
+	}
+	return find[0][1:], true
+}
+
+func (f *File) GetPluralCount() (int, bool) {
+	find, ok := f.getPluralArr()
+	if !ok {
+		return 0, false
+	}
+	n, err := strconv.ParseInt(find[0], 10, 64)
+	if err != nil {
+		return 0, false
+	}
+	return int(n), true
+}
+
+func (f *File) GetPluralExp() (string, bool) {
+	find, ok := f.getPluralArr()
+	if !ok {
+		return "", false
+	}
+	return find[1], true
+}
+
+var (
+	reHeader  = regexp.MustCompile(`(.*?): (.*)`)
+	rePlurals = regexp.MustCompile(`^\s*nplurals\s*=\s*(\d)\s*;\s*plural\s*=\s*(.*)\s*;$`)
+)
+
+func (f *File) addMessage(m *message) error {
+	if m.isValid() {
+		if m.msgID == "" {
+			headerLines := strings.Split(m.msgStr, "\n")
+			for _, headerLine := range headerLines {
+				if headerLine == "" {
+					continue
+				}
+				find := reHeader.FindAllStringSubmatch(headerLine, -1)
+				if len(find) != 1 || len(find[0]) != 3 {
+					return errors.Errorf("invalid header|line=%v|header=%+v", headerLine, m)
+				}
+				kv := find[0]
+				k := strings.TrimSpace(kv[1])
+				v := strings.TrimSpace(kv[2])
+				v = strings.TrimSuffix(v, `\n`)
+				f.headers[k] = v
+			}
+			return nil
+		}
+		f.messages[m.msgID] = m
+		return nil
+	}
+	return errors.Errorf("invalid message|%+v", m)
+}
+
 func newEmptyFile() *File {
 	return &File{
 		headers:  make(map[string]string),
@@ -39,7 +126,7 @@ func newEmptyFile() *File {
 }
 
 type message struct {
-	context string
+	msgCTxt string
 	msgID   string
 	msgID2  string
 	msgStr  string
@@ -47,8 +134,18 @@ type message struct {
 }
 
 func (m *message) isEmpty() bool {
-	return m == nil || m.context == "" && m.msgID == "" &&
+	return m == nil || m.msgCTxt == "" && m.msgID == "" &&
 		m.msgID2 == "" && m.msgStr == "" && len(m.msgStrN) == 0
+}
+
+func (m *message) isValid() bool {
+	if m == nil {
+		return false
+	}
+	if m.msgID == "" { // header
+		return m.msgCTxt == "" && m.msgID2 == "" && m.msgStr != "" && len(m.msgStrN) == 0
+	}
+	return m.msgID != "" && (m.msgStr != "" || len(m.msgStrN) != 0)
 }
 
 const (
@@ -59,9 +156,6 @@ const (
 	msgStr  = "msgstr"
 	msgStrN = "msgstr["
 	quote   = `"`
-)
-const (
-	HeaderPluralForms = "Plural-Forms"
 )
 
 // Parse 将 po 文件内容解析为结构体
@@ -79,13 +173,17 @@ func parseLines(lines []string) (*File, error) {
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				if msg != nil {
-					result.messages[msg.msgID] = msg
+					if err := result.addMessage(msg); err != nil {
+						return nil, err
+					}
 				}
 				break
 			}
 			return nil, err
 		}
-		result.messages[msg.msgID] = msg
+		if err := result.addMessage(msg); err != nil {
+			return nil, err
+		}
 	}
 	return result, nil
 }
@@ -128,7 +226,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.context = txt
+				msg.msgCTxt = txt
 				continue
 			}
 			// read msgctxt content below msgctxt
@@ -137,7 +235,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.context += txt
+				msg.msgCTxt += txt
 				continue
 			}
 			// 不是 msgctxt 流转状态至 msgid
