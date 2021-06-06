@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/youthlin/t/f"
 	"github.com/youthlin/t/plurals"
 	"golang.org/x/text/language"
 )
@@ -65,104 +66,117 @@ func newEmptyFile() *File {
 }
 
 // T gettext 直接获取翻译内容，如果没有翻译，返回原始内容
-func (f *File) T(msgID string) string {
-	return f.X("", msgID)
+// 如果 args 不为空，则将翻译后的字符串作为格式化模版，格式化 args
+func (po *File) T(msgID string, args ...interface{}) string {
+	return po.X("", msgID, args...)
 }
 
 // N ngettext 翻译复数，如果没有翻译，n 大于 1 返回原文复数(msgIDPlural)，否则返回原文单数(msgID)
-func (f *File) N(msgID, msgIDPlural string, n int) string {
-	return f.XN64("", msgID, msgIDPlural, int64(n))
+// 如果 args 不为空，则将翻译后的字符串作为格式化模版，格式化 args
+// 注意，n 用于选择第几种复数，如果 需要打印 n，还需要将其传包括在 args 中.
+//
+// Note: n is used to choose plural forms, is you need print n, you should pass it to args
+//  // no args, so return: `%d apples`
+//  po.N("one apple", "%d apples", 2) -> "%d apples"
+//  // the first numer 2 result in `%d apples`, the second 2 format to `2 apples`
+//  po.N("one apple", "%d apples", 2, 2) -> "2 apples"
+//  po.N("one apple", "%d apples", 2, 200) -> "200 apples"
+//
+//  // use `one apple` as template to format number `200`, the extra arg ignored, see f.Format
+//  po.N("one apple", "%d apples", 1, 200) -> "one apple"
+func (po *File) N(msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return po.XN64("", msgID, msgIDPlural, int64(n), args...)
 }
 
 // N64 ngettext 翻译复数，如果没有翻译，n 大于 1 返回原文复数(msgIDPlural)，否则返回原文单数(msgID)
-func (f *File) N64(msgID, msgIDPlural string, n int64) string {
-	return f.XN64("", msgID, msgIDPlural, n)
+func (po *File) N64(msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return po.XN64("", msgID, msgIDPlural, n, args...)
 }
 
 // X pgettext 带上下文翻译，用于区分同一个 msgID 在不同上下文的不同含义
-func (f *File) X(msgCtxt, msgID string) string {
-	msg, ok := f.messages[key(msgCtxt, msgID)]
+func (po *File) X(msgCtxt, msgID string, args ...interface{}) string {
+	msg, ok := po.messages[key(msgCtxt, msgID)]
 	if !ok {
-		return msgID
+		return f.Format(msgID, args...)
 	}
-	return msg.msgStr
+	return f.Format(msg.msgStr, args...)
 }
 
 // XN pngettext 带上下文翻译复数
-func (f *File) XN(msgCtxt, msgID, msgIDPlural string, n int) string {
-	return f.XN64(msgCtxt, msgID, msgIDPlural, int64(n))
+func (po *File) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return po.XN64(msgCtxt, msgID, msgIDPlural, int64(n), args...)
 }
 
 // XN64 pngettext 带上下文翻译复数
-func (f *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64) string {
-	msg, ok := f.messages[key(msgCtxt, msgID)]
+func (po *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	msg, ok := po.messages[key(msgCtxt, msgID)]
 	if !ok {
-		return defaultPlural(msgID, msgIDPlural, n)
+		return defaultPlural(msgID, msgIDPlural, n, args...)
 	}
-	totalForms := f.GetTotalForms()
-	pluralFunc := f.GetPluralFunc()
+	totalForms := po.GetTotalForms()
+	pluralFunc := po.GetPluralFunc()
 	if totalForms <= 0 || pluralFunc == nil { // 复数设置不正确
-		return defaultPlural(msgID, msgIDPlural, n)
+		return defaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	// 看 n 对应第几种复数
 	index := pluralFunc(n)
 	if index < 0 || index >= int(totalForms) || index > len(msg.msgStrN) {
 		// 超出范围
-		return defaultPlural(msgID, msgIDPlural, n)
+		return defaultPlural(msgID, msgIDPlural, n, args...)
 	}
-	return msg.msgStrN[index]
+	return f.Format(msg.msgStrN[index], args...)
 }
 
 // SetPluralForms 设置复数形式一共有 totalForms 种；函数 nForm 设置每个 n 对应第几种复数
-func (f *File) SetPluralForms(totalForms int, pluralFunc PluralFunc) {
-	f.totalForms = totalForms
-	f.pluralFunc = pluralFunc
+func (po *File) SetPluralForms(totalForms int, pluralFunc PluralFunc) {
+	po.totalForms = totalForms
+	po.pluralFunc = pluralFunc
 }
 
-func (f *File) GetTotalForms() int {
-	if f.totalForms >= 0 {
-		return f.totalForms
+func (po *File) GetTotalForms() int {
+	if po.totalForms >= 0 {
+		return po.totalForms
 	}
-	find, ok := f.getPluralArr()
+	find, ok := po.getPluralArr()
 	if !ok {
-		f.totalForms = 0
+		po.totalForms = 0
 		return 0
 	}
 	num, err := strconv.ParseInt(find[0], 10, 64)
 	if err != nil {
 		num = 0
 	}
-	f.totalForms = int(num)
+	po.totalForms = int(num)
 	return int(num)
 }
 
-func (f *File) GetPluralFunc() PluralFunc {
-	if f.pluralFunc != nil {
-		return f.pluralFunc
+func (po *File) GetPluralFunc() PluralFunc {
+	if po.pluralFunc != nil {
+		return po.pluralFunc
 	}
-	find, ok := f.getPluralArr()
+	find, ok := po.getPluralArr()
 	if !ok {
-		f.pluralFunc = invalidPluralFunc
+		po.pluralFunc = invalidPluralFunc
 		return invalidPluralFunc
 	}
 	exp := find[1]
-	f.pluralFunc = func(n int64) int {
+	po.pluralFunc = func(n int64) int {
 		index, err := plurals.Eval(context.Background(), exp, n)
 		if err != nil {
 			return -1
 		}
 		return int(index)
 	}
-	return f.pluralFunc
+	return po.pluralFunc
 }
 
-func (f *File) GetHeader(key string) (string, bool) {
-	v, ok := f.headers[key]
+func (po *File) GetHeader(key string) (string, bool) {
+	v, ok := po.headers[key]
 	return v, ok
 }
 
-func (f *File) GetLanguage() (language.Tag, bool) {
-	lang, ok := f.GetHeader(HeaderLanguage)
+func (po *File) GetLanguage() (language.Tag, bool) {
+	lang, ok := po.GetHeader(HeaderLanguage)
 	if !ok {
 		return language.Und, false
 	}
@@ -173,8 +187,8 @@ func (f *File) GetLanguage() (language.Tag, bool) {
 	return tag, true
 }
 
-func (f *File) getPluralArr() ([]string, bool) {
-	forms, ok := f.GetHeader(HeaderPluralForms)
+func (po *File) getPluralArr() ([]string, bool) {
+	forms, ok := po.GetHeader(HeaderPluralForms)
 	if !ok {
 		return nil, false
 	}
@@ -185,7 +199,7 @@ func (f *File) getPluralArr() ([]string, bool) {
 	return find[0][1:], true
 }
 
-func (f *File) addMessage(m *message) error {
+func (po *File) addMessage(m *message) error {
 	if m.isValid() {
 		if m.msgID == "" {
 			headerLines := strings.Split(m.msgStr, "\n")
@@ -201,11 +215,11 @@ func (f *File) addMessage(m *message) error {
 				k := strings.TrimSpace(kv[1])
 				v := strings.TrimSpace(kv[2])
 				v = strings.TrimSuffix(v, `\n`)
-				f.headers[k] = v
+				po.headers[k] = v
 			}
 			return nil
 		}
-		f.messages[m.key()] = m
+		po.messages[m.key()] = m
 		return nil
 	}
 	return errors.Errorf("invalid message|%+v", m)

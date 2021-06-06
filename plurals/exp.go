@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/pkg/errors"
@@ -17,6 +18,13 @@ func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
 			err = errors.Errorf("unexpected error: %v", e)
 		}
 	}()
+
+	commonExp := strings.ReplaceAll(exp, " ", "")
+	fun, ok := commons[commonExp]
+	if ok {
+		return fun(n), nil
+	}
+
 	input := antlr.NewInputStream(exp)
 	lexer := parser.NewpluralLexer(input)
 	errListener := new(errorListener)
@@ -27,11 +35,12 @@ func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
 	p.RemoveErrorListeners()
 	p.AddErrorListener(errListener)
 	l := newListener(ctx, n)
-	antlr.ParseTreeWalkerDefault.Walk(l, p.Start())
+	tree := p.Start()
+	antlr.ParseTreeWalkerDefault.Walk(l, tree)
 	return l.result, errListener.err
 }
 
-// c sync accept int(0) as false, none-zero as true
+// c syntax accept int(0) as false, none-zero as true
 const (
 	_TRUE  = 1
 	_FALSE = 0

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/youthlin/t/f"
 )
 
 const (
@@ -37,11 +38,11 @@ func unquote(line, prefix string) (string, error) {
 	return strconv.Unquote(line)
 }
 
-func defaultPlural(msgID, msgIDPlural string, n int64) string {
+func defaultPlural(msgID, msgIDPlural string, n int64, args ...interface{}) string {
 	if n != 1 {
-		return msgIDPlural
+		return f.Format(msgIDPlural, args...)
 	}
-	return msgID
+	return f.Format(msgID, args...)
 }
 
 // key 生成查找 message 的 key

@@ -233,19 +233,27 @@ func myCase() []tCase {
 		{"custom-case30", args{ctx, "0", 100}, 0, false},
 		{"custom-case31", args{ctx, "n", 100}, 100, false},
 		{"custom-case32", args{ctx, "(n)", 100}, 100, false},
+		{"custom-case33", args{ctx, "!1", 100}, 0, false},
 	}
 }
 func errCase() []tCase {
-	return []tCase{}
+	return []tCase{
+		{"err0", args{}, 0, true},              // SyntaxError: EOF
+		{"err1", args{ctx, `nn`, 1}, 1, false}, // todo why
+	}
 }
 
 func TestEval(t *testing.T) {
-	tests := okCase()
+	tests := []tCase{}
+	tests = append(tests, okCase()...)
 	tests = append(tests, myCase()...)
 	tests = append(tests, errCase()...)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Eval(tt.args.ctx, tt.args.exp, tt.args.n)
+			// if err != nil {
+			// 	t.Logf("err=%+v", err)
+			// }
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Eval() error = %v, wantErr %v", err, tt.wantErr)
 				return

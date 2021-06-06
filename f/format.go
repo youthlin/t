@@ -3,9 +3,12 @@ package f
 import "fmt"
 
 // Format format a string with args, like fmt.Sprintf,
-// but if args tow many, not prints %!(EXTRA type=value)
+// but if args tow many, not prints %!(EXTRA type=value);
+// and if no args, will return original string,
+// even it contains some verb(like %v/%d), it would not prints MISSING error.
 // 格式化字符串，功能同 fmt.Sprintf, 但是当参数多于占位符时，
-// 不会输出额外的 %!(EXTRA type=value)
+// 不会输出额外的 %!(EXTRA type=value)；
+// 当 args 为空时直接返回原字符串（若包含格式化动词也原样返回而不会打印 MISSING 错误）
 func Format(format string, args ...interface{}) string {
 	var length = len(args)
 	if length == 0 {
