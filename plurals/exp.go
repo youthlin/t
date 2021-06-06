@@ -11,7 +11,7 @@ import (
 )
 
 // Eval 传入复数表达式，返回 n 应该使用哪种复数形式
-func Eval(ctx context.Context, exp string, n int) (result int, err error) {
+func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = errors.Errorf("unexpected error: %v", e)
@@ -43,17 +43,17 @@ const (
 type myListener struct {
 	// 实现这个父类上感兴趣的方法(相当于一个 adaptor)
 	*parser.BasepluralListener
-	stack  antlr.IntStack  // 操作数栈
+	stack  Int64Stack      // 操作数栈
 	ctx    context.Context // 外部传入的 ctx， 用于 debug
-	n      int             // 参数 n
-	result int             // 结果
+	n      int64           // 参数 n
+	result int64           // 结果
 }
 
-func newListener(ctx context.Context, n int) *myListener {
+func newListener(ctx context.Context, n int64) *myListener {
 	return &myListener{
 		ctx:   ctx,
 		n:     n,
-		stack: make(antlr.IntStack, 0),
+		stack: make(Int64Stack, 0),
 	}
 }
 
@@ -291,7 +291,7 @@ func (s *myListener) ExitPrimary(ctx *parser.PrimaryContext) {
 		if err != nil {
 			panic("assert error: not a number: " + num)
 		}
-		s.stack.Push(int(iNum))
+		s.stack.Push(iNum)
 	}
 	s.debug("primary: %v stack=%v", ctx.GetText(), s.stack)
 }

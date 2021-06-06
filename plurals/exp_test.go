@@ -13,12 +13,12 @@ var ctx = context.Background()
 type args struct {
 	ctx context.Context
 	exp string
-	n   int
+	n   int64
 }
 type tCase struct {
 	name    string
 	args    args
-	want    int
+	want    int64
 	wantErr bool
 }
 
@@ -46,11 +46,11 @@ func okCase() []tCase {
 	}
 
 	// 拉脱维亚语 Latvian 三种复数，0特殊
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-3-#%v", i),
 				args{ctx, "n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2", i},
-				func(n int) int {
+				func(n int64) int64 {
 					// n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2
 					if n%10 == 1 && n%100 != 11 {
 						return 0
@@ -63,11 +63,11 @@ func okCase() []tCase {
 		)
 	}
 	// 三种复数，00 [2-9][0-9] Romanian 罗马尼亚
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-4-#%v", i),
 				args{ctx, "n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2", i},
-				func(n int) int {
+				func(n int64) int64 {
 					// n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2
 					if n == 1 {
 						return 0
@@ -80,11 +80,11 @@ func okCase() []tCase {
 		)
 	}
 	// 三种复数，1[2-9] 立陶宛 Lithuanian
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-5-#%v", i),
 				args{ctx, "n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2", i},
-				func(n int) int {
+				func(n int64) int64 {
 					// n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2
 					if n%10 == 1 && n%100 != 11 {
 						return 0
@@ -97,11 +97,11 @@ func okCase() []tCase {
 		)
 	}
 	// 三种复数，1234结尾的特殊，但不是 1[1-4] Russian, Ukrainian, Belarusian, Serbian, Croatian
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-6-#%v", i),
 				args{ctx, "n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2", i},
-				func(n int) int {
+				func(n int64) int64 {
 					// n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
 					if n%10 == 1 && n%100 != 11 {
 						return 0
@@ -114,11 +114,11 @@ func okCase() []tCase {
 		)
 	}
 	// 三种复数，1234结尾的特殊 Czech, Slovak
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-7-#%v", i),
 				args{ctx, "(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2", i},
-				func(n int) int {
+				func(n int64) int64 {
 					// (n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2
 					if n == 1 {
 						return 0
@@ -132,11 +132,11 @@ func okCase() []tCase {
 	}
 	// 三种复数，Three forms, special case for one and some numbers ending in 2, 3, or 4
 	// Polish
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-8-#%v", i),
 				args{ctx, "n==1 ? 0 :  n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2", i},
-				func(n int) int {
+				func(n int64) int64 {
 					// n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
 					if n == 1 {
 						return 0
@@ -150,11 +150,11 @@ func okCase() []tCase {
 	}
 	// Four forms, special case for one and all numbers ending in 02, 03, or 04
 	// Slovenian
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-9-#%v", i),
 				args{ctx, "n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3", i},
-				func(n int) int {
+				func(n int64) int64 {
 					//n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3
 					if n%100 == 1 {
 						return 0
@@ -171,11 +171,11 @@ func okCase() []tCase {
 	}
 	// Six forms, special cases for one, two, all numbers ending in 02, 03, … 10, all numbers ending in 11 … 99, and others
 	// Arabic
-	for i := 0; i < 215; i++ {
+	for i := int64(0); i < 215; i++ {
 		tests = append(tests,
 			tCase{fmt.Sprintf("test-case-10-#%v", i),
 				args{ctx, " n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3  : n%100>=11 ? 4 : 5", i},
-				func(n int) int {
+				func(n int64) int64 {
 					if n == 0 {
 						return 0
 					}
