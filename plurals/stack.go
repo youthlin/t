@@ -7,7 +7,7 @@ import "errors"
 // see antlr.IntStack
 type Int64Stack []int64
 
-var ErrEmptyStack = errors.New("Stack is empty")
+var ErrEmptyStack = errors.New("stack is empty")
 
 func (s *Int64Stack) Pop() (int64, error) {
 	l := len(*s) - 1

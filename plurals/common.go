@@ -41,7 +41,7 @@ var commons = map[string]func(n int64) int64{
 		return _if(n == 1, 0, _if(n == 0 || (n%100 > 0 && n%100 < 20), 1, 2))
 	},
 	// Baltic family: Lithuanian
-	"n%10==1&&n%100!=11?0:n%10>=2&&(n%100<10||n%100>=20)?1:2;": func(n int64) int64 {
+	"n%10==1&&n%100!=11?0:n%10>=2&&(n%100<10||n%100>=20)?1:2": func(n int64) int64 {
 		return _if(n%10 == 1 && n%100 != 11, 0, _if(n%10 >= 2 && (n%100 < 10 || n%100 >= 20), 1, 2))
 	},
 	// Slavic family: Russian, Ukrainian, Belarusian, Serbian, Croatian
@@ -53,7 +53,7 @@ var commons = map[string]func(n int64) int64{
 		return _if(n == 1, 0, _if(n >= 2 && n <= 4, 1, 2))
 	},
 	// Slavic family: Polish
-	"n==1?0:n%10>=2 &&n%10<=4&&(n%100<10||n%100>=20)?1:2": func(n int64) int64 {
+	"n==1?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2": func(n int64) int64 {
 		return _if(n == 1, 0, _if(n%10 >= 2 && n%10 <= 4 && (n%100 < 10 || n%100 >= 20), 1, 2))
 	},
 	// Slavic family: Slovenian
