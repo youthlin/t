@@ -157,6 +157,7 @@ func Test_message_isValid(t *testing.T) {
 		{"header", fields{msgID: "", msgStr: "k: v"}, true},
 		{"header-invalid", fields{msgID: "", msgID2: "id2", msgStr: "k: v"}, false},
 		{"entry", fields{msgID: "id", msgStr: "str"}, true},
+		{"only-id", fields{msgID: "id"}, false}, // pot file can not used
 		{"entry-ctxt", fields{msgCTxt: "txt", msgID: "id", msgStr: "str"}, true},
 		{"entry-plural", fields{msgID: "id", msgStrN: []string{"str"}}, true},
 	}

@@ -213,5 +213,5 @@ func (m *message) isValid() bool {
 	if m.msgID == "" { // header
 		return m.msgCTxt == "" && m.msgID2 == "" && m.msgStr != "" && len(m.msgStrN) == 0
 	}
-	return m.msgID != "" && (m.msgStr != "" || len(m.msgStrN) != 0)
+	return m.msgStr != "" || len(m.msgStrN) != 0
 }

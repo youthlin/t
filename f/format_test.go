@@ -34,3 +34,30 @@ func TestFormat(t *testing.T) {
 		})
 	}
 }
+
+func TestDefaultPlural(t *testing.T) {
+	type args struct {
+		msgID       string
+		msgIDPlural string
+		n           int64
+		args        []interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"en-1-is-singular", args{"singular", "plural", 1, nil}, "singular"},
+		{"en-other-is-plural-0", args{"singular", "plural", 0, nil}, "plural"},
+		{"en-other-is-plural-n", args{"singular", "plural", 2, nil}, "plural"},
+		{"format", args{"one apple", "%d apples", 1, []interface{}{1}}, "one apple"},
+		{"format2", args{"one apple", "%d apples", 2, []interface{}{2}}, "2 apples"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := f.DefaultPlural(tt.args.msgID, tt.args.msgIDPlural, tt.args.n, tt.args.args...); got != tt.want {
+				t.Errorf("defaultPlural() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

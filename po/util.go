@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/youthlin/t/f"
 )
 
 const (
@@ -15,7 +14,7 @@ const (
 	msgID2  = "msgid_plural"
 	msgStr  = "msgstr"
 	msgStrN = "msgstr["
-	quote   = `"`
+	quote   = "\"" // 写成 `"` xgettest 会认为是没结束的引号
 )
 
 func readLine(r *reader) (string, error) {
@@ -36,13 +35,6 @@ func unquote(line, prefix string) (string, error) {
 	line = strings.TrimPrefix(line, prefix)
 	line = strings.TrimSpace(line)
 	return strconv.Unquote(line)
-}
-
-func defaultPlural(msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	if n != 1 {
-		return f.Format(msgIDPlural, args...)
-	}
-	return f.Format(msgID, args...)
 }
 
 // key 生成查找 message 的 key

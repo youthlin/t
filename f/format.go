@@ -21,3 +21,10 @@ func Format(format string, args ...interface{}) string {
 	format = fmt.Sprintf("%s%%[%d]s", format, length+1)
 	return fmt.Sprintf(format, args...)
 }
+
+func DefaultPlural(msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	if n != 1 {
+		return Format(msgIDPlural, args...)
+	}
+	return Format(msgID, args...)
+}

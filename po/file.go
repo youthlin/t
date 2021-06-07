@@ -27,8 +27,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/youthlin/t/f"
 	"github.com/youthlin/t/plurals"
-	"golang.org/x/text/language"
 )
+
+// Parse 将 po 文件内容解析为结构体
+func Parse(src string) (*File, error) {
+	src = strings.ReplaceAll(src, "\r", "")
+	lines := strings.Split(src, "\n")
+	return parseLines(lines)
+}
 
 // PluralFunc 定义一个整数 n 对应翻译语言中的第几种复数
 type PluralFunc func(int64) int
@@ -52,6 +58,7 @@ const (
 type File struct {
 	headers    map[string]string
 	messages   map[string]*message
+	lang       string
 	totalForms int
 	pluralFunc PluralFunc
 }
@@ -63,6 +70,17 @@ func newEmptyFile() *File {
 		messages:   make(map[string]*message),
 		totalForms: -1,
 	}
+}
+
+// Lang 返回译文的语言
+func (po *File) Lang() string {
+	if po.lang == "" {
+		po.lang, _ = po.GetHeader(HeaderLanguage)
+	}
+	return po.lang
+}
+func (po *File) SetLang(lang string) {
+	po.lang = lang
 }
 
 // T gettext 直接获取翻译内容，如果没有翻译，返回原始内容
@@ -111,18 +129,18 @@ func (po *File) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...interface{
 func (po *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
 	msg, ok := po.messages[key(msgCtxt, msgID)]
 	if !ok {
-		return defaultPlural(msgID, msgIDPlural, n, args...)
+		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	totalForms := po.GetTotalForms()
 	pluralFunc := po.GetPluralFunc()
 	if totalForms <= 0 || pluralFunc == nil { // 复数设置不正确
-		return defaultPlural(msgID, msgIDPlural, n, args...)
+		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	// 看 n 对应第几种复数
 	index := pluralFunc(n)
 	if index < 0 || index >= int(totalForms) || index > len(msg.msgStrN) {
 		// 超出范围
-		return defaultPlural(msgID, msgIDPlural, n, args...)
+		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	return f.Format(msg.msgStrN[index], args...)
 }
@@ -175,18 +193,6 @@ func (po *File) GetHeader(key string) (string, bool) {
 	return v, ok
 }
 
-func (po *File) GetLanguage() (language.Tag, bool) {
-	lang, ok := po.GetHeader(HeaderLanguage)
-	if !ok {
-		return language.Und, false
-	}
-	tag, err := language.Default.Parse(lang)
-	if err != nil {
-		return language.Und, false
-	}
-	return tag, true
-}
-
 func (po *File) getPluralArr() ([]string, bool) {
 	forms, ok := po.GetHeader(HeaderPluralForms)
 	if !ok {
@@ -223,13 +229,6 @@ func (po *File) addMessage(m *message) error {
 		return nil
 	}
 	return errors.Errorf("invalid message|%+v", m)
-}
-
-// Parse 将 po 文件内容解析为结构体
-func Parse(src string) (*File, error) {
-	src = strings.ReplaceAll(src, "\r", "")
-	lines := strings.Split(src, "\n")
-	return parseLines(lines)
 }
 
 func parseLines(lines []string) (*File, error) {
