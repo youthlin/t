@@ -8,14 +8,20 @@
 //
 // while using this package:
 //
-// 	BindDefaultDomain("/path/to/po_or_mo/dir")
+// 	// 1 bind(search po file)
+// 	BindTextDomain("my-name","/path/to/po_or_mo/dir")
+// 	// BindDefaultDomain("/path")
+// 	// 2 set current domain
+// 	TextDomain("my-name")
 // 	// BindTextDomain("my-domain", "path/to/dir/or/name.po")
-// 	// langs := SupportLang()
+// 	// langs := SupportLang(domain)
 // 	// supported := []language.Tag{ language.Make(lang) }
 // 	// matcher := language.NewMatcher(supported)
 // 	// bestMatch, index, confidence := matcher.Match("<user-accept>"...)
 // 	// SetUserLang(langs[index])
-// 	SetUserLang("zh-CN")
+// 	// 3 set user language(should match exactly with po file)
+// 	SetUserLang("zh_CN")
+// 	// 4 use T/N/X/XN to gettext
 // 	fmt.Println(T("hello, world"))
 // 	// plurals: N/XN/DN/DXN, the argument n is used to choose plural form
 // 	// if you want format the number n, you should pass it to the additional args
@@ -26,5 +32,5 @@
 // 	fmt.Println(N("One apple", "%d apples", 1, 200)) // One apple
 package t
 
-// globalTranslatins is a global translations struct
-var globalTranslatins = NewTranslations()
+// global is a global translations instance
+var global = NewTranslations()

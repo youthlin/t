@@ -176,6 +176,7 @@ func readMessage(r *reader) (*message, error) {
 			r.unGetLine()
 			state = stateDone
 		case stateDone:
+			// 当前行不是这些开头 msgctx/msgid/msgid_plural/msgstr 需要报错
 			line, _ := readLine(r)
 			r.unGetLine()
 			if msg.isEmpty() {

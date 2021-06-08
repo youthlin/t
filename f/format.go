@@ -22,6 +22,7 @@ func Format(format string, args ...interface{}) string {
 	return fmt.Sprintf(format, args...)
 }
 
+// DefaultPlural if n == 1 return singular form, else return plural form
 func DefaultPlural(msgID, msgIDPlural string, n int64, args ...interface{}) string {
 	if n != 1 {
 		return Format(msgIDPlural, args...)

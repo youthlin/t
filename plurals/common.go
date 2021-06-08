@@ -1,7 +1,5 @@
 package plurals
 
-// https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html#index-plural_002c-in-a-PO-file-header
-
 func i(b bool) int64 {
 	if b {
 		return 1
@@ -15,6 +13,8 @@ func _if(b bool, t, f int64) int64 {
 	return f
 }
 
+// commons holds some commonly used expression from gnu site
+// https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html#index-plural_002c-in-a-PO-file-header
 var commons = map[string]func(n int64) int64{
 	// Asian family: Japanese, Vietnamese, Korean
 	// Tai-Kadai family: Thai

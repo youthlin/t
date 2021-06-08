@@ -239,7 +239,7 @@ func myCase() []tCase {
 func errCase() []tCase {
 	return []tCase{
 		{"err0", args{}, 0, true},              // SyntaxError: EOF
-		{"err1", args{ctx, `nn`, 1}, 1, false}, // todo why
+		{"err1", args{ctx, `nn`, 1}, 1, false}, // todo why 这个不太符合预期。应该返回错误才对
 	}
 }
 

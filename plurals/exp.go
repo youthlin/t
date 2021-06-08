@@ -19,21 +19,27 @@ func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
 		}
 	}()
 
+	// 1 常见表达式直接走函数
 	commonExp := strings.ReplaceAll(exp, " ", "")
 	fun, ok := commons[commonExp]
 	if ok {
 		return fun(n), nil
 	}
 
+	// 2 词法解析
 	input := antlr.NewInputStream(exp)
 	lexer := parser.NewpluralLexer(input)
 	errListener := new(errorListener)
 	lexer.RemoveErrorListeners()
 	lexer.AddErrorListener(errListener)
+
+	// 3 语法树生成
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	p := parser.NewpluralParser(stream)
 	p.RemoveErrorListeners()
 	p.AddErrorListener(errListener)
+
+	// 4 遍历语法树计算表达式
 	l := newListener(ctx, n)
 	tree := p.Start()
 	antlr.ParseTreeWalkerDefault.Walk(l, tree)

@@ -10,14 +10,15 @@ import (
 	"github.com/youthlin/t/po"
 )
 
-// Translations
+// Translations holds a map of domain to Translation
 type Translations struct {
-	userLang string
-	trMap    map[string]*Translation // key is domain
+	userLang      string
+	currentDomain string
+	trMap         map[string]*Translation // key is domain
 }
 
 func NewTranslations() *Translations {
-	return &Translations{trMap: make(map[string]*Translation)}
+	return &Translations{currentDomain: DefaultDomain, trMap: make(map[string]*Translation)}
 }
 
 func (ts *Translations) SetUserLang(lang string) {
@@ -27,6 +28,7 @@ func (ts *Translations) UserLang() string {
 	return ts.userLang
 }
 
+// Bind search .po/.mo file in path, and bind the result with domain
 func (ts *Translations) Bind(domain, path string) {
 	tr := NewTranslation(domain)
 	tr.Bind(path)
@@ -34,11 +36,17 @@ func (ts *Translations) Bind(domain, path string) {
 		ts.trMap[domain] = tr
 	}
 }
+
+// TextDomain if domain exists, set it as current domain, else set current domain to DefaultDomain
 func (ts *Translations) TextDomain(domain string) string {
 	if _, ok := ts.trMap[domain]; ok {
-		return domain
+		return ts.setDomain(domain)
 	}
-	return DefaultDomain
+	return ts.setDomain(DefaultDomain)
+}
+func (ts *Translations) setDomain(domain string) string {
+	ts.currentDomain = domain
+	return domain
 }
 
 func (ts *Translations) SupportLangs(domain string) (langs []string) {
@@ -91,6 +99,7 @@ func (ts *Translations) DLXN64(domain, lang, msgCtxt, msgID, msgIDPlural string,
 	return tr.LXN64(lang, msgCtxt, msgID, msgIDPlural, n, args...)
 }
 
+// Translation holds a map of lang to po/mo file
 type Translation struct {
 	Domain string
 	Files  map[string]File
@@ -102,9 +111,30 @@ var trNoop = &Translation{}
 func NewTranslation(domain string, languages ...File) *Translation {
 	tr := Translation{Domain: domain, Files: map[string]File{}}
 	for _, file := range languages {
-		tr.Files[file.Lang()] = file
+		tr.Add(file)
 	}
 	return &tr
+}
+
+// Add add a po file to current Translation
+// if the language of this po file is already exist, then ignore this po file and return false
+func (tr *Translation) Add(poFile File) bool {
+	lang := poFile.Lang()
+	if _, ok := tr.Files[lang]; ok {
+		return false
+	}
+	tr.Files[lang] = poFile
+	tr.Langs = append(tr.Langs, lang)
+	return true
+}
+
+// AddOrReplace if the language of file exist, then replace
+func (tr *Translation) AddOrReplace(poFile File) {
+	lang := poFile.Lang()
+	if _, ok := tr.Files[lang]; !ok {
+		tr.Langs = append(tr.Langs, lang)
+	}
+	tr.Files[lang] = poFile
 }
 
 func (tr *Translation) Bind(path string) {
@@ -138,12 +168,7 @@ func (tr *Translation) AddFile(file *os.File) {
 		if err != nil {
 			return
 		}
-		lang := poFile.Lang()
-		if _, ok := tr.Files[lang]; ok {
-			return
-		}
-		tr.Files[lang] = poFile
-		tr.Langs = append(tr.Langs, lang)
+		tr.Add(poFile)
 	}
 }
 

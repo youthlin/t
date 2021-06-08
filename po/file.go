@@ -215,7 +215,7 @@ func (po *File) addMessage(m *message) error {
 				}
 				find := reHeader.FindAllStringSubmatch(headerLine, -1)
 				if len(find) != 1 || len(find[0]) != 3 {
-					return errors.Errorf("invalid header|line=%v|header=%+v", headerLine, m)
+					return errors.Errorf("invalid header|line=%v|entry=%+v", headerLine, m)
 				}
 				kv := find[0]
 				k := strings.TrimSpace(kv[1])

@@ -31,10 +31,13 @@ func TestLT(testT *testing.T) {
 	}
 }
 func TestLN(testT *testing.T) {
-	t.BindDefaultDomain("testdata/")
+	domain := "app"
+	t.BindTextDomain(domain, "testdata")
+	t.TextDomain(domain)
+	lang := "zh_CN"
 	Convey("LN", testT, func() {
-		So(t.LN("zh_CN", "One apple", "%d apples", 1, 1), ShouldEqual, "1 个苹果")
-		So(t.LN64("zh_CN", "One apple", "%d apples", 1, 1), ShouldEqual, "1 个苹果")
+		So(t.LN(lang, "One apple", "%d apples", 1, 1), ShouldEqual, "1 个苹果")
+		So(t.LN64(lang, "One apple", "%d apples", 1, 1), ShouldEqual, "1 个苹果")
 	})
 }
 

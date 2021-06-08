@@ -13,18 +13,18 @@ func BindDefaultDomain(path string) {
 
 // BindTextDomain bind domain in path
 func BindTextDomain(domain string, path string) {
-	globalTranslatins.Bind(domain, path)
+	global.Bind(domain, path)
 }
 
 // TextDomain if the domain has bind some translation, return domain, othewise return DefaultDomain(default)
 func TextDomain(domain string) string {
-	return globalTranslatins.TextDomain(domain)
+	return global.TextDomain(domain)
 }
 
 // getTranslation get a Traslation instance which bind the domain
 func getTranslation(domain string) (*Translation, string) {
-	tr := globalTranslatins.GetOrNoop(domain)
-	lang := globalTranslatins.UserLang()
+	tr := global.GetOrNoop(domain)
+	lang := global.UserLang()
 	return tr, lang
 }
 
@@ -69,26 +69,26 @@ func DXN64(domain, msgCtxt, msgID, msgIDPlural string, n int64, args ...interfac
 }
 
 func DLT(domain, lang, msgID string, args ...interface{}) string {
-	tr := globalTranslatins.GetOrNoop(domain)
+	tr := global.GetOrNoop(domain)
 	return tr.LT(lang, msgID, args...)
 }
 func DLN(domain, lang, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	tr := globalTranslatins.GetOrNoop(domain)
+	tr := global.GetOrNoop(domain)
 	return tr.LN(lang, msgID, msgIDPlural, n, args...)
 }
 func DLN64(domain, lang, msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	tr := globalTranslatins.GetOrNoop(domain)
+	tr := global.GetOrNoop(domain)
 	return tr.LN64(lang, msgID, msgIDPlural, n, args...)
 }
 func DLX(domain, lang, msgCtxt, msgID string, args ...interface{}) string {
-	tr := globalTranslatins.GetOrNoop(domain)
+	tr := global.GetOrNoop(domain)
 	return tr.LX(lang, msgCtxt, msgID, args...)
 }
 func DLXN(domain, lang, msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	tr := globalTranslatins.GetOrNoop(domain)
+	tr := global.GetOrNoop(domain)
 	return tr.LXN(lang, msgCtxt, msgID, msgIDPlural, n, args...)
 }
 func DLXN64(domain, lang, msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	tr := globalTranslatins.GetOrNoop(domain)
+	tr := global.GetOrNoop(domain)
 	return tr.LXN64(lang, msgCtxt, msgID, msgIDPlural, n, args...)
 }

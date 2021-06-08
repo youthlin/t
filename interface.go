@@ -1,6 +1,6 @@
 package t
 
-// File is a interface, it's impl may a .po file or .mo file
+// File is a interface, it's impl may be a .po file or .mo file
 type File interface {
 	Lang() string
 	T(msgID string, args ...interface{}) string
