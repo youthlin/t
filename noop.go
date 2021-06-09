@@ -1,5 +1,7 @@
 package t
 
+// noop return msg directly, used to mark string which should be translated
+// so that xgettext tool can extract those strings.
 type noop int
 
 var Noop = noop(0)

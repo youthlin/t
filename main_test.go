@@ -21,11 +21,15 @@ func TestBindDefaultDomain(tt *testing.T) {
 		})
 	})
 }
-func TestUserLang(tt *testing.T) {
+func TestLocale(tt *testing.T) {
 	Convey("UserLang", tt, func() {
 		// So(t.UserLang(), ShouldEqual, "")
-		t.SetUserLang("zh_CN")
-		So(t.UserLang(), ShouldEqual, "zh_CN")
+		t.SetLocale("zh_CN")
+		So(t.Locale(), ShouldEqual, "zh_CN")
+		t.SetLocale("zh-CN")
+		So(t.Locale(), ShouldEqual, "zh_CN")
+		t.SetLocale("zh")
+		So(t.Locale(), ShouldEqual, "zh_CN")
 	})
 }
 func TestGettext(tt *testing.T) {
@@ -38,7 +42,7 @@ func TestGettext(tt *testing.T) {
 			{t.Noop.T("Hello, %s"), "你好，%s"},
 		}
 		t.BindDefaultDomain("testdata")
-		t.SetUserLang("zh_CN")
+		t.SetLocale("zh_CN")
 		for _, tCase := range testCase {
 			So(t.T(tCase.msg), ShouldEqual, tCase.want)
 		}
@@ -72,7 +76,8 @@ func TestN(testT *testing.T) {
 	// 	})
 	// }
 	t.BindDefaultDomain("testdata")
-	t.SetUserLang("zh_CN")
+	t.SetLocale("zh_CN")
+	t.TextDomain("")
 	for _, tt := range tests {
 		testT.Run(tt.name, func(testT *testing.T) {
 			if got := t.N(tt.args.msgID, tt.args.msgIDPlural, tt.args.n, tt.args.n); got != tt.want2 {
@@ -93,7 +98,7 @@ func TestX(testT *testing.T) {
 		// So(t.XN("Project|", "Open One", "Open %d", 2), ShouldEqual, "Open %d")
 		// So(t.XN("Project|", "Open One", "Open %d", 2, 2), ShouldEqual, "Open 2")
 		t.BindDefaultDomain("testdata/zh_CN.po")
-		t.SetUserLang("zh_CN")
+		t.SetLocale("zh_CN")
 		ctxt, msgID := t.Noop.X("File|", "Open")
 		So(t.X(ctxt, msgID), ShouldEqual, "打开文件")
 		So(t.X("Project|", "Open"), ShouldEqual, "打开工程")

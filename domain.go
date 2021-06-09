@@ -21,74 +21,64 @@ func TextDomain(domain string) string {
 	return global.TextDomain(domain)
 }
 
-// getTranslation get a Traslation instance which bind the domain
-func getTranslation(domain string) (*Translation, string) {
-	tr := global.GetOrNoop(domain)
-	lang := global.UserLang()
-	return tr, lang
+// NewDomain return a new Translations instance which current domain is set to the specify domain
+func NewDomain(domain string) *Translations {
+	return global.NewDomain(domain)
 }
 
 // DT see T. domain was bind at BindTextDomain
 // dgettext
 func DT(domain, msgID string, args ...interface{}) string {
-	tr, lang := getTranslation(domain)
-	return tr.LT(lang, msgID, args...)
+	return global.DT(domain, msgID, args...)
 }
 
 // DN see N.
 // dngettext
 func DN(domain, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	tr, lang := getTranslation(domain)
-	return tr.LN(lang, msgID, msgIDPlural, n, args...)
+	return global.DN(domain, msgID, msgIDPlural, n, args...)
 }
 
 // DN64 int64 version of DN
 func DN64(domain, msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	tr, lang := getTranslation(domain)
-	return tr.LN64(lang, msgID, msgIDPlural, n, args...)
+	return global.DN64(domain, msgID, msgIDPlural, n, args...)
 }
 
 // DX see X.
 // dpgettext
 func DX(domain, msgCtxt, msgID string, args ...interface{}) string {
-	tr, lang := getTranslation(domain)
-	return tr.LX(lang, msgCtxt, msgID, args...)
+	return global.DX(domain, msgCtxt, msgID, args...)
 }
 
 // DXN see XN.
 // dpngettext
 func DXN(domain, msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	tr, lang := getTranslation(domain)
-	return tr.LXN(lang, msgCtxt, msgID, msgIDPlural, n, args...)
+	return global.DXN(domain, msgCtxt, msgID, msgIDPlural, n, args...)
 }
 
 // DXN64 int64 version of DXN
 func DXN64(domain, msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	tr, lang := getTranslation(domain)
-	return tr.LXN64(lang, msgCtxt, msgID, msgIDPlural, n, args...)
+	return global.DXN64(domain, msgCtxt, msgID, msgIDPlural, n, args...)
 }
 
+// #region domain+locale
+
 func DLT(domain, lang, msgID string, args ...interface{}) string {
-	tr := global.GetOrNoop(domain)
-	return tr.LT(lang, msgID, args...)
+	return global.DLT(domain, lang, msgID, args...)
 }
 func DLN(domain, lang, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	tr := global.GetOrNoop(domain)
-	return tr.LN(lang, msgID, msgIDPlural, n, args...)
+	return global.DLN(domain, lang, msgID, msgIDPlural, n, args...)
 }
 func DLN64(domain, lang, msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	tr := global.GetOrNoop(domain)
-	return tr.LN64(lang, msgID, msgIDPlural, n, args...)
+	return global.DLN64(domain, lang, msgID, msgIDPlural, n, args...)
 }
 func DLX(domain, lang, msgCtxt, msgID string, args ...interface{}) string {
-	tr := global.GetOrNoop(domain)
-	return tr.LX(lang, msgCtxt, msgID, args...)
+	return global.DLX(domain, lang, msgCtxt, msgID, args...)
 }
 func DLXN(domain, lang, msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	tr := global.GetOrNoop(domain)
-	return tr.LXN(lang, msgCtxt, msgID, msgIDPlural, n, args...)
+	return global.DLXN(domain, lang, msgCtxt, msgID, msgIDPlural, n, args...)
 }
 func DLXN64(domain, lang, msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	tr := global.GetOrNoop(domain)
-	return tr.LXN64(lang, msgCtxt, msgID, msgIDPlural, n, args...)
+	return global.DLXN64(domain, lang, msgCtxt, msgID, msgIDPlural, n, args...)
 }
+
+// #endregion domain+locale

@@ -7,31 +7,68 @@ import (
 	"strings"
 
 	"github.com/youthlin/t/f"
+	"github.com/youthlin/t/locale"
 	"github.com/youthlin/t/po"
 )
 
 // Translations holds a map of domain to Translation
 type Translations struct {
-	userLang      string
+	locale        string
 	currentDomain string
 	trMap         map[string]*Translation // key is domain
 }
 
+// NewTranslations make a new instace
 func NewTranslations() *Translations {
-	return &Translations{currentDomain: DefaultDomain, trMap: make(map[string]*Translation)}
+	return &Translations{
+		locale:        locale.GetDefault(),
+		currentDomain: DefaultDomain,
+		trMap:         make(map[string]*Translation)}
 }
 
-func (ts *Translations) SetUserLang(lang string) {
-	ts.userLang = lang
+// SetLocale set locale to ll_CC form
+func (ts *Translations) SetLocale(lang string) {
+	if lang == "" {
+		lang = locale.GetDefault()
+	}
+	ts.locale = locale.Normalize(lang)
 }
-func (ts *Translations) UserLang() string {
-	return ts.userLang
+
+// Locale get locale
+func (ts *Translations) Locale() string {
+	return ts.locale
+}
+
+// NewLocale return a new instance of locale
+func (ts *Translations) NewLocale(lang string) *Translations {
+	result := ts.copy()
+	result.locale = lang
+	return result
+}
+
+// NewDomain return a new instance of domain
+func (ts *Translations) NewDomain(domain string) *Translations {
+	result := ts.copy()
+	result.currentDomain = domain
+	return result
+}
+
+func (ts *Translations) copy() *Translations {
+	result := &Translations{
+		locale:        ts.locale,
+		currentDomain: ts.currentDomain,
+		trMap:         make(map[string]*Translation),
+	}
+	for domain, tr := range ts.trMap {
+		result.trMap[domain] = tr
+	}
+	return result
 }
 
 // Bind search .po/.mo file in path, and bind the result with domain
 func (ts *Translations) Bind(domain, path string) {
 	tr := NewTranslation(domain)
-	tr.Bind(path)
+	tr.Load(path)
 	if len(tr.Files) > 0 {
 		ts.trMap[domain] = tr
 	}
@@ -49,6 +86,7 @@ func (ts *Translations) setDomain(domain string) string {
 	return domain
 }
 
+// SupportLangs return all supported languages
 func (ts *Translations) SupportLangs(domain string) (langs []string) {
 	if tr, ok := ts.trMap[domain]; ok {
 		langs = append(langs, tr.Langs...)
@@ -56,16 +94,21 @@ func (ts *Translations) SupportLangs(domain string) (langs []string) {
 	return
 }
 
+// Add add a domain
 func (ts *Translations) Add(tr *Translation) {
 	if ts.trMap == nil {
 		ts.trMap = make(map[string]*Translation)
 	}
 	ts.trMap[tr.Domain] = tr
 }
+
+// Get get Translation of domain
 func (ts *Translations) Get(domain string) (*Translation, bool) {
 	tr, ok := ts.trMap[domain]
 	return tr, ok
 }
+
+// GetOrNoop if no such domain, return a noop Translation
 func (ts *Translations) GetOrNoop(domain string) *Translation {
 	tr, ok := ts.Get(domain)
 	if !ok {
@@ -73,6 +116,77 @@ func (ts *Translations) GetOrNoop(domain string) *Translation {
 	}
 	return tr
 }
+
+// #region gettext
+
+func (ts *Translations) T(msgID string, args ...interface{}) string {
+	return ts.DLT(ts.currentDomain, ts.locale, msgID, args...)
+}
+func (ts *Translations) N(msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return ts.DLN64(ts.currentDomain, ts.locale, msgID, msgIDPlural, int64(n), args...)
+}
+func (ts *Translations) N64(msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return ts.DLN64(ts.currentDomain, ts.locale, msgID, msgIDPlural, n, args...)
+}
+func (ts *Translations) X(msgCtxt, msgID string, args ...interface{}) string {
+	return ts.DLX(ts.currentDomain, ts.locale, msgCtxt, msgID, args...)
+}
+func (ts *Translations) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return ts.DLXN64(ts.currentDomain, ts.locale, msgCtxt, msgID, msgIDPlural, int64(n), args...)
+}
+func (ts *Translations) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return ts.DLXN64(ts.currentDomain, ts.locale, msgCtxt, msgID, msgIDPlural, n, args...)
+}
+
+// #endregion gettext
+
+// #region dgettext
+
+func (ts *Translations) DT(domain, msgID string, args ...interface{}) string {
+	return ts.DLT(domain, ts.locale, msgID, args...)
+}
+func (ts *Translations) DN(domain, msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return ts.DLN64(domain, ts.locale, msgID, msgIDPlural, int64(n), args...)
+}
+func (ts *Translations) DN64(domain, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return ts.DLN64(domain, ts.locale, msgID, msgIDPlural, n, args...)
+}
+func (ts *Translations) DX(domain, msgCtxt, msgID string, args ...interface{}) string {
+	return ts.DLX(domain, ts.locale, msgCtxt, msgID, args...)
+}
+func (ts *Translations) DXN(domain, msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return ts.DLXN64(domain, ts.locale, msgCtxt, msgID, msgIDPlural, int64(n), args...)
+}
+func (ts *Translations) DXN64(domain, msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return ts.DLXN64(domain, ts.locale, msgCtxt, msgID, msgIDPlural, n, args...)
+}
+
+// #endregion dgettext
+
+// #region locale
+
+func (ts *Translations) LT(lang, msgID string, args ...interface{}) string {
+	return ts.DLT(ts.currentDomain, lang, msgID, args...)
+}
+func (ts *Translations) LN(lang, msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return ts.DLN64(ts.currentDomain, lang, msgID, msgIDPlural, int64(n), args...)
+}
+func (ts *Translations) LN64(lang, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return ts.DLN64(ts.currentDomain, lang, msgID, msgIDPlural, n, args...)
+}
+func (ts *Translations) LX(lang, msgCtxt, msgID string, args ...interface{}) string {
+	return ts.DLX(ts.currentDomain, lang, msgCtxt, msgID, args...)
+}
+func (ts *Translations) LXN(lang, msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
+	return ts.DLXN64(ts.currentDomain, lang, msgCtxt, msgID, msgIDPlural, int64(n), args...)
+}
+func (ts *Translations) LXN64(lang, msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	return ts.DLXN64(ts.currentDomain, lang, msgCtxt, msgID, msgIDPlural, n, args...)
+}
+
+// #endregion locale
+
+// #region domain+locale
 
 func (ts *Translations) DLT(domain, lang, msgID string, args ...interface{}) string {
 	tr := ts.GetOrNoop(domain)
@@ -98,6 +212,8 @@ func (ts *Translations) DLXN64(domain, lang, msgCtxt, msgID, msgIDPlural string,
 	tr := ts.GetOrNoop(domain)
 	return tr.LXN64(lang, msgCtxt, msgID, msgIDPlural, n, args...)
 }
+
+// #endregion domain+locale
 
 // Translation holds a map of lang to po/mo file
 type Translation struct {
@@ -137,7 +253,8 @@ func (tr *Translation) AddOrReplace(poFile File) {
 	tr.Files[lang] = poFile
 }
 
-func (tr *Translation) Bind(path string) {
+// Load load translation from path
+func (tr *Translation) Load(path string) {
 	of, err := os.Open(path)
 	if err != nil {
 		return
@@ -152,12 +269,14 @@ func (tr *Translation) Bind(path string) {
 			return
 		}
 		for _, v := range sub {
-			tr.Bind(filepath.Join(path, v.Name()))
+			tr.Load(filepath.Join(path, v.Name()))
 		}
 	} else {
 		tr.AddFile(of)
 	}
 }
+
+// AddFile add a translation to this domain
 func (tr *Translation) AddFile(file *os.File) {
 	if strings.HasSuffix(file.Name(), ".po") {
 		b, err := io.ReadAll(file)
@@ -210,7 +329,7 @@ func (tr *Translation) LXN(lang, msgCtxt, msgID, msgIDPlural string, n int, args
 func (tr *Translation) LXN64(lang, msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
 	file, ok := tr.Files[lang]
 	if !ok {
-		return f.DefaultPlural(msgID, msgIDPlural, n)
+		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	return file.XN64(msgCtxt, msgID, msgIDPlural, n, args...)
 }

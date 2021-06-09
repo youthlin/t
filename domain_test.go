@@ -11,7 +11,7 @@ func TestDT(testT *testing.T) {
 	Convey("dgettext", testT, func() {
 		domain := "test"
 		t.BindTextDomain(domain, "testdata")
-		t.SetUserLang("zh_CN")
+		t.SetLocale("zh_CN")
 		ctxt, msgID, plural := t.Noop.XN("Project|", "Open One", "Open %d")
 		So(t.DT(domain, "Hello, World"), ShouldEqual, "你好，世界")
 		So(t.DN64(domain, "One apple", "%d apples", 1, 1), ShouldEqual, "1 个苹果")

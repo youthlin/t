@@ -26,6 +26,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/youthlin/t/f"
+	"github.com/youthlin/t/locale"
 	"github.com/youthlin/t/plurals"
 )
 
@@ -75,12 +76,14 @@ func newEmptyFile() *File {
 // Lang 返回译文的语言
 func (po *File) Lang() string {
 	if po.lang == "" {
-		po.lang, _ = po.GetHeader(HeaderLanguage)
+		lang, _ := po.GetHeader(HeaderLanguage)
+		po.SetLang(lang)
 	}
 	return po.lang
 }
+
 func (po *File) SetLang(lang string) {
-	po.lang = lang
+	po.lang = locale.Normalize(lang)
 }
 
 // T gettext 直接获取翻译内容，如果没有翻译，返回原始内容
@@ -114,7 +117,7 @@ func (po *File) N64(msgID, msgIDPlural string, n int64, args ...interface{}) str
 // X pgettext 带上下文翻译，用于区分同一个 msgID 在不同上下文的不同含义
 func (po *File) X(msgCtxt, msgID string, args ...interface{}) string {
 	msg, ok := po.messages[key(msgCtxt, msgID)]
-	if !ok {
+	if !ok || msg.msgStr == "" {
 		return f.Format(msgID, args...)
 	}
 	return f.Format(msg.msgStr, args...)
@@ -138,7 +141,7 @@ func (po *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interf
 	}
 	// 看 n 对应第几种复数
 	index := pluralFunc(n)
-	if index < 0 || index >= int(totalForms) || index > len(msg.msgStrN) {
+	if index < 0 || index >= int(totalForms) || index > len(msg.msgStrN) || msg.msgStrN[index] == "" {
 		// 超出范围
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}

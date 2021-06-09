@@ -1,12 +1,17 @@
 package f_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/youthlin/t/f"
 )
 
 func TestFormat(t *testing.T) {
+	got := fmt.Sprintf("%d 个苹果%[2]s", 1, "")
+	if got != "1 个苹果" {
+		t.Errorf("unexpected: %v", got)
+	}
 	type args struct {
 		format string
 		args   []interface{}
@@ -25,6 +30,8 @@ func TestFormat(t *testing.T) {
 		{"args-too-few-1", args{"%s have %[1]d apples", []interface{}{1}}, "%!s(int=1) have 1 apples"},
 		{"args-too-few-2", args{"%s have %d apples", []interface{}{"Tom"}}, "Tom have %!d(string=) apples"},
 		{"position-index", args{"%[2]s have %[1]d apples", []interface{}{2, "Tom"}}, "Tom have 2 apples"},
+
+		{"", args{"%d 个苹果", []interface{}{1}}, "1 个苹果"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

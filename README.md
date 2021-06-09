@@ -10,25 +10,50 @@ go get -u github.com/youthlin/t
 
 ## Usage 使用
 ```go
-	path := "path/to/filename.po" // .po, .mo file
-	path = "path/to/po_mo/dir"    // or dir
-	// 1 bind domain 绑定翻译文件
-	t.BindTextDomain("my-domain", path)
-	// 2 set current domain 设置使用的文本域
-	t.TextDomain("my-domain")
-	// 3 set user language 设置用户语言(需要和翻译文件对应)
-	t.SetUserLang("zh_CN")
-	// 4 use the gettext api 使用 gettext 翻译接口
-	fmt.Println(t.T("Hello, world"))
-	fmt.Println(t.T("Hello, %v", "Tom"))
-	fmt.Println(t.N("One apple", "%d apples", 1)) // One apple
-	fmt.Println(t.N("One apple", "%d apples", 2)) // %d apples
-	// args... supported, used to format string
-	// 支持传入 args... 参数用于格式化输出
-	fmt.Println(t.N("One apple", "%d apples", 2, 2)) // 2 apples
-	t.X("msg_context_text", "msg_id")
-	t.X("msg_context_text", "msg_id")
-	t.XN("msg_context_text", "msg_id", "msg_plural", n)
+path := "path/to/filename.po" // .po, .mo file
+path = "path/to/po_mo/dir"    // or dir
+// 1 bind domain 绑定翻译文件
+t.BindTextDomain("my-domain", path)
+// 2 set current domain 设置使用的文本域
+t.TextDomain("my-domain")
+// 3 set user language 设置用户语言
+// t.SetLocale("zh_CN")
+t.SetLocale("") // empty to use system default
+// 4 use the gettext api 使用 gettext 翻译接口
+fmt.Println(t.T("Hello, world"))
+fmt.Println(t.T("Hello, %v", "Tom"))
+fmt.Println(t.N("One apple", "%d apples", 1)) // One apple
+fmt.Println(t.N("One apple", "%d apples", 2)) // %d apples
+// args... supported, used to format string
+// 支持传入 args... 参数用于格式化输出
+fmt.Println(t.N("One apple", "%d apples", 2, 2)) // 2 apples
+t.X("msg_context_text", "msg_id")
+t.X("msg_context_text", "msg_id")
+t.XN("msg_context_text", "msg_id", "msg_plural", n)
+```
+
+## API
+```go
+T(msgID, args...)
+N(msgID, msgIDPlural, n, args...) // and N64
+X(msgCTxt, msgID, args...)
+XN(msgCTxt, msgID, msgIDPlural, n, args...) // and XN64
+
+// T:  gettext
+// N:  ngettext
+// X:  pgettext
+// XN: npgettext
+// D:  domain
+// L:  locale(language)
+
+DT(domain, msgID, args...)
+// and DN, DX, DXN, DN64, DXN64
+
+LT(lang, msgID, args...)
+// and LT, LX, LXN, LN64, LXN64
+
+DLT(domain, lang, msgID, args...)
+// and DLN, DLX, DLXN, DLN64, DLXN64
 ```
 
 ## Domain 文本域
@@ -45,6 +70,10 @@ t.T("msg_id")           // use domain1
 t.DT(domain2, "msg_id") // use domain2
 
 t.DT("unknown-domain", "msg_id") // return "msg_id" directly
+
+// or new domain
+d := t.NewDomain(domain1)
+d.T("msg_id")   // use domain1
 ```
 
 ## Language 指定语言
@@ -76,13 +105,15 @@ matchedTag, index, confidence := matcher.Match(userAccept...)
 // 这里 confidence 是指匹配度，可以根据你的实际需求决定是否使用匹配的语言。
 // 如服务器支持 英文、简体中文，如果用户是繁体中文，那匹配度就不是 Exact，
 // 这时根据实际需求决定是使用英文，还是简体中文。
-
 userLang := langs[index]
 t.LT(userLang, "msg_id")
 
+// or NewLocale
+l := t.NewLocale("zh_CN")
+l.T("msg_id")
+
 // with domain, language 同时指定文本域、用户语言
 t.DLT(domain, userLang, "msg_id")
-
 ```
 
 ## How to extract string 提取翻译文本
@@ -98,10 +129,11 @@ t.DLT(domain, userLang, "msg_id")
 ```
 
 ## Todo 待办
-[ ] mo file 支持 mo 二进制文件  
-[ ] extract from html templates 从模板文件中提取  
+- [ ] mo file 支持 mo 二进制文件  
+- [ ] extract from html templates 从模板文件中提取  
 
 ## Links 链接
 - https://www.gnu.org/software/gettext/manual/html_node/index.html
 - https://github.com/search?l=Go&q=gettext&type=Repositories
 - https://github.com/antlr/antlr4/
+
