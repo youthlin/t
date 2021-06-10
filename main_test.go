@@ -75,7 +75,7 @@ func TestN(testT *testing.T) {
 	// 		}
 	// 	})
 	// }
-	t.BindDefaultDomain("testdata")
+	t.BindDefaultDomain("testdata/zh_CN.mo")
 	t.SetLocale("zh_CN")
 	t.TextDomain("")
 	for _, tt := range tests {
@@ -97,7 +97,7 @@ func TestX(testT *testing.T) {
 		// So(t.XN("File|", "Open One", "Open %d", 1), ShouldEqual, "Open One")
 		// So(t.XN("Project|", "Open One", "Open %d", 2), ShouldEqual, "Open %d")
 		// So(t.XN("Project|", "Open One", "Open %d", 2, 2), ShouldEqual, "Open 2")
-		t.BindDefaultDomain("testdata/zh_CN.po")
+		t.BindDefaultDomain("testdata/zh_CN.mo")
 		t.SetLocale("zh_CN")
 		ctxt, msgID := t.Noop.X("File|", "Open")
 		So(t.X(ctxt, msgID), ShouldEqual, "打开文件")

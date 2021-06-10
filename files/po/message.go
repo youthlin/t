@@ -5,18 +5,11 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/youthlin/t/files"
 )
 
-type message struct {
-	msgCTxt string
-	msgID   string
-	msgID2  string
-	msgStr  string
-	msgStrN []string
-}
-
 // readMessage read message from reader
-func readMessage(r *reader) (*message, error) {
+func readMessage(r *reader) (*files.Message, error) {
 	// 状态机的状态
 	const (
 		stateNew = iota
@@ -28,9 +21,9 @@ func readMessage(r *reader) (*message, error) {
 		stateDone
 	)
 	var (
-		state = stateNew   // 初始状态
-		msg   = &message{} // 结果
-		strN  = 0          // 复数索引
+		state = stateNew         // 初始状态
+		msg   = &files.Message{} // 结果
+		strN  = 0                // 复数索引
 	)
 	for {
 		switch state {
@@ -53,7 +46,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgCTxt = txt
+				msg.MsgCtxt = txt
 				continue
 			}
 			// read msgctxt content below msgctxt
@@ -62,7 +55,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgCTxt += txt
+				msg.MsgCtxt += txt
 				continue
 			}
 			// 不是 msgctxt 流转状态至 msgid
@@ -80,7 +73,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgID = txt
+				msg.MsgID = txt
 				continue
 			}
 			// read content below
@@ -89,7 +82,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgID += txt
+				msg.MsgID += txt
 				continue
 			}
 			// 不是 msgid 流转状态至 msgid_plural
@@ -106,7 +99,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgID2 = txt
+				msg.MsgID2 = txt
 				continue
 			}
 			// read content below
@@ -115,7 +108,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgID2 += txt
+				msg.MsgID2 += txt
 				continue
 			}
 			// 不是 msgid_plural 流转状态至 msgstr[x]
@@ -134,7 +127,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgStrN = append(msg.msgStrN, txt)
+				msg.MsgStrN = append(msg.MsgStrN, txt)
 				strN++
 				continue
 			}
@@ -144,7 +137,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgStrN[strN-1] += txt
+				msg.MsgStrN[strN-1] += txt
 				continue
 			}
 			// 不是复数，状态转移为 msgstr
@@ -161,7 +154,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgStr = txt
+				msg.MsgStr = txt
 				continue
 			}
 			// read content below
@@ -170,7 +163,7 @@ func readMessage(r *reader) (*message, error) {
 				if err != nil {
 					return nil, err
 				}
-				msg.msgStr += txt
+				msg.MsgStr += txt
 				continue
 			}
 			r.unGetLine()
@@ -179,7 +172,7 @@ func readMessage(r *reader) (*message, error) {
 			// 当前行不是这些开头 msgctx/msgid/msgid_plural/msgstr 需要报错
 			line, _ := readLine(r)
 			r.unGetLine()
-			if msg.isEmpty() {
+			if msg.IsEmpty() {
 				return nil, errors.Errorf("not valid content: %v", line)
 			} else {
 				switch {
@@ -196,23 +189,4 @@ func readMessage(r *reader) (*message, error) {
 			return msg, nil
 		}
 	}
-}
-
-func (m *message) key() string {
-	return key(m.msgCTxt, m.msgID)
-}
-
-func (m *message) isEmpty() bool {
-	return m == nil || m.msgCTxt == "" && m.msgID == "" &&
-		m.msgID2 == "" && m.msgStr == "" && len(m.msgStrN) == 0
-}
-
-func (m *message) isValid() bool {
-	if m == nil {
-		return false
-	}
-	if m.msgID == "" { // header
-		return m.msgCTxt == "" && m.msgID2 == "" && m.msgStr != "" && len(m.msgStrN) == 0
-	}
-	return m.msgStr != "" || len(m.msgStrN) != 0
 }

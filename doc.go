@@ -39,3 +39,7 @@ package t
 
 // global is a global translations instance
 var global = NewTranslations()
+
+func ResetGlobal() {
+	global = NewTranslations()
+}

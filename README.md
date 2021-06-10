@@ -129,11 +129,13 @@ t.DLT(domain, userLang, "msg_id")
 ```
 
 ## Todo 待办
-- [ ] mo file 支持 mo 二进制文件  
+- [x] mo file 支持 mo 二进制文件  
 - [ ] extract from html templates 从模板文件中提取  
 
 ## Links 链接
 - https://www.gnu.org/software/gettext/manual/html_node/index.html
 - https://github.com/search?l=Go&q=gettext&type=Repositories
 - https://github.com/antlr/antlr4/
+- https://blog.gopheracademy.com/advent-2017/parsing-with-antlr4-and-go/
+- https://xuanwo.io/2019/12/11/golang-i18n/ (中文)
 

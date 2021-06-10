@@ -2,13 +2,15 @@ package t
 
 import (
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/youthlin/t/f"
+	"github.com/youthlin/t/files/mo"
+	"github.com/youthlin/t/files/po"
 	"github.com/youthlin/t/locale"
-	"github.com/youthlin/t/po"
 )
 
 // Translations holds a map of domain to Translation
@@ -233,15 +235,16 @@ func NewTranslation(domain string, languages ...File) *Translation {
 }
 
 // Add add a po file to current Translation
-// if the language of this po file is already exist, then ignore this po file and return false
-func (tr *Translation) Add(poFile File) bool {
+// if the language is already exist, then replace it and return the previous
+func (tr *Translation) Add(poFile File) File {
 	lang := poFile.Lang()
-	if _, ok := tr.Files[lang]; ok {
-		return false
+	if pre, ok := tr.Files[lang]; ok {
+		tr.Files[lang] = poFile
+		return pre
 	}
 	tr.Files[lang] = poFile
 	tr.Langs = append(tr.Langs, lang)
-	return true
+	return nil
 }
 
 // AddOrReplace if the language of file exist, then replace
@@ -255,30 +258,28 @@ func (tr *Translation) AddOrReplace(poFile File) {
 
 // Load load translation from path
 func (tr *Translation) Load(path string) {
-	of, err := os.Open(path)
-	if err != nil {
-		return
-	}
-	fInfo, err := of.Stat()
-	if err != nil {
-		return
-	}
-	if fInfo.IsDir() {
-		sub, err := of.Readdir(0)
-		if err != nil {
-			return
+	fn := func(ext string) func(path string, d fs.DirEntry, err error) error {
+		return func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if !d.IsDir() && strings.HasSuffix(path, ext) {
+				of, err := os.Open(path)
+				if err == nil {
+					tr.AddFile(of)
+				}
+			}
+			return nil
 		}
-		for _, v := range sub {
-			tr.Load(filepath.Join(path, v.Name()))
-		}
-	} else {
-		tr.AddFile(of)
 	}
+	filepath.WalkDir(path, fn(".mo")) // 先加载 mo 文件
+	filepath.WalkDir(path, fn(".po")) // 如果有同名 po 文件，会覆盖
 }
 
 // AddFile add a translation to this domain
 func (tr *Translation) AddFile(file *os.File) {
-	if strings.HasSuffix(file.Name(), ".po") {
+	fileName := file.Name()
+	if strings.HasSuffix(fileName, ".po") {
 		b, err := io.ReadAll(file)
 		if err != nil {
 			return
@@ -288,6 +289,12 @@ func (tr *Translation) AddFile(file *os.File) {
 			return
 		}
 		tr.Add(poFile)
+	} else if strings.HasSuffix(fileName, ".mo") {
+		moFile, err := mo.Read(file)
+		if err != nil {
+			return
+		}
+		tr.Add(moFile)
 	}
 }
 
