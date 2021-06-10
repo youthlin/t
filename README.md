@@ -60,7 +60,7 @@ DLT(domain, lang, msgID, args...)
 ```go
 t.BindTextDomain(domain1, path1)
 t.BindTextDomain(domain2, path2)
-t.SetUserLang("zh_CN")
+t.SetLocale("zh_CN")
 
 t.T("msg_id")           // use default domain
 
