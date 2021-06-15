@@ -25,6 +25,7 @@ func TestFile(t *testing.T) {
 				{Name: "T"},
 				{Name: "X"},
 			},
+			fun: []string{"T", "X"},
 		})
 	})
 }
@@ -56,6 +57,7 @@ func Test_run(t *testing.T) {
 					MsgID2:  3,
 				},
 			},
+			fun:    []string{"T"},
 			output: os.Stdout,
 		})
 	})

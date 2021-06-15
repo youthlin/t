@@ -17,6 +17,7 @@ var input = flag.String("i", "", t.T("input file pattern"))
 var left = flag.String("left", "{{", t.T("left delim"))
 var right = flag.String("right", "}}", t.T("right delim"))
 var keywords = flag.String("k", "", t.T("keywords e.g.: T:1;N1,2;X:1c,2;XN:1c,2,3"))
+var fun = flag.String("f", "", t.T("function names of template"))
 var output = flag.String("o", "message.pot", t.T("output file"))
 var help = flag.Bool("h", false, t.T("show this help message"))
 var debug = flag.Bool("d", false, t.T("debug mode"))
@@ -44,6 +45,7 @@ func main() {
 		left:     *left,
 		right:    *right,
 		keywords: parseKeywords(),
+		fun:      strings.Split(*fun, ","),
 		output:   writer(),
 	})
 }
@@ -53,6 +55,7 @@ type Param struct {
 	left     string
 	right    string
 	keywords []Keyword
+	fun      []string
 	output   io.Writer
 }
 type Keyword struct {
