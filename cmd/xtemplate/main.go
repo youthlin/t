@@ -19,6 +19,8 @@ var right = flag.String("right", "}}", t.T("right delim"))
 var keywords = flag.String("k", "", t.T("keywords e.g.: T:1;N1,2;X:1c,2;XN:1c,2,3"))
 var fun = flag.String("f", "", t.T("function names of template"))
 var output = flag.String("o", "message.pot", t.T("output file"))
+var comment = flag.String("c", "\x00", t.T("extract comment"))
+
 var help = flag.Bool("h", false, t.T("show this help message"))
 var debug = flag.Bool("d", false, t.T("debug mode"))
 var version = flag.Bool("v", false, t.T("show version"))
@@ -41,22 +43,26 @@ func main() {
 	}()
 
 	run(&Param{
-		input:    *input,
-		left:     *left,
-		right:    *right,
-		keywords: parseKeywords(),
-		fun:      strings.Split(*fun, ","),
-		output:   writer(),
+		input:         *input,
+		left:          *left,
+		right:         *right,
+		keywords:      parseKeywords(),
+		fun:           strings.Split(*fun, ","),
+		needComment:   *comment != "\x00",
+		commentPrefix: *comment,
+		output:        writer(),
 	})
 }
 
 type Param struct {
-	input    string
-	left     string
-	right    string
-	keywords []Keyword
-	fun      []string
-	output   io.Writer
+	input         string
+	left          string
+	right         string
+	keywords      []Keyword
+	fun           []string
+	needComment   bool
+	commentPrefix string
+	output        io.Writer
 }
 type Keyword struct {
 	Name    string
