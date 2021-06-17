@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 rm -rf output
+mkdir output
+cp -r lang output/
 go env
 go mod tidy
 

@@ -1,0 +1,150 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: xtemplate\n"
+"POT-Creation-Date: 2021-06-17 15:38+0800\n"
+"PO-Revision-Date: 2021-06-17 15:39+0800\n"
+"Last-Translator: Lin <youthlinchen@outlook.com>\n"
+"Language-Team: https://youthlin.com\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: T;N:1,2;X:1c,2;XN:1c,2,3\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *_test.go\n"
+
+#: internal/param.go:64
+#, c-format
+msgid "invalid keywords: %s"
+msgstr "非法的关键字：%s"
+
+#: internal/param.go:91
+msgid "msg id index is not a number"
+msgstr "待翻译原文的位置应该是数字"
+
+#: internal/param.go:102
+msgid "context index is not a number: %v"
+msgstr "翻译上下文的位置应该是数字"
+
+#: internal/param.go:108 internal/param.go:114 internal/param.go:140
+#: internal/param.go:146
+msgid "msg id index is not a number: %v"
+msgstr "待翻译原文的位置应该是数字：%v"
+
+#: internal/param.go:120
+msgid "msg plural index is not a number: %v"
+msgstr "待翻译复数内容的位置应该是数字：%v"
+
+#: internal/param.go:129
+msgid "context index must end with 'c': %v"
+msgstr "翻译上下文的位置必须以 ‘c’ 结尾"
+
+#: internal/param.go:134
+msgid "msg context index is not a number: %v"
+msgstr "翻译上下文的位置应该是数字：%v"
+
+#: internal/param.go:150
+msgid "tow much keyword index"
+msgstr "关键字指示的位置太多"
+
+#: internal/param.go:163
+msgid "can not open output file"
+msgstr "无法打开输出文件"
+
+#: internal/pot.go:38
+msgid ""
+"msgid '%v' is used without plural and with plural.\n"
+"Line    =%v\n"
+"Previous=%v"
+msgstr ""
+"待翻译原文 ‘%v’ 即用于单数也用于复数。\n"
+"当前行=%v\n"
+"已扫描=%v"
+
+#: internal/run.go:24
+msgid "invalid input pattern"
+msgstr "输入文件不合法"
+
+#: internal/run.go:29
+msgid "failed to process file %v. error message: %+v"
+msgstr "处理文件 %v 失败。错误消息： %+v"
+
+#: internal/run.go:31
+msgid "failed to process file %v. error message: %v"
+msgstr "处理文件 %v 失败。错误消息： %v"
+
+#: internal/run.go:61
+msgid "error on parse file %v"
+msgstr "处理文件 %v 失败"
+
+#: internal/run.go:180
+msgid "Waringing: %+v"
+msgstr "警告：%+v"
+
+#: internal/run.go:182
+msgid "Waringing: %v"
+msgstr "警告：%v"
+
+#: main.go:19
+msgid "unexpected error: %+v\n"
+msgstr "非预期错误：%+v\n"
+
+#: main.go:27
+msgid "run error: %+v"
+msgstr "运行失败：%+v"
+
+#: main.go:29
+msgid "run error: %v"
+msgstr "运行失败：%v"
+
+#: main.go:55
+msgid "input file pattern"
+msgstr "输入文件"
+
+#: main.go:56
+msgid "left delim"
+msgstr "左分隔符"
+
+#: main.go:57
+msgid "right delim"
+msgstr "右分隔符"
+
+#: main.go:58
+msgid "keywords e.g.: gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"
+msgstr "关键字，例： gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"
+
+#: main.go:59
+msgid "function names of template"
+msgstr "模板中用到的函数名"
+
+#: main.go:60
+msgid "output file, - is stdout"
+msgstr "输出文件，- 表示标准输出"
+
+#: main.go:61
+msgid "debug mode"
+msgstr "debug 模式"
+
+#: main.go:62
+msgid "show version"
+msgstr "显示版本号"
+
+#: main.go:63
+msgid "show help message"
+msgstr "显示帮助信息"
+
+#: main.go:66
+#, c-format
+msgid ""
+"Usage of %s:\n"
+"xtemplate -i input-pattern -k keywords [-f functions] [-o output]\n"
+msgstr ""
+"%s 的用法：\n"
+"xtemplate -i 输入文件 -k 关键字 [-f 模版中函数] [-o 输出文件]\n"
+
+#~ msgid "unexpected error: %v\n"
+#~ msgstr "非预期错误：%+\n"
