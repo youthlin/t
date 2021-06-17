@@ -35,22 +35,35 @@ func (p *pot) add(msg *message) error {
 	previous, ok := p.messages[msg.key()]
 	if ok {
 		if previous.plural() != msg.plural() {
-			return errors.Errorf(t.T("msgid '%v' is used without plural and with plural."), msg.msgID)
+			return errors.Errorf(t.T("msgid '%v' is used without plural and with plural.\nLine    =%v\nPrevious=%v"),
+				msg.msgID, msg.line, previous.line)
 		}
+		previous.addLine(msg.line[0])
+	} else {
+		p.messages[msg.key()] = msg
 	}
 	return nil
 }
 
 // write write pot to Writer
-func (p *pot) write(wr io.Writer) {
-	p.writeHeader(wr)
-	p.writeMessage(wr)
+func (p *pot) write(ctx *Context, wr io.Writer) error {
+	if err := p.writeHeader(ctx, wr); err != nil {
+		return err
+	}
+	if err := p.writeMessage(wr); err != nil {
+		return err
+	}
+	return nil
 }
 
 // writeHeader write pot header
-func (p *pot) writeHeader(wr io.Writer) {
+func (p *pot) writeHeader(ctx *Context, wr io.Writer) error {
 	now := time.Now().Format("2006-01-02 15:04:05-0700")
-	wr.Write([]byte(fmt.Sprintf(`# SOME DESCRIPTIVE TITLE.
+	plural := ""
+	if p.hasPlural {
+		plural = `"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"` + "\n"
+	}
+	_, err := wr.Write([]byte(fmt.Sprintf(`# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
@@ -68,34 +81,48 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Created-By: xtemplate(https://github.com/youthlin/t/tree/main/cmd/xtemplate)\n"`, now)))
-	if p.hasPlural {
-		wr.Write([]byte(`"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"`))
-	}
+"X-Created-By: xtemplate(https://github.com/youthlin/t/tree/main/cmd/xtemplate)\n"
+%v"X-Xtemplate-Input: %v\n"
+"X-Xtemplate-Left: %v\n"
+"X-Xtemplate-Right: %v\n"
+"X-Xtemplate-Keywords: %v\n"
+"X-Xtemplate-Functions: %v\n"
+"X-Xtemplate-Output: %v\n"
+
+`, now, plural, replaceQuote(ctx.Input), replaceQuote(ctx.Left),
+		replaceQuote(ctx.Right), replaceQuote(ctx.Keyword),
+		replaceQuote(ctx.Function), replaceQuote(ctx.OutputFile))))
+	return err
+}
+
+// replaceQuote 将双引号转义
+func replaceQuote(str string) string {
+	str = fmt.Sprintf("%q", str)
+	str = str[1 : len(str)-1]
+	return str
 }
 
 // writeMessage write pot messages
-func (p *pot) writeMessage(wr io.Writer) {
+func (p *pot) writeMessage(wr io.Writer) error {
 	for _, msg := range p.messages {
-		msg.write(wr)
+		if err := msg.write(wr); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 type message struct {
-	comments []string // 提取注释
-	line     []string // 代码行号
-	msgCtxt  string   // 翻译上下文
-	msgID    string   // 原文
-	msgID2   string   // 原文复数
+	line    []string // 代码行号
+	msgCtxt string   // 翻译上下文
+	msgID   string   // 原文
+	msgID2  string   // 原文复数
 }
 
 func newMessage(line string) *message {
 	return &message{line: []string{line}}
 }
-func (m *message) addComment(cmt string) *message {
-	m.comments = append(m.comments, cmt)
-	return m
-}
+
 func (m *message) addLine(txt string) *message {
 	m.line = append(m.line, txt)
 	return m
@@ -112,6 +139,7 @@ func (m *message) setMsgPlural(txt string) *message {
 	m.msgID2 = txt
 	return m
 }
+
 func (m *message) key() string {
 	return key(m.msgCtxt, m.msgID)
 }
@@ -119,28 +147,42 @@ func (m *message) plural() bool {
 	return m.msgID2 != ""
 }
 
-func (m *message) write(wr io.Writer) {
+func (m *message) write(wr io.Writer) error {
 	if m == nil || m.msgID == "" {
-		return
-	}
-	for _, comment := range m.comments {
-		wr.Write([]byte(fmt.Sprintf("#. %v\n", comment)))
+		return nil
 	}
 	for _, line := range m.line {
-		wr.Write([]byte(fmt.Sprintf("#: %v\n", line)))
+		if _, err := wr.Write([]byte(fmt.Sprintf("#: %v\n", line))); err != nil {
+			return err
+		}
 	}
 	if m.msgCtxt != "" {
-		wr.Write([]byte(fmt.Sprintf("msgctxt %q\n", m.msgCtxt)))
+		if _, err := wr.Write([]byte(fmt.Sprintf("msgctxt %q\n", m.msgCtxt))); err != nil {
+			return err
+		}
 	}
 	if m.msgID != "" {
-		wr.Write([]byte(fmt.Sprintf("msgid %q\n", m.msgID)))
+		if _, err := wr.Write([]byte(fmt.Sprintf("msgid %q\n", m.msgID))); err != nil {
+			return err
+		}
 	}
 	if m.msgID2 == "" {
-		wr.Write([]byte(fmt.Sprintf("msgstr %q\n", "")))
+		if _, err := wr.Write([]byte(fmt.Sprintf("msgstr %q\n", ""))); err != nil {
+			return err
+		}
 	} else {
-		wr.Write([]byte(fmt.Sprintf("msgid_plural %q\n", m.msgID2)))
-		wr.Write([]byte(fmt.Sprintf("msgstr[0] %q\n", "")))
-		wr.Write([]byte(fmt.Sprintf("msgstr[1] %q\n", "")))
+		if _, err := wr.Write([]byte(fmt.Sprintf("msgid_plural %q\n", m.msgID2))); err != nil {
+			return err
+		}
+		if _, err := wr.Write([]byte(fmt.Sprintf("msgstr[0] %q\n", ""))); err != nil {
+			return err
+		}
+		if _, err := wr.Write([]byte(fmt.Sprintf("msgstr[1] %q\n", ""))); err != nil {
+			return err
+		}
 	}
-	wr.Write([]byte("\n"))
+	if _, err := wr.Write([]byte("\n")); err != nil {
+		return err
+	}
+	return nil
 }

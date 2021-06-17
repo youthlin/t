@@ -1,6 +1,11 @@
 {{- template "header" . -}}
 
-{{ .t.X "ctx" "Hello" }}
+{{ .T "Hello, World" }}
+{{ .T "Hello, World" }}
+{{ .t.X "ctx" "Hello, World" }}
+{{ .X "ctxt" "One apple" }}
+{{ .X "ctxt" "One apple" }}
+{{ .t.XN "ctxt" "One apple" "%v apples" }}
 {{ .t.N "id1"
 "id2" }}
 

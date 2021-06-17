@@ -79,11 +79,10 @@ func Test_pot_add(t *testing.T) {
 
 func Test_message_write(t *testing.T) {
 	type fields struct {
-		comments []string
-		line     []string
-		msgCtxt  string
-		msgID    string
-		msgID2   string
+		line    []string
+		msgCtxt string
+		msgID   string
+		msgID2  string
 	}
 	tests := []struct {
 		name   string
@@ -101,22 +100,42 @@ func Test_message_write(t *testing.T) {
 			strings.Join([]string{`msgctxt "ctxt"`, `msgid "msg_id"`, `msgid_plural "msg_plural"`, `msgstr[0] ""`, `msgstr[1] ""`, ``, ``}, "\n")},
 		{"line", fields{line: []string{"testdata/base.tmpl:10"}, msgID: "hello, world"},
 			strings.Join([]string{`#: testdata/base.tmpl:10`, `msgid "hello, world"`, `msgstr ""`, ``, ``}, "\n")},
-		{"comment", fields{comments: []string{"TRANSLATORS: xxx"}, msgID: "hello, world"},
-			strings.Join([]string{`#. TRANSLATORS: xxx`, `msgid "hello, world"`, `msgstr ""`, ``, ``}, "\n")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &message{
-				comments: tt.fields.comments,
-				line:     tt.fields.line,
-				msgCtxt:  tt.fields.msgCtxt,
-				msgID:    tt.fields.msgID,
-				msgID2:   tt.fields.msgID2,
+				line:    tt.fields.line,
+				msgCtxt: tt.fields.msgCtxt,
+				msgID:   tt.fields.msgID,
+				msgID2:  tt.fields.msgID2,
 			}
 			wr := &bytes.Buffer{}
 			m.write(wr)
 			if gotWr := wr.String(); gotWr != tt.wantWr {
 				t.Errorf("message.write() = %v, want %v", gotWr, tt.wantWr)
+			}
+		})
+	}
+}
+
+func Test_replaceQuote(t *testing.T) {
+	type args struct {
+		str string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"empty", args{""}, ""},
+		{"same", args{"hello"}, "hello"},
+		{"quote", args{`"`}, `\"`},
+		{"single", args{`'`}, `'`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := replaceQuote(tt.args.str); got != tt.want {
+				t.Errorf("replaceQuote() = %v, want %v", got, tt.want)
 			}
 		})
 	}

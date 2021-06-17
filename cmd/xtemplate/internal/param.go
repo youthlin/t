@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -13,19 +12,40 @@ import (
 
 // Context parameters
 type Context struct {
-	Input    string
-	Left     string
-	Right    string
-	Keywords []Keyword
-	Fun      []string
-	Output   io.Writer
-	Debug    bool
-	result   pot
+	Input      string
+	Left       string
+	Right      string
+	Keyword    string
+	Function   string
+	OutputFile string
+	Debug      bool
+	Keywords   []Keyword
+	Fun        []string
+	Output     *os.File
+	result     *pot
+}
+
+func (ctx *Context) init() error {
+	if kw, err := ParseKeywords(ctx.Keyword); err != nil {
+		return err
+	} else {
+		ctx.Keywords = kw
+	}
+	if wr, err := Writer(ctx.OutputFile); err != nil {
+		return err
+	} else {
+		ctx.Output = wr
+	}
+	if ctx.Function != "" {
+		ctx.Fun = strings.Split(ctx.Function, ",")
+	}
+	ctx.result = newPot()
+	return nil
 }
 
 // debugPrint print if is debug mode
-func (p *Context) debugPrint(format string, args ...interface{}) {
-	if p.Debug {
+func (ctx *Context) debugPrint(format string, args ...interface{}) {
+	if ctx.Debug {
 		fmt.Printf(format+"\n", args...)
 	}
 }
