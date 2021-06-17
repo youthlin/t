@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"os"
@@ -18,24 +18,27 @@ func TestGlob(t *testing.T) {
 
 func TestFile(t *testing.T) {
 	Convey("resolveOneFile", t, func() {
-		*debug = true
-		resolveOneFile("testdata/base.tmpl", &Param{
-			left: "{{", right: "}}",
-			keywords: []Keyword{
-				{Name: "T"},
-				{Name: "X"},
+		resolveOneFile("testdata/base.tmpl", &Context{
+			Left:  "{{",
+			Right: "}}",
+			Keywords: []Keyword{
+				{Name: "T", MsgID: 1},
+				{Name: "N", MsgID: 1, MsgID2: 2},
+				{Name: "X", MsgCtxt: 1, MsgID: 2},
+				{Name: "XN", MsgCtxt: 1, MsgID: 2, MsgID2: 3},
 			},
-			fun: []string{"T", "X"},
+			Fun:   []string{"T", "X"},
+			Debug: true,
 		})
 	})
 }
 func Test_run(t *testing.T) {
 	Convey("run", t, func() {
-		run(&Param{
-			input: "testdata/*",
-			left:  "{{",
-			right: "}}",
-			keywords: []Keyword{
+		Run(&Context{
+			Input: "testdata/*",
+			Left:  "{{",
+			Right: "}}",
+			Keywords: []Keyword{
 				{
 					Name:  "T",
 					MsgID: 1,
@@ -57,8 +60,8 @@ func Test_run(t *testing.T) {
 					MsgID2:  3,
 				},
 			},
-			fun:    []string{"T"},
-			output: os.Stdout,
+			Fun:    []string{"T"},
+			Output: os.Stdout,
 		})
 	})
 }

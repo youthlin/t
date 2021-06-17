@@ -10,7 +10,7 @@
     {{ "id2" | .XN "ctxt" "id" }}// Cmd | Cmd // StringNode | FieldNode=[XN], StringNode="ctxt", StringNOde="id"
     {{ .args | .XN "ctxt" "id" "id2" }}// FieldNode=[args] | FieldNode=[XN], StringNode=ctxt, id, id2
     {{ .XN "ctxt" "id" `id2` }}// FieldNode=[XN], StringNode=ctxt, id, id2
-    {{/* comment */}}
+    {{- /* comment */ -}}
     {{ T `haha` }}// IdentifierNode=T, StringNode='haha'
     {{ `arg` | X "ctxt" "id" }}// StringNode | Ident=X, StringNode=ctxt, id
     {{ call T "haha" }}// Ident=call, Ident=T, String=haha
@@ -19,7 +19,7 @@
 
     {{ $arg := .arg | T "id" }}
     {{ $arg = T "id" }}
-    {{ T ("id") }}// Ident PipeNode=()
+    {{ T ("id") }}// Ident PipeNode=() 不支持
     {{ or (T "id") (T "id") }}// Ident=or PipeNode=() PipeNode=()
 
     {{- end -}}
