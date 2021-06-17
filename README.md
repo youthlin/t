@@ -130,7 +130,7 @@ t.DLT(domain, userLang, "msg_id")
 
 ## Todo 待办
 - [x] mo file 支持 mo 二进制文件  
-- [ ] extract from html templates 从模板文件中提取  
+- [x] extract from html templates 从模板文件中提取: [xtemplate](cmd/xtemplate/)  
 
 ## Links 链接
 - https://www.gnu.org/software/gettext/manual/html_node/index.html
