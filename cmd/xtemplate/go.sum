@@ -22,8 +22,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/youthlin/t v0.0.0-20210610053651-1c247834644f h1:guLX8pCC1pG4DzR8vINwqLKS2H62Kp87d9VV2owoi7o=
-github.com/youthlin/t v0.0.0-20210610053651-1c247834644f/go.mod h1:VdjGO7UEkmkxvdkgopTTUhwsWByL/Hig9//AL2p2wSU=
+github.com/youthlin/t v0.0.1 h1:v0YK6Pt5nJWzEVyfsCUPccMqtfl4/k7ararpOf0ROD4=
+github.com/youthlin/t v0.0.1/go.mod h1:VdjGO7UEkmkxvdkgopTTUhwsWByL/Hig9//AL2p2wSU=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/multierr v1.7.0 h1:zaiO/rmgFjbmCXdSYJWQcdvOCsthmdaHfr3Gm2Kx4Ec=
