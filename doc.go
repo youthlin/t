@@ -3,7 +3,7 @@
 // C syntax, gettext: (https://www.gnu.org/software/gettext/manual/html_node/Triggering.html#Triggering)
 //
 // 	setlocale (LC_ALL, "");	// use the system locale
-//  setlocale(LC_MESSAGES, ""); // or only set LC_MESSAGES
+// 	setlocale(LC_MESSAGES, ""); // or only set LC_MESSAGES
 // 	bindtextdomain (PACKAGE, LOCALEDIR);
 // 	textdomain (PACKAGE);
 //
