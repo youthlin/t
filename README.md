@@ -14,15 +14,18 @@ go get -u github.com/youthlin/t
 ```
 
 go.mod  
-Gitee 镜像：[gitee.com/youthlin/t](gitee.com/youthlin/t)
 ```go
 require (
     github.com/youthlin/t latest
 )
-
+```
+<!--
+Gitee 镜像：[gitee.com/youthlin/t](gitee.com/youthlin/t)
+```
 // 使用 gitee 镜像
 replace github.com/youthlin/t latest => gitee.com/youthlin/t latest
 ```
+-->
 
 ## Usage 使用
 ```go
