@@ -1,7 +1,7 @@
 # t
 t: a translation util for go, inspired by GNU gettext  
 t: GNU gettext 的 Go 语言实现，Go 程序国际化工具  
-![workflow-ci](https://github.com/youthlin/t/actions/workflows/ci.yaml/badge.svg)
+[![test](https://github.com/youthlin/t/actions/workflows/test.yaml/badge.svg)](https://github.com/youthlin/t/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/youthlin/t/branch/main/graph/badge.svg?token=6RyU5nb3YT)](https://codecov.io/gh/youthlin/t)
 [![Go Report Card](https://goreportcard.com/badge/github.com/youthlin/t)](https://goreportcard.com/report/github.com/youthlin/t)
 [![Go Reference](https://pkg.go.dev/badge/github.com/youthlin/t.svg)](https://pkg.go.dev/github.com/youthlin/t)
