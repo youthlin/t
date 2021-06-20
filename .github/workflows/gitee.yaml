@@ -1,18 +1,18 @@
-# https://github.com/Yikun/hub-mirror-action
-name: 同步到 Gitee
-on: push
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source codes
-        uses: actions/checkout@v1
-      - name: sync to gitee
-        uses: Yikun/hub-mirror-action@master
-        with:
-          src: github/youthLin
-          dst: gitee/youthlin
-          dst_key: ${{ secrets.dst_key }}
-          dst_token: ${{ secrets.dst_token }}
-          static_list: 't'
-          debug: true
+# # https://github.com/Yikun/hub-mirror-action
+# name: 同步到 Gitee
+# on: push
+# jobs:
+#   run:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout source codes
+#         uses: actions/checkout@v1
+#       - name: sync to gitee
+#         uses: Yikun/hub-mirror-action@master
+#         with:
+#           src: github/youthLin
+#           dst: gitee/youthlin
+#           dst_key: ${{ secrets.dst_key }}
+#           dst_token: ${{ secrets.dst_token }}
+#           static_list: 't'
+#           debug: true
