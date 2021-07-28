@@ -1,5 +1,5 @@
 # # https://github.com/Yikun/hub-mirror-action
-# name: 同步到 Gitee
+name: 同步到 Gitee
 on: push
 jobs:
   run:
