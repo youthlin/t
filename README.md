@@ -1,6 +1,6 @@
 # t
 t: a translation util for go, inspired by GNU gettext  
-t: GNU gettext 的 Go 语言实现，Go 程序国际化工具  
+t: GNU gettext 的 Go 语言实现，Go 程序的国际化工具  
 <!-- [![sync-to-gitee](https://github.com/youthlin/t/actions/workflows/gitee.yaml/badge.svg)](https://github.com/youthlin/t/actions/workflows/gitee.yaml) -->
 [![test](https://github.com/youthlin/t/actions/workflows/test.yaml/badge.svg)](https://github.com/youthlin/t/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/youthlin/t/branch/main/graph/badge.svg?token=6RyU5nb3YT)](https://codecov.io/gh/youthlin/t)
@@ -13,26 +13,30 @@ t: GNU gettext 的 Go 语言实现，Go 程序国际化工具
 go get -u github.com/youthlin/t
 ```
 
-go.mod  
+go.mod
 ```go
 require (
     github.com/youthlin/t latest
 )
 ```
-<!--
-Gitee 镜像：[gitee.com/youthlin/t](gitee.com/youthlin/t)
+
+Gitee 镜像：[gitee.com/youthlin/gottext](gitee.com/youthlin/gottext) (gottext: go + gettext)
+> 鸣谢仓库同步工具：https://github.com/Yikun/hub-mirror-action
 ```
 // 使用 gitee 镜像
-replace github.com/youthlin/t latest => gitee.com/youthlin/t latest
+// go.mod:
+replace github.com/youthlin/t latest => gitee.com/youthlin/gottext latest
 ```
--->
+
 
 ## Usage 使用
 ```go
 path := "path/to/filename.po" // .po, .mo file
-path = "path/to/po_mo/dir"    // or dir
+path = "path/to/po_mo/dir"    // or dir.
+// (mo po 同名的话，po 后加载，会覆盖 mo 文件，因为 po 是文本文件，方便修改生效)
 // 1 bind domain 绑定翻译文件
 t.BindTextDomain("my-domain", path)
+t.BindDefaultDomain(path) // or bind to default domain
 // 2 set current domain 设置使用的文本域
 t.TextDomain("my-domain")
 // 3 set user language 设置用户语言
@@ -43,9 +47,14 @@ fmt.Println(t.T("Hello, world"))
 fmt.Println(t.T("Hello, %v", "Tom"))
 fmt.Println(t.N("One apple", "%d apples", 1)) // One apple
 fmt.Println(t.N("One apple", "%d apples", 2)) // %d apples
+// t.N(single, plural, n, args...)
+// n => used to choose single or plural
+// args => to format
 // args... supported, used to format string
 // 支持传入 args... 参数用于格式化输出
 fmt.Println(t.N("One apple", "%d apples", 2, 2)) // 2 apples
+fmt.Println(t.N("%[2]s has one apple", "%[2]s has %[1]d apples", 2, 200, "Bob"))
+// Bob has 200 apples
 t.X("msg_context_text", "msg_id")
 t.X("msg_context_text", "msg_id")
 t.XN("msg_context_text", "msg_id", "msg_plural", n)
@@ -90,8 +99,8 @@ t.DT(domain2, "msg_id") // use domain2
 
 t.DT("unknown-domain", "msg_id") // return "msg_id" directly
 
-// or new domain
-d := t.NewDomain(domain1)
+// or use another domain
+d := t.UseDomain(domain1)
 d.T("msg_id")   // use domain1
 ```
 
@@ -102,12 +111,12 @@ If you are building a web application, you may want each request use diffenrent 
 ```go
 t.BindDefaultDomain(path)
 
-// Specify a language 可以指定语言
+// a) Specify a language 可以指定语言
 t.LT("zh_CN", "msg_id")
 
-// or Judging by the browser header（Accept-Language）
-// 或者根据浏览器标头获取用户语言
-langs := t.SupportLangs(t.DefaultDomain）
+// b) every one use his own language 每个用户使用他接受的语言
+// b.1) server supports 第一步，服务器支持的语言
+langs := t.SupportLangs(t.CurrentDomain())
 // golang.org/x/text/language
 // EN: https://blog.golang.org/matchlang
 // 中文: https://learnku.com/docs/go-blog/matchlang/6525
@@ -116,9 +125,13 @@ for _, lang =range langs{
     supported = append(supported, language.Make(lang))
 }
 matcher := language.NewMatcher(supported)
+// b.2) user accept 第二步，用户接受的语言
+// Judging by the browser header（Accept-Language）
+// 根据浏览器标头获取用户语言
 // or: userAccept := []language.Tag{ language.Make("lang-code-from-cookie") }
 // 或从 cookie 中获取用户语言偏好
 userAccept, q, err :=language.ParseAcceptLanguage("zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6")
+// b.3) match 第三步，匹配出最合适的
 matchedTag, index, confidence := matcher.Match(userAccept...)
 // confidence may language.No, language.Low, language.High, language.Exact
 // 这里 confidence 是指匹配度，可以根据你的实际需求决定是否使用匹配的语言。
@@ -127,8 +140,8 @@ matchedTag, index, confidence := matcher.Match(userAccept...)
 userLang := langs[index]
 t.LT(userLang, "msg_id")
 
-// or NewLocale
-l := t.NewLocale("zh_CN")
+// or UseLocale
+l := t.UseLocale("zh_CN")
 l.T("msg_id")
 
 // with domain, language 同时指定文本域、用户语言
@@ -144,12 +157,12 @@ t.DLT(domain, userLang, "msg_id")
 # T:1;N:1,2;N64:1,2;X:2,1c;XN:2,3,1c;XN64:2,3,1c;
 # LT:2;LN:2,3;LN64:2,3;LX:3,2c;LXN:3,4,2c;LXN64:3,4,2c;
 # DLT:3;DLN:3,4;DLN64:3,4;DLX:4,3c;DLXN:4,5,3c;DLXN64:4,5,3c
-‪xgettext -C --add-comments=TRANSLATORS: --force-po ‪-kT -kN:1,2 -kX:2,1c -kXN:2,3,1c -k...  *.go
+‪xgettext -C --add-comments=TRANSLATORS: --force-po ‪-kT -kN:1,2 -kX:2,1c -kXN:2,3,1c  *.go
 ```
 
-## Todo 待办
-- [x] mo file 支持 mo 二进制文件  
-- [x] extract from html templates 从模板文件中提取: [xtemplate](cmd/xtemplate/)  
+## Done 已完成
+- [x] ✅ mo file 支持 mo 二进制文件  
+- [x] ✅ extract from html templates 从模板文件中提取: [xtemplate](cmd/xtemplate/)  
 ```bash
 go install github.com/youthlin/t/cmd/xtemplate
 ```

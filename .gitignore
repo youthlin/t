@@ -3,3 +3,4 @@ output/
 .antlr/
 *.interp
 *.tokens
+.DS_Store

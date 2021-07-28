@@ -2,7 +2,7 @@
 //
 // C syntax, gettext: (https://www.gnu.org/software/gettext/manual/html_node/Triggering.html#Triggering)
 //
-// 	setlocale (LC_ALL, "");	// use the system locale
+// 	setlocale(LC_ALL, "");	// use the system locale
 // 	setlocale(LC_MESSAGES, ""); // or only set LC_MESSAGES
 // 	bindtextdomain (PACKAGE, LOCALEDIR);
 // 	textdomain (PACKAGE);
@@ -35,7 +35,7 @@
 // 	fmt.Println(N("One apple", "%d apples", 2))      // %d apples
 // 	fmt.Println(N("One apple", "%d apples", 2, 200)) // 200 apples
 // 	fmt.Println(N("One apple", "%d apples", 1, 200)) // One apple
-package t
+package t // import "github.com/youthlin/t"
 
 // global is a global translations instance
 var global = NewTranslations()

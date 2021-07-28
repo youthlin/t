@@ -7,12 +7,13 @@ jobs:
     steps:
       - name: Checkout source codes
         uses: actions/checkout@v1
-#       - name: sync to gitee
-#         uses: Yikun/hub-mirror-action@master
-#         with:
-#           src: github/youthLin
-#           dst: gitee/youthlin
-#           dst_key: ${{ secrets.dst_key }}
-#           dst_token: ${{ secrets.dst_token }}
-#           static_list: 't'
-#           debug: true
+      - name: sync to gitee
+        uses: Yikun/hub-mirror-action@mappings
+        with:
+          src: github/youthLin
+          dst: gitee/youthlin
+          dst_key: ${{ secrets.dst_key }}
+          dst_token: ${{ secrets.dst_token }}
+          static_list: 't'
+          mappings: "t=>gottext"
+          debug: true

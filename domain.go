@@ -21,9 +21,14 @@ func TextDomain(domain string) string {
 	return global.TextDomain(domain)
 }
 
-// NewDomain return a new Translations instance which current domain is set to the specify domain
-func NewDomain(domain string) *Translations {
-	return global.NewDomain(domain)
+// UseDomain return a new Translations instance which current domain is set to the specify domain
+func UseDomain(domain string) *Translations {
+	return global.UseDomain(domain)
+}
+
+// CurrentDomain return current domain
+func CurrentDomain() string {
+	return global.CurrentDomain()
 }
 
 // DT see T. domain was bind at BindTextDomain

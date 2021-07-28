@@ -15,9 +15,9 @@ func Locale() string {
 	return global.Locale()
 }
 
-// NewLocale return a new Translations instance of locale
-func NewLocale(lang string) *Translations {
-	return global.NewLocale(lang)
+// UseLocale return a new Translations instance of locale
+func UseLocale(lang string) *Translations {
+	return global.UseLocale(lang)
 }
 
 func LT(lang, msgID string, args ...interface{}) string {

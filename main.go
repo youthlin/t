@@ -1,4 +1,4 @@
-package t
+package t // import "github.com/youthlin/t"
 
 // T mark msgID should be translated, and return tranlated msgstr.
 // If no translation of msgID, return msgID itself

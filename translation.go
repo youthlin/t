@@ -41,15 +41,20 @@ func (ts *Translations) Locale() string {
 	return ts.locale
 }
 
-// NewLocale return a new instance of locale
-func (ts *Translations) NewLocale(lang string) *Translations {
+// UseLocale return a new instance of locale
+func (ts *Translations) UseLocale(lang string) *Translations {
 	result := ts.copy()
 	result.locale = lang
 	return result
 }
 
-// NewDomain return a new instance of domain
-func (ts *Translations) NewDomain(domain string) *Translations {
+// CurrentDomain get current domain
+func (ts *Translations) CurrentDomain() string {
+	return ts.currentDomain
+}
+
+// UseDomain return a new instance of domain
+func (ts *Translations) UseDomain(domain string) *Translations {
 	result := ts.copy()
 	result.currentDomain = domain
 	return result
