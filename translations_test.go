@@ -16,7 +16,7 @@ func TestTranslation_Load(t *testing.T) {
 	Convey("Load", t, func() {
 		var tr = NewTranslation("")
 		tr.Load("testdata")
-		So(tr.Langs, ShouldResemble, []string{"zh_CN"})
+		So(tr.langs, ShouldResemble, []string{"zh_CN"})
 	})
 	Convey("FS", t, func() {
 		Convey("fs", func() {
@@ -35,6 +35,6 @@ func TestTranslation_Load(t *testing.T) {
 	Convey("LoadFS", t, func() {
 		var tr = NewTranslation("")
 		tr.LoadFS(fsys)
-		So(tr.Langs, ShouldResemble, []string{"zh_CN"})
+		So(tr.langs, ShouldResemble, []string{"zh_CN"})
 	})
 }

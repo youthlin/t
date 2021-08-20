@@ -36,14 +36,3 @@
 // 	fmt.Println(N("One apple", "%d apples", 2, 200)) // 200 apples
 // 	fmt.Println(N("One apple", "%d apples", 1, 200)) // One apple
 package t // import "github.com/youthlin/t"
-
-// global is a global translations instance
-var global = NewTranslations()
-
-func Global() *Translations {
-	return global.copy()
-}
-
-func ResetGlobal() {
-	global = NewTranslations()
-}
