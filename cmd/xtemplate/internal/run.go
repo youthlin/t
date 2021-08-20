@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template/parse"
 
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
 )
 
@@ -16,10 +16,12 @@ var noopFun = func() string { return "" }
 
 // run 运行解析任务
 func Run(ctx *Context) error {
+	ctx.debugPrint("run ctx=%+v", ctx)
 	if err := ctx.init(); err != nil {
 		return err
 	}
 	filenames, err := filepath.Glob(ctx.Input)
+	ctx.debugPrint("files=%v err=%+v", filenames, err)
 	if err != nil {
 		return errors.Wrapf(err, t.T("invalid input pattern"))
 	}

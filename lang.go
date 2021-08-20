@@ -20,6 +20,16 @@ func UseLocale(lang string) *Translations {
 	return global.UseLocale(lang)
 }
 
+// UsedLocale return display language. if no transtion available, return empty
+func UsedLocale() string {
+	return global.DomainUsedLocale(global.CurrentDomain())
+}
+
+// DomainUsedLocale return display language. if no transtion available, return empty
+func DomainUsedLocale(domain string) string {
+	return global.DomainUsedLocale(domain)
+}
+
 func LT(lang, msgID string, args ...interface{}) string {
 	return global.LT(lang, msgID, args...)
 }

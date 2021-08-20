@@ -1,10 +1,13 @@
 package plurals
 
 import (
+	"fmt"
+
 	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"github.com/pkg/errors"
-	"go.uber.org/multierr"
+	"github.com/cockroachdb/errors"
 )
+
+var ErrAntlr = fmt.Errorf("err antlr")
 
 // errorListener handler lexer/parser errors
 type errorListener struct {
@@ -29,5 +32,8 @@ func (d *errorListener) ReportContextSensitivity(recognizer antlr.Parser, dfa *a
 }
 
 func (d *errorListener) addError(err error) {
-	d.err = multierr.Append(d.err, err)
+	if d.err == nil {
+		d.err = ErrAntlr
+	}
+	d.err = errors.WithSecondaryError(d.err, err)
 }

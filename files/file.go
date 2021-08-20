@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t/locale"
 	"github.com/youthlin/t/plurals"
 )

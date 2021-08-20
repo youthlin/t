@@ -3,10 +3,9 @@ package mo
 import (
 	"encoding/binary"
 	"io"
-	"os"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t/files"
 )
 
@@ -89,7 +88,7 @@ type lenOff struct {
 
 // Read read a mo file
 // see also https://github.com/chai2010/gettext-go/blob/master/mo/file.go
-func Read(r *os.File) (*files.File, error) {
+func Read(r io.ReadSeeker) (*files.File, error) {
 	// 0 从头开始读取
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
 		return nil, errors.Wrapf(err, "%s: failed to seek file", errPrefix)

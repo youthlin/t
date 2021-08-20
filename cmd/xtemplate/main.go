@@ -11,7 +11,7 @@ import (
 )
 
 // inject when build
-var Version string = "v0.0.2"
+var Version string = "v0.0.3"
 
 func main() {
 	defer func() {

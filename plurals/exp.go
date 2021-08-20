@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t/plurals/parser"
 )
 
