@@ -1,193 +1,238 @@
 package translator
 
 import (
-	"bytes"
 	"testing"
 )
 
-func TestFile_SaveAsPo(t *testing.T) {
+func TestFile_Lang(t *testing.T) {
 	type fields struct {
-		entries []*Entry
+		entries map[string]*Entry
+		headers map[string]string
+		plural  *plural
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantW   string
-		wantErr bool
+		name   string
+		fields fields
+		want   string
 	}{
-		{"empty", fields{}, "", false},
-		{"header-only", fields{[]*Entry{
-			{
-				msgID:  "",
-				msgStr: "Project-Id-Version: MyProject\n",
-			},
-		}}, `msgid ""
-msgstr "Project-Id-Version: MyProject\n"
-
-`, false},
-		{"header-2", fields{[]*Entry{
-			{
-				msgID: "",
-				msgStr: `Project-Id-Version: MyProject
-Language: zh_CN
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Plural-Forms: nplurals=1; plural=0;
-`,
-			},
-		}}, `msgid ""
-msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
-
-`, false},
-		{"with-cmt", fields{[]*Entry{
-			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgID:    "hello",
-				msgStr:   "你好",
-			},
-		}}, `# translators comment
-#: path/to/source
-msgid "hello"
-msgstr "你好"
-
-`, false},
-		{"cmt-ctx-plural", fields{[]*Entry{
-			{
-				msgID:  "",
-				msgStr: "Project-Id-Version: MyProject\n",
-			},
-			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgCtxt:  "ctx",
-				msgID:    "one apple",
-				msgID2:   "%d apples",
-				msgStrN:  []string{"%d 个苹果"},
-			},
-		}}, `msgid ""
-msgstr "Project-Id-Version: MyProject\n"
-
-# translators comment
-#: path/to/source
-msgctxt "ctx"
-msgid "one apple"
-msgid_plural "%d apples"
-msgstr[0] "%d 个苹果"
-
-`, false},
+		{"empty", fields{}, ""},
+		{"header", fields{headers: map[string]string{HeaderLanguage: "zh_CN"}}, "zh_CN"},
+		{"entry", fields{entries: map[string]*Entry{
+			key("", ""): {msgStr: "Language: zh_CN"},
+		}}, "zh_CN"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := &File{
+			file := &File{
 				entries: tt.fields.entries,
+				headers: tt.fields.headers,
+				plural:  tt.fields.plural,
 			}
-			w := &bytes.Buffer{}
-			if err := f.SaveAsPo(w); (err != nil) != tt.wantErr {
-				t.Errorf("File.SaveAsPo() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if gotW := w.String(); gotW != tt.wantW {
-				t.Errorf("File.SaveAsPo() = %v, want %v", gotW, tt.wantW)
+			if got := file.Lang(); got != tt.want {
+				t.Errorf("File.Lang() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestFile_SaveAsPot(t *testing.T) {
+func TestFile_T(t *testing.T) {
 	type fields struct {
-		entries []*Entry
+		entries map[string]*Entry
+		headers map[string]string
+		plural  *plural
+	}
+	type args struct {
+		msgID string
+		args  []interface{}
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantW   string
-		wantErr bool
+		name   string
+		fields fields
+		args   args
+		want   string
 	}{
-		{"empty", fields{}, "", false},
-		{"header-2", fields{[]*Entry{
-			{
-				msgID: "",
-				msgStr: `Project-Id-Version: MyProject
-Language: zh_CN
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Plural-Forms: nplurals=1; plural=0;
-`,
+		{"empty", fields{}, args{"hello", []interface{}{}}, "hello"},
+		{"empty-args", fields{}, args{"hello %s", []interface{}{"world"}}, "hello world"},
+		{"t", fields{
+			entries: map[string]*Entry{
+				key("", "hello"): {msgStr: "你好"},
 			},
-		}}, `msgid ""
-msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
-
-`, false},
-		{"with-cmt", fields{[]*Entry{
-			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgID:    "hello",
-				msgStr:   "你好",
+		}, args{"hello", []interface{}{}}, "你好"},
+		{"t-args", fields{
+			entries: map[string]*Entry{
+				key("", "hello %s"): {msgStr: "你好 %s"},
 			},
-		}}, `# translators comment
-#: path/to/source
-msgid "hello"
-msgstr ""
-
-`, false},
-		{"cmt-ctx-plural", fields{[]*Entry{
-			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgCtxt:  "ctx",
-				msgID:    "one apple",
-				msgID2:   "%d apples",
-				msgStrN:  []string{"%d 个苹果"},
-			},
-		}}, `# translators comment
-#: path/to/source
-msgctxt "ctx"
-msgid "one apple"
-msgid_plural "%d apples"
-msgstr[0] ""
-msgstr[1] ""
-
-`, false},
-		{"header-cmt-ctx-plural", fields{[]*Entry{
-			{
-				msgID: "",
-				msgStr: `Project-Id-Version: MyProject
-Language: zh_CN
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Plural-Forms: nplurals=1; plural=0;
-`,
-			},
-			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgCtxt:  "ctx",
-				msgID:    "one apple",
-				msgID2:   "%d apples",
-				msgStrN:  []string{"%d 个苹果"},
-			},
-		}}, `msgid ""
-msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
-
-# translators comment
-#: path/to/source
-msgctxt "ctx"
-msgid "one apple"
-msgid_plural "%d apples"
-msgstr[0] ""
-msgstr[1] ""
-
-`, false},
+		}, args{"hello %s", []interface{}{"world"}}, "你好 world"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := &File{
+			file := &File{
 				entries: tt.fields.entries,
+				headers: tt.fields.headers,
+				plural:  tt.fields.plural,
 			}
-			w := &bytes.Buffer{}
-			if err := f.SaveAsPot(w); (err != nil) != tt.wantErr {
-				t.Errorf("File.SaveAsPot() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			if got := file.T(tt.args.msgID, tt.args.args...); got != tt.want {
+				t.Errorf("File.T() = %v, want %v", got, tt.want)
 			}
-			if gotW := w.String(); gotW != tt.wantW {
-				t.Errorf("File.SaveAsPot() = %v, want %v", gotW, tt.wantW)
+		})
+	}
+}
+
+func TestFile_N(t *testing.T) {
+	type fields struct {
+		entries map[string]*Entry
+		headers map[string]string
+		plural  *plural
+	}
+	type args struct {
+		msgID       string
+		msgIDPlural string
+		n           int
+		args        []interface{}
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
+	}{
+		{"empty-no-arg-single", fields{}, args{
+			"one apple",
+			"%d apples",
+			1,
+			[]interface{}{},
+		}, "one apple"},
+		{"empty-no-arg-plural", fields{}, args{
+			"one apple",
+			"%d apples",
+			2,
+			[]interface{}{},
+		}, "%d apples"},
+		{"empty-no-arg-single-args", fields{}, args{
+			"one apple",
+			"%d apples",
+			1,
+			[]interface{}{1},
+		}, "one apple"},
+		{"empty-no-arg-plural-args", fields{}, args{
+			"one apple",
+			"%d apples",
+			2,
+			[]interface{}{2},
+		}, "2 apples"},
+
+		{
+			"no-arg-no-plural-header",
+			fields{
+				entries: map[string]*Entry{
+					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+				},
+			},
+			args{
+				"one apple",
+				"%d apples",
+				1,
+				[]interface{}{},
+			},
+			"one apple",
+		},
+		{
+			"with-arg-no-plural-header",
+			fields{
+				entries: map[string]*Entry{
+					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+				},
+			},
+			args{
+				"one apple",
+				"%d apples",
+				2,
+				[]interface{}{2},
+			},
+			"2 apples",
+		},
+
+		{
+			"no-arg-single",
+			fields{
+				entries: map[string]*Entry{
+					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+				},
+				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=0;"},
+			},
+			args{
+				"one apple",
+				"%d apples",
+				1,
+				[]interface{}{},
+			},
+			"%d 个苹果",
+		},
+		{
+			"no-arg-plural",
+			fields{
+				entries: map[string]*Entry{
+					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+				},
+				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=0;"},
+			},
+			args{
+				"one apple",
+				"%d apples",
+				2,
+				[]interface{}{},
+			},
+			"%d 个苹果",
+		},
+		{
+			"with-arg",
+			fields{
+				entries: map[string]*Entry{
+					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+				},
+				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=0;"},
+			},
+			args{
+				"one apple",
+				"%d apples",
+				1,
+				[]interface{}{1},
+			},
+			"1 个苹果",
+		},
+
+		{
+			"invalid-plural",
+			fields{
+				entries: map[string]*Entry{
+					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+				},
+				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=1;"},
+			},
+			args{
+				"one apple",
+				"%d apples",
+				1,
+				[]interface{}{1},
+			},
+			"one apple",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			file := &File{
+				entries: tt.fields.entries,
+				headers: tt.fields.headers,
+				plural:  tt.fields.plural,
+			}
+			if got := file.N(tt.args.msgID, tt.args.msgIDPlural, tt.args.n, tt.args.args...); got != tt.want {
+				t.Errorf("File.N() = %v, want %v", got, tt.want)
+			}
+			if got := file.XN("", tt.args.msgID, tt.args.msgIDPlural, tt.args.n, tt.args.args...); got != tt.want {
+				t.Errorf("File.N() = %v, want %v", got, tt.want)
+			}
+			if got := file.N64(tt.args.msgID, tt.args.msgIDPlural, int64(tt.args.n), tt.args.args...); got != tt.want {
+				t.Errorf("File.N() = %v, want %v", got, tt.want)
 			}
 		})
 	}

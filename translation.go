@@ -1,15 +1,13 @@
 package t
 
 import (
-	"bytes"
 	"io"
 	"io/fs"
 	"os"
 	"strings"
 
 	"github.com/youthlin/t/f"
-	"github.com/youthlin/t/files/mo"
-	"github.com/youthlin/t/files/po"
+	"github.com/youthlin/t/translator"
 )
 
 // trNoop is a Noop-Translation 一个直接返回原文的翻译实例
@@ -36,7 +34,11 @@ func NewTranslation(domain string, translators ...Translator) *Translation {
 // if the language is already exist, then replace it and return the previous
 func (tr *Translation) Add(translator Translator) Translator {
 	lang := translator.Lang()
-	if pre, ok := tr.translators[lang]; ok {
+	pre, ok := tr.translators[lang]
+	if lang == "" {
+		return pre
+	}
+	if ok {
 		tr.translators[lang] = translator
 		return pre
 	}
@@ -108,7 +110,7 @@ func (tr *Translation) LoadFile(file fs.File) error {
 }
 
 func (tr *Translation) LoadPo(content []byte) error {
-	poFile, err := po.Parse(string(content))
+	poFile, err := translator.ReadPo(content)
 	if err != nil {
 		return err
 	}
@@ -117,7 +119,7 @@ func (tr *Translation) LoadPo(content []byte) error {
 }
 
 func (tr *Translation) LoadMo(content []byte) error {
-	moFile, err := mo.Read(bytes.NewReader(content))
+	moFile, err := translator.ReadMo(content)
 	if err != nil {
 		return err
 	}

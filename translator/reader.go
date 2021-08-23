@@ -1,4 +1,4 @@
-package po
+package translator
 
 import (
 	"io"

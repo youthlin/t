@@ -1,10 +1,10 @@
-package po
+package translator
 
 import (
-	"errors"
 	"io"
 	"testing"
 
+	"github.com/cockroachdb/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
