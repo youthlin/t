@@ -14,10 +14,11 @@ const (
 	extMo = ".mo"
 )
 
+// trNoop is a no-op Translation
 var trNoop = NewTranslation("")
 
 // Translation can provide different language translation of a domain
-// [翻译域]包含各个语言的翻译
+// tr. [翻译域]包含各个语言的翻译
 type Translation struct {
 	domain string
 	langs  map[string]Translator // key is language
@@ -47,6 +48,7 @@ func (tr *Translation) AddOrReplace(tor Translator) Translator {
 	return nil
 }
 
+// Get get the Translator of the specified lang
 func (tr *Translation) Get(lang string) (Translator, bool) {
 	tor, ok := tr.langs[lang]
 	return tor, ok

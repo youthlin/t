@@ -2,6 +2,7 @@ package t
 
 import (
 	"io/fs"
+	"sort"
 
 	"github.com/youthlin/t/locale"
 )
@@ -10,7 +11,7 @@ const DefaultDomain = "default"
 const DefaultSourceCodeLocale = "en_US"
 
 // Translations holds several translation domains
-// [翻译集]包含多个翻译，每个翻译分别属于一个文本域
+// ts. [翻译集]包含多个翻译，每个翻译分别属于一个文本域
 type Translations struct {
 	locale  string
 	domain  string
@@ -26,6 +27,22 @@ func NewTranslations() *Translations {
 		domain:           DefaultDomain,
 		domains:          make(map[string]*Translation),
 		sourceCodeLocale: DefaultSourceCodeLocale,
+	}
+}
+
+// clone clones a Translations
+func (ts *Translations) clone() *Translations {
+	return &Translations{
+		locale: ts.locale,
+		domain: ts.domain,
+		domains: func() map[string]*Translation {
+			m := make(map[string]*Translation)
+			for d, tr := range ts.domains {
+				m[d] = tr
+			}
+			return m
+		}(),
+		sourceCodeLocale: ts.sourceCodeLocale,
 	}
 }
 
@@ -69,6 +86,24 @@ func (ts *Translations) Locale() string {
 	return ts.locale
 }
 
+// Locales return all supported locales of domain 返回文本域中支持的所有语言
+func (ts *Translations) Locales() (locales []string) {
+	tr := ts.GetOrNoop(ts.domain)
+	m := make(map[string]struct{}, len(tr.langs)+1)
+	m[ts.sourceCodeLocale] = struct{}{}
+	locales = append(locales, ts.sourceCodeLocale)
+	for lang := range tr.langs {
+		lang = locale.Normalize(lang)
+		if _, ok := m[lang]; !ok {
+			m[lang] = struct{}{}
+			locales = append(locales, lang)
+		}
+	}
+	sort.Strings(locales)
+	return
+}
+
+// UsedLocale return the locale that actually used
 func (ts *Translations) UsedLocale() string {
 	tr, ok := ts.Get(ts.domain)
 	if !ok {
@@ -114,6 +149,20 @@ func (ts *Translations) GetOrNoop(domain string) *Translation {
 		return tr
 	}
 	return trNoop
+}
+
+// D return a new Translations with domain
+func (ts *Translations) D(domain string) *Translations {
+	result := ts.clone()
+	result.SetDomain(domain)
+	return result
+}
+
+// L return a new Translations with locale
+func (ts *Translations) L(locale string) *Translations {
+	result := ts.clone()
+	result.SetLocale(locale)
+	return result
 }
 
 // T is a short name of gettext

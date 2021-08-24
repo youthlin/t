@@ -6,9 +6,12 @@ import (
 
 var global = NewTranslations()
 
+// Global return the global Translations instance
 func Global() *Translations {
-	return global
+	return global.clone()
 }
+
+// SetGlobal set the global Translations instance
 func SetGlobal(g *Translations) {
 	global = g
 }
@@ -56,6 +59,12 @@ func SetSourceCodeLocale(locale string) {
 // UsedLocale return the actually used locale
 func UsedLocale() string {
 	return global.UsedLocale()
+}
+
+// Locales return all supported locales of current used domain
+// 返回当前文本域中支持的所有语言
+func Locales() []string {
+	return global.Locales()
 }
 
 // Domain return current domain

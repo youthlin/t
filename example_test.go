@@ -153,3 +153,32 @@ func Example_gettext() {
 	// 打开 1 个工程
 	// 打开 100 个工程
 }
+
+func Example_with() {
+	defer markSeq()()
+	t.Bind("main", "testdata")
+	l := t.L("zh_CN")
+	fmt.Println(l.T("Hello, World")) // Hello, World
+
+	d := t.D("main").L("zh_CN")
+	fmt.Println(d.T("Hello, World")) // 你好，世界
+	// Output:
+	// Hello, World
+	// 你好，世界
+}
+
+func Example_locales() {
+	defer markSeq()()
+	fmt.Println(t.Locales()) // [en_US] // SourceCodeLocale
+	t.Load("testdata")
+	fmt.Println(t.Locales()) // [en_US zh_CN]
+
+	t.Bind("main", "testdata")
+	fmt.Println(t.D("main").Locales())           // [en_US zh_CN]
+	fmt.Println(t.D("no-such-domain").Locales()) // [en_US]
+	// Output:
+	// [en_US]
+	// [en_US zh_CN]
+	// [en_US zh_CN]
+	// [en_US]
+}
