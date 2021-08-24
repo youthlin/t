@@ -71,7 +71,7 @@ func TestFile_T(t *testing.T) {
 				headers: tt.fields.headers,
 				plural:  tt.fields.plural,
 			}
-			if got := file.T(tt.args.msgID, tt.args.args...); got != tt.want {
+			if got := file.X("", tt.args.msgID, tt.args.args...); got != tt.want {
 				t.Errorf("File.T() = %v, want %v", got, tt.want)
 			}
 		})
@@ -225,13 +225,7 @@ func TestFile_N(t *testing.T) {
 				headers: tt.fields.headers,
 				plural:  tt.fields.plural,
 			}
-			if got := file.N(tt.args.msgID, tt.args.msgIDPlural, tt.args.n, tt.args.args...); got != tt.want {
-				t.Errorf("File.N() = %v, want %v", got, tt.want)
-			}
-			if got := file.XN("", tt.args.msgID, tt.args.msgIDPlural, tt.args.n, tt.args.args...); got != tt.want {
-				t.Errorf("File.N() = %v, want %v", got, tt.want)
-			}
-			if got := file.N64(tt.args.msgID, tt.args.msgIDPlural, int64(tt.args.n), tt.args.args...); got != tt.want {
+			if got := file.XN64("", tt.args.msgID, tt.args.msgIDPlural, int64(tt.args.n), tt.args.args...); got != tt.want {
 				t.Errorf("File.N() = %v, want %v", got, tt.want)
 			}
 		})

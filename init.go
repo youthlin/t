@@ -77,8 +77,3 @@ func HasDomain(domain string) bool {
 func Domains() []string {
 	return global.Domains()
 }
-
-// T: shor name of gettext
-func T(msgID string, args ...interface{}) string {
-	return global.T(msgID, args...)
-}

@@ -107,6 +107,7 @@ func Example_locale() {
 // Example_bindDomain 绑定到指定文本域
 func Example_bindDomain() {
 	defer markSeq()()
+	t.SetLocale("zh")
 	t.Bind("main", "testdata/zh_CN.po")
 	fmt.Println("HasDomain(main) =", t.HasDomain("main"))
 	fmt.Println("Domains =", t.Domains())
@@ -118,4 +119,37 @@ func Example_bindDomain() {
 	// Domains = [main]
 	// Hello, World
 	// 你好，世界
+}
+
+func Example_gettext() {
+	defer markSeq()()
+	t.Load("testdata")
+	t.SetLocale("zh_CN")
+	fmt.Println(t.T("Hello, World"))                                 // 你好，世界
+	fmt.Println(t.T("Hello, %s", "Tom"))                             // 你好，世界
+	fmt.Println(t.N("One apple", "%d apples", 1))                    // %d 个苹果
+	fmt.Println(t.N("One apple", "%d apples", 1, 1))                 // 1 个苹果
+	fmt.Println(t.N("One apple", "%d apples", 2))                    // %d 个苹果
+	fmt.Println(t.N("One apple", "%d apples", 2, 2))                 // 2 个苹果
+	fmt.Println(t.N64("One apple", "%d apples", 200, 200))           // 200 个苹果
+	fmt.Println(t.X("File|", "Open"))                                // 打开文件
+	fmt.Println(t.X("Project|", "Open"))                             // 打开工程
+	fmt.Println(t.XN("File|", "Open One", "Open %d", 1, 1))          // 打开 1 个文件
+	fmt.Println(t.XN("Project|", "Open One", "Open %d", 1))          // 打开 %d 个工程
+	fmt.Println(t.XN("Project|", "Open One", "Open %d", 1, 1))       // 打开 1 个工程
+	fmt.Println(t.XN64("Project|", "Open One", "Open %d", 100, 100)) // 打开 100 个工程
+	// Output:
+	// 你好，世界
+	// 你好，Tom
+	// %d 个苹果
+	// 1 个苹果
+	// %d 个苹果
+	// 2 个苹果
+	// 200 个苹果
+	// 打开文件
+	// 打开工程
+	// 打开 1 个文件
+	// 打开 %d 个工程
+	// 打开 1 个工程
+	// 打开 100 个工程
 }

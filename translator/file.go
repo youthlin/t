@@ -28,28 +28,12 @@ func (file *File) Lang() string {
 	return lang
 }
 
-func (file *File) T(msgID string, args ...interface{}) string {
-	return file.X("", msgID, args...)
-}
-
-func (file *File) N(msgID, msgIDPlural string, n int, args ...interface{}) string {
-	return file.XN64("", msgID, msgIDPlural, int64(n), args...)
-}
-
-func (file *File) N64(msgID, msgIDPlural string, n int64, args ...interface{}) string {
-	return file.XN64("", msgID, msgIDPlural, n, args...)
-}
-
 func (file *File) X(msgCtxt, msgID string, args ...interface{}) string {
 	entry, ok := file.entries[key(msgCtxt, msgID)]
 	if !ok || entry.msgStr == "" {
 		return f.Format(msgID, args...)
 	}
 	return f.Format(entry.msgStr, args...)
-}
-
-func (file *File) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
-	return file.XN64(msgCtxt, msgID, msgIDPlural, int64(n), args...)
 }
 
 func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
