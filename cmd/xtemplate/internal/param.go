@@ -70,8 +70,8 @@ func newCtx(param *Param) (*Context, error) {
 
 func (ctx *Context) Add(entry *translator.Entry) error {
 	plural := isPlural(entry)
-	k := key(entry.MsgCtxt, entry.MsgID)
-	pre, ok := ctx.entries[k]
+	key := entry.Key()
+	pre, ok := ctx.entries[key]
 	if ok {
 		if isPlural(pre) != plural {
 			return errors.Errorf(t.T("msgid '%v' is used without plural and with plural.\nLine    =%v\nPrevious=%v"),
@@ -79,7 +79,7 @@ func (ctx *Context) Add(entry *translator.Entry) error {
 		}
 		pre.MsgCmts = append(pre.MsgCmts, entry.MsgCmts...)
 	} else {
-		ctx.entries[k] = entry
+		ctx.entries[key] = entry
 		if plural {
 			ctx.hasPlural = true
 		}
