@@ -10,8 +10,8 @@ type Entry struct {
 	MsgStrN []string
 }
 
-// key 一个翻译条目的 key
-func (e *Entry) key() string {
+// Key 一个翻译条目的 Key
+func (e *Entry) Key() string {
 	return key(e.MsgCtxt, e.MsgID)
 }
 

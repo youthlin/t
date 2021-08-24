@@ -110,12 +110,14 @@ func Example_bindDomain() {
 	t.SetLocale("zh")
 	t.Bind("main", "testdata/zh_CN.po")
 	fmt.Println("HasDomain(main) =", t.HasDomain("main"))
+	fmt.Println("HasDomain(no) =", t.HasDomain("no"))
 	fmt.Println("Domains =", t.Domains())
 	fmt.Println(t.T("Hello, World"))
 	t.SetDomain("main")
 	fmt.Println(t.T("Hello, World"))
 	// Output:
 	// HasDomain(main) = true
+	// HasDomain(no) = false
 	// Domains = [main]
 	// Hello, World
 	// 你好，世界

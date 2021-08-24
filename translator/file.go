@@ -61,7 +61,7 @@ func (file *File) SortedEntry() (entries []*Entry) {
 	sort.Slice(entries, func(i, j int) bool {
 		left := entries[i]
 		right := entries[j]
-		return left.key() < right.key()
+		return left.Key() < right.Key()
 	})
 	return
 }
@@ -70,7 +70,7 @@ func (file *File) AddEntry(e *Entry) {
 	if file.entries == nil {
 		file.entries = map[string]*Entry{}
 	}
-	file.entries[e.key()] = e
+	file.entries[e.Key()] = e
 	if e.isHeader() {
 		file.initHeader()
 		file.initPlural()

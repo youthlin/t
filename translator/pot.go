@@ -6,29 +6,43 @@ import (
 	"io"
 )
 
+const (
+	msgctxt      = "msgctxt"
+	msgid        = "msgid"
+	msgid_plural = "msgid_plural"
+	msgstr       = "msgstr"
+	msgstrN      = "msgstr[%d]"
+)
+
+func writeString(buf *bytes.Buffer, key, content string) {
+	buf.WriteString(key + " ")
+	for _, line := range split(content, lineThreshold) {
+		buf.WriteString(fmt.Sprintf("%q\n", line))
+	}
+}
+
 func (f *File) SaveAsPot(w io.Writer) error {
-	var buf bytes.Buffer
+	var buf = &bytes.Buffer{}
 	for _, entry := range f.SortedEntry() {
 		for _, comment := range entry.MsgCmts {
 			buf.WriteString(comment)
 			buf.WriteString("\n")
 		}
 		if entry.MsgCtxt != "" {
-			buf.WriteString(fmt.Sprintf("msgctxt %q\n", entry.MsgCtxt))
+			writeString(buf, msgctxt, entry.MsgCtxt)
 		}
-
-		buf.WriteString(fmt.Sprintf("msgid %q\n", entry.MsgID))
+		writeString(buf, msgid, entry.MsgID)
 
 		if entry.MsgID2 == "" {
 			if entry.MsgID == "" { // header
-				buf.WriteString(fmt.Sprintf("msgstr %q\n", entry.MsgStr))
+				writeString(buf, msgstr, entry.MsgStr)
 			} else {
-				buf.WriteString(fmt.Sprintf("msgstr %q\n", ""))
+				writeString(buf, msgstr, "")
 			}
 		} else {
-			buf.WriteString(fmt.Sprintf("msgid_plural %q\n", entry.MsgID2))
-			buf.WriteString(fmt.Sprintf("msgstr[%d] %q\n", 0, ""))
-			buf.WriteString(fmt.Sprintf("msgstr[%d] %q\n", 1, ""))
+			writeString(buf, msgid_plural, entry.MsgID2)
+			writeString(buf, fmt.Sprintf(msgstrN, 0), "")
+			writeString(buf, fmt.Sprintf(msgstrN, 1), "")
 		}
 		buf.WriteString("\n")
 	}

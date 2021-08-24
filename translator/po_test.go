@@ -37,7 +37,12 @@ Plural-Forms: nplurals=1; plural=0;
 `,
 			},
 		}}, `msgid ""
-msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
+msgstr ""
+"Project-Id-Version: MyProject\n"
+"Language: zh_CN\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 `, false},
 		{"with-cmt", fields{[]*Entry{

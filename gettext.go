@@ -6,7 +6,7 @@ func D(domain string) *Translations { return global.D(domain) }
 // L return a new Translations with locale
 func L(locale string) *Translations { return global.L(locale) }
 
-// T: shor name of gettext
+// T: short name of gettext
 func T(msgID string, args ...interface{}) string {
 	return global.X("", msgID, args...)
 }

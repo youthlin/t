@@ -37,24 +37,24 @@ func ReadPo(content []byte) (*File, error) {
 }
 
 func (f *File) SaveAsPo(w io.Writer) error {
-	var buf bytes.Buffer
+	var buf = &bytes.Buffer{}
 	for _, entry := range f.SortedEntry() {
 		for _, comment := range entry.MsgCmts {
 			buf.WriteString(comment)
 			buf.WriteString("\n")
 		}
 		if entry.MsgCtxt != "" {
-			buf.WriteString(fmt.Sprintf("msgctxt %q\n", entry.MsgCtxt))
+			writeString(buf, msgctxt, entry.MsgCtxt)
 		}
-		buf.WriteString(fmt.Sprintf("msgid %q\n", entry.MsgID))
+		writeString(buf, msgid, entry.MsgID)
 		if entry.MsgID2 != "" {
-			buf.WriteString(fmt.Sprintf("msgid_plural %q\n", entry.MsgID2))
+			writeString(buf, msgid_plural, entry.MsgID2)
 		}
 		if entry.MsgStr != "" {
-			buf.WriteString(fmt.Sprintf("msgstr %q\n", entry.MsgStr))
+			writeString(buf, msgstr, entry.MsgStr)
 		}
 		for i, str := range entry.MsgStrN {
-			buf.WriteString(fmt.Sprintf("msgstr[%d] %q\n", i, str))
+			writeString(buf, fmt.Sprintf(msgstrN, i), str)
 		}
 		buf.WriteString("\n")
 	}
