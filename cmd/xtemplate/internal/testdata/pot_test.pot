@@ -5,41 +5,52 @@
 #
 #, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-16 17:41+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+msgstr "Project-Id-Version: PACKAGE VERSION\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2021-08-24 17:06:59+0800\nPO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\nLast-Translator: FULL NAME <EMAIL@ADDRESS>\nLanguage-Team: LANGUAGE <LL@li.org>\nLanguage: \nMIME-Version: 1.0\nContent-Type: text/plain; charset=CHARSET\nContent-Transfer-Encoding: 8bit\nX-Created-By: xtemplate(https://github.com/youthlin/t/tree/main/cmd/xtemplate)\nPlural-Forms: nplurals=INTEGER; plural=EXPRESSION;\nX-Xtemplate-Input: internal/testdata/*.tmpl\nX-Xtemplate-Left: {{\nX-Xtemplate-Right: }}\nX-Xtemplate-Keywords: T;X:1c,2;N:1,2;XN:1c,2,3\nX-Xtemplate-Functions: \nX-Xtemplate-Output: internal/testdata/pot_test.pot\n"
 
-#. TRANSLATORS: msg_id is message id
-#: pot_test.go:59 pot_test.go:61
-msgid "msg_id"
+#: internal/testdata/index.tmpl:4
+#, go-format
+msgid "Hello, %v"
 msgstr ""
 
-#: pot_test.go:62
-msgctxt "ctxt"
-msgid "msg_id_x"
+#: internal/testdata/base.tmpl:6
+#: internal/testdata/index.tmpl:3
+msgid "Hello, World"
 msgstr ""
 
-#: pot_test.go:63
-msgid ""
-"msg\n"
-"id"
+#: internal/testdata/base.tmpl:14
+#: internal/testdata/base.tmpl:16
+msgid "haha"
 msgstr ""
 
-#: pot_test.go:64
-msgid "msg\tid"
+#: internal/testdata/base.tmpl:20
+#: internal/testdata/base.tmpl:21
+#: internal/testdata/base.tmpl:23
+#: internal/testdata/base.tmpl:23
+msgid "id"
 msgstr ""
 
-#: pot_test.go:65
-msgid "one apple"
-msgid_plural "%v apples"
+#: internal/testdata/index.tmpl:9
+msgid "id1"
+msgid_plural "id2"
 msgstr[0] ""
 msgstr[1] ""
+
+#: internal/testdata/index.tmpl:5
+msgctxt "ctx"
+msgid "Hello, World"
+msgstr ""
+
+#: internal/testdata/index.tmpl:6
+#: internal/testdata/index.tmpl:7
+msgctxt "ctxt"
+msgid "One apple"
+msgstr ""
+
+#: internal/testdata/base.tmpl:11
+#: internal/testdata/base.tmpl:12
+msgctxt "ctxt"
+msgid "id"
+msgid_plural "id2"
+msgstr[0] ""
+msgstr[1] ""
+

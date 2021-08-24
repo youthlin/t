@@ -5,36 +5,41 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
-	"strings"
 	"text/template/parse"
 
 	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
+	"github.com/youthlin/t/translator"
 )
 
 var noopFun = func() string { return "" }
 
 // run 运行解析任务
-func Run(ctx *Context) error {
-	ctx.debugPrint("run ctx=%+v", ctx)
-	if err := ctx.init(); err != nil {
+func Run(param *Param) error {
+	param.debugPrint("run param=%+v", param)
+	ctx, err := newCtx(param)
+	if err != nil {
 		return err
 	}
-	filenames, err := filepath.Glob(ctx.Input)
-	ctx.debugPrint("files=%v err=%+v", filenames, err)
+	filenames, err := filepath.Glob(param.Input)
+	param.debugPrint("Glob files=%v err=%+v", filenames, err)
 	if err != nil {
 		return errors.Wrapf(err, t.T("invalid input pattern"))
 	}
+
 	for _, filename := range filenames {
 		if err := resolveOneFile(filename, ctx); err != nil {
-			if ctx.Debug {
+			if param.Debug {
 				printErr(t.T("failed to process file %v. error message: %+v"), filename, err)
 			} else {
 				printErr(t.T("failed to process file %v. error message: %v"), filename, err)
 			}
 		}
 	}
-	if err := ctx.result.write(ctx, ctx.Output); err != nil {
+
+	ctx.debugPrint("extract done, %d entries", len(ctx.entries))
+
+	if err := ctx.Write(); err != nil {
 		return err
 	}
 	return ctx.Output.Close()
@@ -47,20 +52,13 @@ func printErr(format string, args ...interface{}) {
 
 // resolveOneFile 处理每个文件
 func resolveOneFile(filename string, ctx *Context) error {
-	ctx.debugPrint("filename: %v", filename)
-	var funcs = make(template.FuncMap)
-	for _, k := range ctx.Fun {
-		k = strings.TrimSpace(k)
-		if k != "" {
-			funcs[k] = noopFun
-		}
-	}
+	ctx.debugPrint("resolve one file: filename=%v", filename)
 	tmpl, err := template.New("").
 		Delims(ctx.Left, ctx.Right).
-		Funcs(funcs).
+		Funcs(ctx.Functions).
 		ParseFiles(filename)
 	if err != nil {
-		return errors.Wrapf(err, t.T("error on parse file %v"), filename)
+		return errors.Wrapf(err, t.T("failed to parse file %v"), filename)
 	}
 	// 一个文件可能有多个模板
 	for _, tmpl := range tmpl.Templates() {
@@ -153,31 +151,11 @@ func filter(ctx *Context, line, name string, nameIndex int, args []parse.Node) {
 			if !argOK {
 				continue
 			}
-			msg := newMessage(line)
-			if kw.MsgCtxt > 0 {
-				txt, ok := m[kw.MsgCtxt]
-				if !ok {
-					ctx.debugPrint("  >  >  >  ID=%v missing ctxt", name)
-					continue
-				}
-				msg.setCtxt(txt)
-			}
-			txt, ok := m[kw.MsgID]
+			entry, ok := extract(ctx, line, name, kw, m)
 			if !ok {
-				ctx.debugPrint("  >  >  >  ID=%v missing msg id", name)
 				continue
 			}
-			msg.setMsgID(txt)
-			if kw.MsgID2 > 0 {
-				txt, ok := m[kw.MsgID2]
-				if !ok {
-					ctx.debugPrint("  >  >  >  ID=%v missing msg plural", name)
-					continue
-				}
-				msg.setMsgPlural(txt)
-			}
-			ctx.debugPrint("【ok】  >  >  ID=%v msg=%+v", name, msg)
-			if err := ctx.result.add(msg); err != nil {
+			if err := ctx.Add(entry); err != nil {
 				if ctx.Debug {
 					printErr(t.T("Waringing: %+v"), err)
 				} else {
@@ -186,4 +164,39 @@ func filter(ctx *Context, line, name string, nameIndex int, args []parse.Node) {
 			}
 		}
 	}
+}
+
+func extract(ctx *Context, line, name string, kw Keyword, m map[int]string) (*translator.Entry, bool) {
+	entry := new(translator.Entry)
+	entry.MsgCmts = append(entry.MsgCmts, fmt.Sprintf("#: %v", line))
+	if kw.MsgCtxt > 0 {
+		txt, ok := m[kw.MsgCtxt]
+		if !ok {
+			ctx.debugPrint("  >  >  >  ID=%v missing ctxt", name)
+			return nil, false
+		}
+		entry.MsgCtxt = txt
+	}
+	txt, ok := m[kw.MsgID]
+	if !ok {
+		ctx.debugPrint("  >  >  >  ID=%v missing msg id", name)
+		return nil, false
+
+	}
+	entry.MsgID = txt
+
+	if kw.MsgID2 > 0 {
+		txt, ok := m[kw.MsgID2]
+		if !ok {
+			ctx.debugPrint("  >  >  >  ID=%v missing msg plural", name)
+			return nil, false
+
+		}
+		entry.MsgID2 = txt
+	}
+	if isGoFormat(entry) {
+		entry.MsgCmts = append(entry.MsgCmts, "#, go-format")
+	}
+	ctx.debugPrint("【ok】  >  >  ID=%v entry=%+v", name, entry)
+	return entry, true
 }

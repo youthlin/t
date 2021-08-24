@@ -2,16 +2,18 @@ package internal
 
 import (
 	"fmt"
+	"html/template"
 	"os"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
+	"github.com/youthlin/t/translator"
 )
 
-// Context parameters
-type Context struct {
+// Param 输入参数
+type Param struct {
 	Input      string
 	Left       string
 	Right      string
@@ -19,149 +21,119 @@ type Context struct {
 	Function   string
 	OutputFile string
 	Debug      bool
-	Keywords   []Keyword
-	Fun        []string
-	Output     *os.File
-	result     *pot
-}
-
-func (ctx *Context) init() error {
-	if kw, err := ParseKeywords(ctx.Keyword); err != nil {
-		return err
-	} else {
-		ctx.Keywords = kw
-	}
-	if wr, err := Writer(ctx.OutputFile); err != nil {
-		return err
-	} else {
-		ctx.Output = wr
-	}
-	if ctx.Function != "" {
-		ctx.Fun = strings.Split(ctx.Function, ",")
-	}
-	ctx.result = newPot()
-	return nil
 }
 
 // debugPrint print if is debug mode
-func (ctx *Context) debugPrint(format string, args ...interface{}) {
-	if ctx.Debug {
+func (p *Param) debugPrint(format string, args ...interface{}) {
+	if p.Debug {
 		fmt.Printf(format+"\n", args...)
 	}
 }
 
-// Keyword gettext keyword
-type Keyword struct {
-	Name    string
-	MsgCtxt int
-	MsgID   int
-	MsgID2  int
+// Context parameters and result
+type Context struct {
+	*Param
+	Keywords  []Keyword
+	Functions template.FuncMap
+	Output    *os.File
+	hasPlural bool
+	entries   map[string]*translator.Entry
 }
 
-// parseKeywords gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
-func ParseKeywords(str string) (result []Keyword, err error) {
-	kw := strings.Split(str, ";")
-	msg := t.T("invalid keywords: %s", str)
-	for _, key := range kw {
-		// T
-		// T:1
-		// N:1,2
-		// X:1c,2
-		// XN:1c,2,3
-		nameIndex := strings.Split(key, ":")
-		if len(nameIndex) == 1 {
-			name := nameIndex[0]
-			if name == "" {
-				return nil, errors.Errorf(msg)
-			}
-			result = append(result, Keyword{Name: name, MsgID: 1})
-			continue
-		}
-		if len(nameIndex) != 2 {
-			return nil, errors.Errorf(msg)
-		}
-		k := Keyword{
-			Name: nameIndex[0],
-		}
-		index := strings.Split(nameIndex[1], ",")
-		switch len(index) {
-		case 1:
-			i, err := strconv.ParseInt(index[0], 10, 64)
-			if err != nil {
-				return nil, errors.Wrapf(err, msg+t.T("msg id index is not a number"))
-			}
-			k.MsgID = int(i)
-		case 2:
-			i1 := index[0]
-			i2 := index[1]
-			i1c := strings.HasSuffix(i1, "c")
-			if i1c {
-				c := i1[:len(i1)-1]
-				cIndex, err := strconv.ParseInt(c, 10, 64)
-				if err != nil {
-					return nil, errors.Wrapf(err, msg+t.T("context index is not a number: %v", c))
-				}
-				k.MsgCtxt = int(cIndex)
-
-				index, err := strconv.ParseInt(i2, 10, 64)
-				if err != nil {
-					return nil, errors.Wrapf(err, msg+t.T("msg id index is not a number: %v", i2))
-				}
-				k.MsgID = int(index)
-			} else {
-				index, err := strconv.ParseInt(i1, 10, 64)
-				if err != nil {
-					return nil, errors.Wrapf(err, msg+t.T("msg id index is not a number: %v", i1))
-				}
-				k.MsgID = int(index)
-
-				index, err = strconv.ParseInt(i2, 10, 64)
-				if err != nil {
-					return nil, errors.Wrapf(err, msg+t.T("msg plural index is not a number: %v", i2))
-				}
-				k.MsgID2 = int(index)
-			}
-		case 3:
-			i1 := index[0]
-			i2 := index[1]
-			i3 := index[2]
-			if !strings.HasSuffix(i1, "c") {
-				return nil, errors.Errorf(msg + t.T("context index must end with 'c': %v", i1))
-			}
-			c := i1[:len(i1)-1]
-			index, err := strconv.ParseInt(c, 10, 64)
-			if err != nil {
-				return nil, errors.Wrapf(err, msg+t.T("msg context index is not a number: %v", c))
-			}
-			k.MsgCtxt = int(index)
-
-			index, err = strconv.ParseInt(i2, 10, 64)
-			if err != nil {
-				return nil, errors.Wrapf(err, msg+t.T("msg id index is not a number: %v", i2))
-			}
-			k.MsgID = int(index)
-
-			index, err = strconv.ParseInt(i3, 10, 64)
-			if err != nil {
-				return nil, errors.Wrapf(err, msg+t.T("msg id index is not a number: %v", i3))
-			}
-			k.MsgID2 = int(index)
-		default:
-			return nil, errors.Errorf(msg + t.T("tow much keyword index"))
-		}
-		result = append(result, k)
+func newCtx(param *Param) (*Context, error) {
+	ctx := &Context{
+		Param:     param,
+		Functions: make(template.FuncMap),
+		entries:   make(map[string]*translator.Entry),
 	}
-	return
+	if kw, err := ParseKeywords(param.Keyword); err != nil {
+		return nil, err
+	} else {
+		ctx.Keywords = kw
+		for _, k := range kw {
+			ctx.Functions[k.Name] = noopFun
+		}
+	}
+	if wr, err := Writer(param.OutputFile); err != nil {
+		return nil, err
+	} else {
+		ctx.Output = wr
+	}
+	if ctx.Function != "" {
+		fun := strings.Split(ctx.Function, ",")
+		for _, name := range fun {
+			ctx.Functions[name] = noopFun
+		}
+	}
+	return ctx, nil
 }
 
-// writer is fileName is empty or - use stdout, otherwise use file
-func Writer(fileName string) (wr *os.File, err error) {
-	wr = os.Stdout
-	if fileName != "" && fileName != "-" {
-		wr, err = os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			err = errors.Wrapf(err, t.T("can not open output file"))
+func (ctx *Context) Add(entry *translator.Entry) error {
+	plural := isPlural(entry)
+	k := key(entry.MsgCtxt, entry.MsgID)
+	pre, ok := ctx.entries[k]
+	if ok {
+		if isPlural(pre) != plural {
+			return errors.Errorf(t.T("msgid '%v' is used without plural and with plural.\nLine    =%v\nPrevious=%v"),
+				entry.MsgID, entry.MsgCmts, pre.MsgCmts)
+		}
+		pre.MsgCmts = append(pre.MsgCmts, entry.MsgCmts...)
+	} else {
+		ctx.entries[k] = entry
+		if plural {
+			ctx.hasPlural = true
 		}
 	}
-	return
+	return nil
+}
+
+func (ctx *Context) Write() error {
+	pot := ctx.pot()
+	return pot.SaveAsPot(ctx.Output)
+}
+
+func (ctx *Context) pot() *translator.File {
+	pot := new(translator.File)
+	pot.AddEntry(ctx.header())
+	for _, e := range ctx.entries {
+		pot.AddEntry(e)
+	}
+	return pot
+}
+
+func (ctx *Context) header() *translator.Entry {
+	e := new(translator.Entry)
+	e.MsgCmts = []string{
+		"# SOME DESCRIPTIVE TITLE.",
+		"# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER",
+		"# This file is distributed under the same license as the PACKAGE package.",
+		"# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.",
+		"#",
+		"#, fuzzy",
+	}
+	headers := []string{
+		"Project-Id-Version: PACKAGE VERSION",
+		"Report-Msgid-Bugs-To: ",
+		fmt.Sprintf("POT-Creation-Date: %v", time.Now().Format("2006-01-02 15:04:05-0700")),
+		"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE",
+		"Last-Translator: FULL NAME <EMAIL@ADDRESS>",
+		"Language-Team: LANGUAGE <LL@li.org>",
+		"Language: ",
+		"MIME-Version: 1.0",
+		"Content-Type: text/plain; charset=CHARSET",
+		"Content-Transfer-Encoding: 8bit",
+		"X-Created-By: xtemplate(https://github.com/youthlin/t/tree/main/cmd/xtemplate)",
+	}
+	if ctx.hasPlural {
+		headers = append(headers, "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;")
+	}
+	headers = append(headers, fmt.Sprintf("X-Xtemplate-Input: %v", ctx.Input))
+	headers = append(headers, fmt.Sprintf("X-Xtemplate-Left: %v", ctx.Left))
+	headers = append(headers, fmt.Sprintf("X-Xtemplate-Right: %v", ctx.Right))
+	headers = append(headers, fmt.Sprintf("X-Xtemplate-Keywords: %v", ctx.Keyword))
+	headers = append(headers, fmt.Sprintf("X-Xtemplate-Functions: %v", ctx.Function))
+	headers = append(headers, fmt.Sprintf("X-Xtemplate-Output: %v", ctx.OutputFile))
+	headers = append(headers, "")
+	e.MsgStr = strings.Join(headers, "\n")
+	return e
 }

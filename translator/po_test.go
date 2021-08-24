@@ -43,8 +43,8 @@ msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain
 		{"with-cmt", fields{[]*Entry{
 			{
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
-				MsgID:    "hello",
-				MsgStr:   "你好",
+				MsgID:   "hello",
+				MsgStr:  "你好",
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -59,10 +59,10 @@ msgstr "你好"
 			},
 			{
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
-				MsgCtxt:  "ctx",
-				MsgID:    "one apple",
-				MsgID2:   "%d apples",
-				MsgStrN:  []string{"%d 个苹果"},
+				MsgCtxt: "ctx",
+				MsgID:   "one apple",
+				MsgID2:  "%d apples",
+				MsgStrN: []string{"%d 个苹果"},
 			},
 		}}, `msgid ""
 msgstr "Project-Id-Version: MyProject\n"
@@ -122,13 +122,13 @@ func Test_readEntry(t *testing.T) {
 
 		{"simple-cmt", args{newReader([]string{`# bla bla`, `msgstr "你好"`})}, &Entry{
 			MsgCmts: []string{"# bla bla"},
-			MsgID:    "",
-			MsgStr:   "你好",
+			MsgID:   "",
+			MsgStr:  "你好",
 		}, true},
 		{"cmt-is-entry-start", args{newReader([]string{`# bla bla`, `msgstr "你好"`, "#abc"})}, &Entry{
 			MsgCmts: []string{"# bla bla"},
-			MsgID:    "",
-			MsgStr:   "你好",
+			MsgID:   "",
+			MsgStr:  "你好",
 		}, false},
 
 		{"simple-ctxt", args{newReader([]string{`msgctxt "ctxt"`, `msgstr "你好"`})}, &Entry{
@@ -191,10 +191,10 @@ func Test_readEntry(t *testing.T) {
 			`msgid_plural "Open %d"`,
 			`msgstr[0] "打开 %d 个工程"`})}, &Entry{
 			MsgCmts: []string{"#, c-format"},
-			MsgCtxt:  "Project|",
-			MsgID:    "Open One",
-			MsgID2:   "Open %d",
-			MsgStrN:  []string{"打开 %d 个工程"},
+			MsgCtxt: "Project|",
+			MsgID:   "Open One",
+			MsgID2:  "Open %d",
+			MsgStrN: []string{"打开 %d 个工程"},
 		}, true},
 		{"case-3-invalid-entry", args{newReader([]string{
 			`#, c-format`,
@@ -204,10 +204,10 @@ func Test_readEntry(t *testing.T) {
 			`msgstr "打开"`,
 			`msgstr[0] "打开 %d 个工程"`})}, &Entry{
 			MsgCmts: []string{"#, c-format"},
-			MsgCtxt:  "Project|",
-			MsgID:    "Open One",
-			MsgID2:   "Open %d",
-			MsgStr:   "打开",
+			MsgCtxt: "Project|",
+			MsgID:   "Open One",
+			MsgID2:  "Open %d",
+			MsgStr:  "打开",
 		}, false},
 	}
 	for _, tt := range tests {
@@ -241,8 +241,8 @@ msgid "Hello, World"
 msgstr "你好，世界"`)}, &File{entries: map[string]*Entry{
 			key("", "Hello, World"): {
 				MsgCmts: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
-				MsgID:    "Hello, World",
-				MsgStr:   "你好，世界",
+				MsgID:   "Hello, World",
+				MsgStr:  "你好，世界",
 			},
 		}}, false},
 		{"two-entry", args{[]byte(`#: lang_test.go:22 lang_test.go:23 main_test.go:37
@@ -255,8 +255,8 @@ msgstr[0] "%d 个苹果"
 `)}, &File{entries: map[string]*Entry{
 			key("", "Hello, World"): {
 				MsgCmts: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
-				MsgID:    "Hello, World",
-				MsgStr:   "你好，世界",
+				MsgID:   "Hello, World",
+				MsgStr:  "你好，世界",
 			},
 			key("", "one apple"): {
 				MsgID:   "one apple",
@@ -278,8 +278,8 @@ msgstr "发布"
 `)}, &File{entries: map[string]*Entry{
 			key("", "Hello, World"): {
 				MsgCmts: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
-				MsgID:    "Hello, World",
-				MsgStr:   "你好，世界",
+				MsgID:   "Hello, World",
+				MsgStr:  "你好，世界",
 			},
 			key("", "one apple"): {
 				MsgID:   "one apple",

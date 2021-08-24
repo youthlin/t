@@ -41,8 +41,8 @@ msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain
 		{"with-cmt", fields{[]*Entry{
 			{
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
-				MsgID:    "hello",
-				MsgStr:   "你好",
+				MsgID:   "hello",
+				MsgStr:  "你好",
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -53,10 +53,10 @@ msgstr ""
 		{"cmt-ctx-plural", fields{[]*Entry{
 			{
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
-				MsgCtxt:  "ctx",
-				MsgID:    "one apple",
-				MsgID2:   "%d apples",
-				MsgStrN:  []string{"%d 个苹果"},
+				MsgCtxt: "ctx",
+				MsgID:   "one apple",
+				MsgID2:  "%d apples",
+				MsgStrN: []string{"%d 个苹果"},
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -79,10 +79,10 @@ Plural-Forms: nplurals=1; plural=0;
 			},
 			{
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
-				MsgCtxt:  "ctx",
-				MsgID:    "one apple",
-				MsgID2:   "%d apples",
-				MsgStrN:  []string{"%d 个苹果"},
+				MsgCtxt: "ctx",
+				MsgID:   "one apple",
+				MsgID2:  "%d apples",
+				MsgStrN: []string{"%d 个苹果"},
 			},
 		}}, `msgid ""
 msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"
