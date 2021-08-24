@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: xtemplate\n"
-"POT-Creation-Date: 2021-06-17 15:38+0800\n"
-"PO-Revision-Date: 2021-06-17 15:39+0800\n"
+"POT-Creation-Date: 2021-08-24 17:47+0800\n"
+"PO-Revision-Date: 2021-08-24 17:48+0800\n"
 "Last-Translator: Lin <youthlinchen@outlook.com>\n"
 "Language-Team: https://youthlin.com\n"
 "Language: zh_CN\n"
@@ -17,45 +17,46 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *_test.go\n"
 
-#: internal/param.go:64
+#: internal/keyword.go:23
 #, c-format
 msgid "invalid keywords: %s"
 msgstr "非法的关键字：%s"
 
-#: internal/param.go:91
+#: internal/keyword.go:50
 msgid "msg id index is not a number"
 msgstr "待翻译原文的位置应该是数字"
 
-#: internal/param.go:102
+#: internal/keyword.go:61
 msgid "context index is not a number: %v"
 msgstr "翻译上下文的位置应该是数字"
 
-#: internal/param.go:108 internal/param.go:114 internal/param.go:140
-#: internal/param.go:146
+#: internal/keyword.go:67 internal/keyword.go:73 internal/keyword.go:99
+#: internal/keyword.go:105
 msgid "msg id index is not a number: %v"
 msgstr "待翻译原文的位置应该是数字：%v"
 
-#: internal/param.go:120
+#: internal/keyword.go:79
 msgid "msg plural index is not a number: %v"
 msgstr "待翻译复数内容的位置应该是数字：%v"
 
-#: internal/param.go:129
+#: internal/keyword.go:88
 msgid "context index must end with 'c': %v"
 msgstr "翻译上下文的位置必须以 ‘c’ 结尾"
 
-#: internal/param.go:134
+#: internal/keyword.go:93
 msgid "msg context index is not a number: %v"
 msgstr "翻译上下文的位置应该是数字：%v"
 
-#: internal/param.go:150
+#: internal/keyword.go:109
 msgid "tow much keyword index"
 msgstr "关键字指示的位置太多"
 
-#: internal/param.go:163
-msgid "can not open output file"
-msgstr "无法打开输出文件"
+#: internal/keyword.go:122
+#, c-format
+msgid "can not open output file: %s"
+msgstr "无法打开输出文件：%s"
 
-#: internal/pot.go:38
+#: internal/param.go:77
 msgid ""
 "msgid '%v' is used without plural and with plural.\n"
 "Line    =%v\n"
@@ -65,79 +66,79 @@ msgstr ""
 "当前行=%v\n"
 "已扫描=%v"
 
-#: internal/run.go:24
+#: internal/run.go:27
 msgid "invalid input pattern"
 msgstr "输入文件不合法"
 
-#: internal/run.go:29
+#: internal/run.go:33
 msgid "failed to process file %v. error message: %+v"
 msgstr "处理文件 %v 失败。错误消息： %+v"
 
-#: internal/run.go:31
+#: internal/run.go:35
 msgid "failed to process file %v. error message: %v"
 msgstr "处理文件 %v 失败。错误消息： %v"
 
 #: internal/run.go:61
-msgid "error on parse file %v"
+msgid "failed to parse file %v"
 msgstr "处理文件 %v 失败"
 
-#: internal/run.go:180
+#: internal/run.go:160
 msgid "Waringing: %+v"
 msgstr "警告：%+v"
 
-#: internal/run.go:182
+#: internal/run.go:162
 msgid "Waringing: %v"
 msgstr "警告：%v"
 
-#: main.go:19
+#: main.go:32
 msgid "unexpected error: %+v\n"
 msgstr "非预期错误：%+v\n"
 
-#: main.go:27
+#: main.go:40
 msgid "run error: %+v"
 msgstr "运行失败：%+v"
 
-#: main.go:29
+#: main.go:42
 msgid "run error: %v"
 msgstr "运行失败：%v"
 
-#: main.go:55
+#: main.go:51
 msgid "input file pattern"
 msgstr "输入文件"
 
-#: main.go:56
+#: main.go:52
 msgid "left delim"
 msgstr "左分隔符"
 
-#: main.go:57
+#: main.go:53
 msgid "right delim"
 msgstr "右分隔符"
 
-#: main.go:58
+#: main.go:54
 msgid "keywords e.g.: gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"
 msgstr "关键字，例： gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"
 
-#: main.go:59
+#: main.go:55
 msgid "function names of template"
 msgstr "模板中用到的函数名"
 
-#: main.go:60
+#: main.go:56
 msgid "output file, - is stdout"
 msgstr "输出文件，- 表示标准输出"
 
-#: main.go:61
+#: main.go:57
 msgid "debug mode"
 msgstr "debug 模式"
 
-#: main.go:62
+#: main.go:58
 msgid "show version"
 msgstr "显示版本号"
 
-#: main.go:63
+#: main.go:59
 msgid "show help message"
 msgstr "显示帮助信息"
 
-#: main.go:66
+#: main.go:64
 #, c-format
 msgid ""
 "Usage of %s:\n"
@@ -145,6 +146,3 @@ msgid ""
 msgstr ""
 "%s 的用法：\n"
 "xtemplate -i 输入文件 -k 关键字 [-f 模版中函数] [-o 输出文件]\n"
-
-#~ msgid "unexpected error: %v\n"
-#~ msgstr "非预期错误：%+\n"
