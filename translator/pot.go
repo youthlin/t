@@ -8,25 +8,25 @@ import (
 
 func (f *File) SaveAsPot(w io.Writer) error {
 	var buf bytes.Buffer
-	for _, msg := range f.entries {
-		for _, comment := range msg.comments {
+	for _, entry := range f.SortedEntry() {
+		for _, comment := range entry.comments {
 			buf.WriteString(comment)
 			buf.WriteString("\n")
 		}
-		if msg.msgCtxt != "" {
-			buf.WriteString(fmt.Sprintf("msgctxt %q\n", msg.msgCtxt))
+		if entry.msgCtxt != "" {
+			buf.WriteString(fmt.Sprintf("msgctxt %q\n", entry.msgCtxt))
 		}
 
-		buf.WriteString(fmt.Sprintf("msgid %q\n", msg.msgID))
+		buf.WriteString(fmt.Sprintf("msgid %q\n", entry.msgID))
 
-		if msg.msgID2 == "" {
-			if msg.msgID == "" { // header
-				buf.WriteString(fmt.Sprintf("msgstr %q\n", msg.msgStr))
+		if entry.msgID2 == "" {
+			if entry.msgID == "" { // header
+				buf.WriteString(fmt.Sprintf("msgstr %q\n", entry.msgStr))
 			} else {
 				buf.WriteString(fmt.Sprintf("msgstr %q\n", ""))
 			}
 		} else {
-			buf.WriteString(fmt.Sprintf("msgid_plural %q\n", msg.msgID2))
+			buf.WriteString(fmt.Sprintf("msgid_plural %q\n", entry.msgID2))
 			buf.WriteString(fmt.Sprintf("msgstr[%d] %q\n", 0, ""))
 			buf.WriteString(fmt.Sprintf("msgstr[%d] %q\n", 1, ""))
 		}

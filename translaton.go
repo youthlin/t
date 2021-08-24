@@ -17,7 +17,7 @@ const (
 var trNoop = NewTranslation("")
 
 // Translation can provide different language translation of a domain
-// 一个翻译域，包含各个语言的翻译
+// [翻译域]包含各个语言的翻译
 type Translation struct {
 	domain string
 	langs  map[string]Translator // key is language
@@ -47,6 +47,11 @@ func (tr *Translation) AddOrReplace(tor Translator) Translator {
 	return nil
 }
 
+func (tr *Translation) Get(lang string) (Translator, bool) {
+	tor, ok := tr.langs[lang]
+	return tor, ok
+}
+
 // GetOrNoop return the Translator of the specifed language
 // 获取指定语言的翻译
 func (tr *Translation) GetOrNoop(lang string) Translator {
@@ -59,21 +64,14 @@ func (tr *Translation) GetOrNoop(lang string) Translator {
 // LoadFS load a translator from file system
 func (tr *Translation) LoadFS(f fs.FS) bool {
 	var loaded = false
-	fn := func(exts ...string) func(path string, d fs.DirEntry, err error) error {
+	fn := func(ext string) func(path string, d fs.DirEntry, err error) error {
 		return func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 			if d != nil && !d.IsDir() {
-				var shouldVisit = false
-				for _, ext := range exts {
-					if strings.HasSuffix(path, ext) {
-						shouldVisit = true
-						break
-					}
-				}
-				if shouldVisit {
-					of, err := f.Open(path)
+				if strings.HasSuffix(d.Name(), ext) { // 这里应该使用 d.Name;
+					of, err := f.Open(path) // 这里应该使用 path: file asFS 时 path=. d.Name=file name
 					if err == nil {
 						defer of.Close()
 						if err := tr.LoadFile(of); err == nil {

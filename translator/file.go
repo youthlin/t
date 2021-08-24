@@ -2,6 +2,7 @@ package translator
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/youthlin/t/f"
@@ -66,6 +67,19 @@ func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...inte
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	return f.Format(entry.msgStrN[index], args...)
+}
+
+// SortedEntry sort entry by key
+func (file *File) SortedEntry() (entries []*Entry) {
+	for _, e := range file.entries {
+		entries = append(entries, e)
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		left := entries[i]
+		right := entries[j]
+		return left.key() < right.key()
+	})
+	return
 }
 
 func (file *File) AddEntry(e *Entry) {

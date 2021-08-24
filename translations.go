@@ -7,21 +7,25 @@ import (
 )
 
 const DefaultDomain = "default"
+const DefaultSourceCodeLocale = "en_US"
 
 // Translations holds several translation domains
-// 翻译集包含多个翻译，每个翻译分别属于一个文本域
+// [翻译集]包含多个翻译，每个翻译分别属于一个文本域
 type Translations struct {
 	locale  string
 	domain  string
 	domains map[string]*Translation // key is domain
+	// sourceCodeLocale 源代码中的语言, 通常应该使用英文
+	sourceCodeLocale string
 }
 
 // NewTranslations create a new Translations 新建翻译集
 func NewTranslations() *Translations {
 	return &Translations{
-		locale:  locale.GetDefault(),
-		domain:  DefaultDomain,
-		domains: make(map[string]*Translation),
+		locale:           locale.GetDefault(),
+		domain:           DefaultDomain,
+		domains:          make(map[string]*Translation),
+		sourceCodeLocale: DefaultSourceCodeLocale,
 	}
 }
 
@@ -44,14 +48,56 @@ func (ts *Translations) SetDomain(domain string) {
 	ts.domain = domain
 }
 
+func (ts *Translations) HasDomain(domain string) bool {
+	for d := range ts.domains {
+		if d == domain {
+			return true
+		}
+	}
+	return false
+}
+
+func (ts *Translations) Domains() (domains []string) {
+	for domain := range ts.domains {
+		domains = append(domains, domain)
+	}
+	return
+}
+
 // Locale return current locale 返回当前使用的语言
 func (ts *Translations) Locale() string {
 	return ts.locale
 }
 
+func (ts *Translations) UsedLocale() string {
+	tr, ok := ts.Get(ts.domain)
+	if !ok {
+		return ts.sourceCodeLocale
+	}
+	_, ok = tr.Get(ts.locale)
+	if !ok {
+		return ts.sourceCodeLocale
+	}
+	return ts.locale
+}
+
 // SetLocale set current locale 设置要使用的语言
 func (ts *Translations) SetLocale(lang string) {
+	if lang == "" {
+		lang = locale.GetDefault()
+	} else {
+		lang = locale.Normalize(lang)
+	}
 	ts.locale = lang
+}
+
+// SourceCodeLocale 设置源代码语言
+func (ts *Translations) SourceCodeLocale() string { return ts.sourceCodeLocale }
+
+// SetSourceCodeLocale 设置源代码语言
+func (ts *Translations) SetSourceCodeLocale(lang string) {
+	lang = locale.Normalize(lang)
+	ts.sourceCodeLocale = lang
 }
 
 // Get return the Translation of the specified domain

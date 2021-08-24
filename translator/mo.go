@@ -213,10 +213,7 @@ func (f *File) SaveAsMo(w io.Writer) error {
 	writeMoHeader(ws, count)
 
 	// map 多次迭代顺序不定，先转为数组
-	var entries = make([]*Entry, 0, count)
-	for _, entry := range f.entries {
-		entries = append(entries, entry)
-	}
+	var entries = f.SortedEntry()
 
 	// pos=O. from here is O.
 	offsetID := offsetO + count*8*2 // 8=length(uint32)+offset(uint32) 2=id table + str table
