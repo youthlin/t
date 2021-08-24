@@ -18,7 +18,7 @@ func TestFile_Lang(t *testing.T) {
 		{"empty", fields{}, ""},
 		{"header", fields{headers: map[string]string{HeaderLanguage: "zh_CN"}}, "zh_CN"},
 		{"entry", fields{entries: map[string]*Entry{
-			key("", ""): {msgStr: "Language: zh_CN"},
+			key("", ""): {MsgStr: "Language: zh_CN"},
 		}}, "zh_CN"},
 	}
 	for _, tt := range tests {
@@ -55,12 +55,12 @@ func TestFile_T(t *testing.T) {
 		{"empty-args", fields{}, args{"hello %s", []interface{}{"world"}}, "hello world"},
 		{"t", fields{
 			entries: map[string]*Entry{
-				key("", "hello"): {msgStr: "你好"},
+				key("", "hello"): {MsgStr: "你好"},
 			},
 		}, args{"hello", []interface{}{}}, "你好"},
 		{"t-args", fields{
 			entries: map[string]*Entry{
-				key("", "hello %s"): {msgStr: "你好 %s"},
+				key("", "hello %s"): {MsgStr: "你好 %s"},
 			},
 		}, args{"hello %s", []interface{}{"world"}}, "你好 world"},
 	}
@@ -125,7 +125,7 @@ func TestFile_N(t *testing.T) {
 			"no-arg-no-plural-header",
 			fields{
 				entries: map[string]*Entry{
-					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+					key("", "one apple"): {MsgStrN: []string{"%d 个苹果"}},
 				},
 			},
 			args{
@@ -140,7 +140,7 @@ func TestFile_N(t *testing.T) {
 			"with-arg-no-plural-header",
 			fields{
 				entries: map[string]*Entry{
-					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+					key("", "one apple"): {MsgStrN: []string{"%d 个苹果"}},
 				},
 			},
 			args{
@@ -156,7 +156,7 @@ func TestFile_N(t *testing.T) {
 			"no-arg-single",
 			fields{
 				entries: map[string]*Entry{
-					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+					key("", "one apple"): {MsgStrN: []string{"%d 个苹果"}},
 				},
 				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=0;"},
 			},
@@ -172,7 +172,7 @@ func TestFile_N(t *testing.T) {
 			"no-arg-plural",
 			fields{
 				entries: map[string]*Entry{
-					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+					key("", "one apple"): {MsgStrN: []string{"%d 个苹果"}},
 				},
 				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=0;"},
 			},
@@ -188,7 +188,7 @@ func TestFile_N(t *testing.T) {
 			"with-arg",
 			fields{
 				entries: map[string]*Entry{
-					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+					key("", "one apple"): {MsgStrN: []string{"%d 个苹果"}},
 				},
 				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=0;"},
 			},
@@ -205,7 +205,7 @@ func TestFile_N(t *testing.T) {
 			"invalid-plural",
 			fields{
 				entries: map[string]*Entry{
-					key("", "one apple"): {msgStrN: []string{"%d 个苹果"}},
+					key("", "one apple"): {MsgStrN: []string{"%d 个苹果"}},
 				},
 				headers: map[string]string{HeaderPluralForms: "nplurals=1;plural=1;"},
 			},

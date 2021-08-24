@@ -175,18 +175,18 @@ func ReadMo(content []byte) (*File, error) {
 
 		// 5.3 as Entry
 		var entry = &Entry{
-			msgID:  string(id),
-			msgStr: string(str),
+			MsgID:  string(id),
+			MsgStr: string(str),
 		}
 		// 0x04 分割 msgCtxt 和 msgId
-		if index := strings.Index(entry.msgID, eot); index >= 0 {
-			entry.msgCtxt, entry.msgID = entry.msgID[:index], entry.msgID[index+1:]
+		if index := strings.Index(entry.MsgID, eot); index >= 0 {
+			entry.MsgCtxt, entry.MsgID = entry.MsgID[:index], entry.MsgID[index+1:]
 		}
 		// 0x00 分割 msgId 和 msgIdPlural
-		if index := strings.Index(entry.msgID, nul); index >= 0 {
-			entry.msgID, entry.msgID2 = entry.msgID[:index], entry.msgID[index+1:]
-			entry.msgStrN = strings.Split(entry.msgStr, nul)
-			entry.msgStr = ""
+		if index := strings.Index(entry.MsgID, nul); index >= 0 {
+			entry.MsgID, entry.MsgID2 = entry.MsgID[:index], entry.MsgID[index+1:]
+			entry.MsgStrN = strings.Split(entry.MsgStr, nul)
+			entry.MsgStr = ""
 		}
 		file.AddEntry(entry)
 	}
@@ -312,20 +312,20 @@ func writeMoHeader(ws io.Writer, count int) error {
 }
 
 func moMsgID(entry *Entry) string {
-	msgID := entry.msgID
-	if entry.msgCtxt != "" {
-		msgID = entry.msgCtxt + eot + msgID
+	msgID := entry.MsgID
+	if entry.MsgCtxt != "" {
+		msgID = entry.MsgCtxt + eot + msgID
 	}
-	if entry.msgID2 != "" {
-		msgID += nul + entry.msgID2
+	if entry.MsgID2 != "" {
+		msgID += nul + entry.MsgID2
 	}
 	return msgID
 }
 
 func moMsgStr(entry *Entry) string {
-	msgStr := entry.msgStr
-	if len(entry.msgStrN) > 0 {
-		msgStr = strings.Join(entry.msgStrN, nul)
+	msgStr := entry.MsgStr
+	if len(entry.MsgStrN) > 0 {
+		msgStr = strings.Join(entry.MsgStrN, nul)
 	}
 	return msgStr
 }

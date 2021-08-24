@@ -19,8 +19,8 @@ func TestFile_SaveAsPo(t *testing.T) {
 		{"empty", fields{}, "", false},
 		{"header-only", fields{[]*Entry{
 			{
-				msgID:  "",
-				msgStr: "Project-Id-Version: MyProject\n",
+				MsgID:  "",
+				MsgStr: "Project-Id-Version: MyProject\n",
 			},
 		}}, `msgid ""
 msgstr "Project-Id-Version: MyProject\n"
@@ -28,8 +28,8 @@ msgstr "Project-Id-Version: MyProject\n"
 `, false},
 		{"header-2", fields{[]*Entry{
 			{
-				msgID: "",
-				msgStr: `Project-Id-Version: MyProject
+				MsgID: "",
+				MsgStr: `Project-Id-Version: MyProject
 Language: zh_CN
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,9 +42,9 @@ msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain
 `, false},
 		{"with-cmt", fields{[]*Entry{
 			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgID:    "hello",
-				msgStr:   "你好",
+				MsgCmts: []string{"# translators comment", "#: path/to/source"},
+				MsgID:    "hello",
+				MsgStr:   "你好",
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -54,15 +54,15 @@ msgstr "你好"
 `, false},
 		{"cmt-ctx-plural", fields{[]*Entry{
 			{
-				msgID:  "",
-				msgStr: "Project-Id-Version: MyProject\n",
+				MsgID:  "",
+				MsgStr: "Project-Id-Version: MyProject\n",
 			},
 			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgCtxt:  "ctx",
-				msgID:    "one apple",
-				msgID2:   "%d apples",
-				msgStrN:  []string{"%d 个苹果"},
+				MsgCmts: []string{"# translators comment", "#: path/to/source"},
+				MsgCtxt:  "ctx",
+				MsgID:    "one apple",
+				MsgID2:   "%d apples",
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 		}}, `msgid ""
 msgstr "Project-Id-Version: MyProject\n"
@@ -107,82 +107,82 @@ func Test_readEntry(t *testing.T) {
 		{"blank", args{newReader([]string{""})}, &Entry{}, true}, // EOF
 
 		{"simple-id-str", args{newReader([]string{`msgid "hello"`, `msgstr "你好"`})}, &Entry{
-			msgID:  "hello",
-			msgStr: "你好",
+			MsgID:  "hello",
+			MsgStr: "你好",
 		}, true},
 		{"simple-id-strN", args{newReader([]string{`msgid "hello"`, `msgstr[0] "你好"`})}, &Entry{
-			msgID:   "hello",
-			msgStrN: []string{"你好"},
+			MsgID:   "hello",
+			MsgStrN: []string{"你好"},
 		}, true},
 
 		{"simple-id-str-two-entry", args{newReader([]string{`msgid "hello"`, `msgstr "你好"`, `msgid "entry 2`})}, &Entry{
-			msgID:  "hello",
-			msgStr: "你好",
+			MsgID:  "hello",
+			MsgStr: "你好",
 		}, false},
 
 		{"simple-cmt", args{newReader([]string{`# bla bla`, `msgstr "你好"`})}, &Entry{
-			comments: []string{"# bla bla"},
-			msgID:    "",
-			msgStr:   "你好",
+			MsgCmts: []string{"# bla bla"},
+			MsgID:    "",
+			MsgStr:   "你好",
 		}, true},
 		{"cmt-is-entry-start", args{newReader([]string{`# bla bla`, `msgstr "你好"`, "#abc"})}, &Entry{
-			comments: []string{"# bla bla"},
-			msgID:    "",
-			msgStr:   "你好",
+			MsgCmts: []string{"# bla bla"},
+			MsgID:    "",
+			MsgStr:   "你好",
 		}, false},
 
 		{"simple-ctxt", args{newReader([]string{`msgctxt "ctxt"`, `msgstr "你好"`})}, &Entry{
-			msgCtxt: "ctxt",
-			msgStr:  "你好",
+			MsgCtxt: "ctxt",
+			MsgStr:  "你好",
 		}, true},
 		{"unquote-ctxt", args{newReader([]string{`msgctxt ctxt`, `msgstr "你好"`})}, nil, true}, // quote err
 		{"split-ctxt", args{newReader([]string{`msgctxt "ctxt"`, `msgctxt "你好"`})}, &Entry{
-			msgCtxt: "ctxt",
+			MsgCtxt: "ctxt",
 		}, false},
 
 		{"split-msg_plural", args{newReader([]string{`msgid_plural "ctxt"`, `msgid_plural "你好"`})}, &Entry{
-			msgID2: "ctxt",
+			MsgID2: "ctxt",
 		}, false},
 		{"unquote-msg_plural", args{newReader([]string{`msgid_plural id2`, `msgid_plural "你好"`})}, nil, true},
 		{"unquote-msg_id", args{newReader([]string{`msgid id2`, `msgid_plural "你好"`})}, nil, true},
 
 		{"msg_strN", args{newReader([]string{`msgstr[0] "str0"`, `msgstr[1] "str1"`})}, &Entry{
-			msgStrN: []string{"str0", "str1"},
+			MsgStrN: []string{"str0", "str1"},
 		}, true},
 		{"split-msg_strN", args{newReader([]string{`msgstr[0] "str0"`, `msgstr "str"`})}, &Entry{
-			msgStrN: []string{"str0"},
+			MsgStrN: []string{"str0"},
 		}, false},
 
 		{"unquote-msg_strN", args{newReader([]string{`msgstr[0] str0`})}, nil, true},
 
 		{"msg_str", args{newReader([]string{`msgstr "str"`})}, &Entry{
-			msgStr: "str",
+			MsgStr: "str",
 		}, true},
 		{"msg_str", args{newReader([]string{`msgstr str`})}, nil, true},
 		{"split-msg_str", args{newReader([]string{`msgstr "str"`, `msgstr[0] "str0"`})}, &Entry{
-			msgStr: "str",
+			MsgStr: "str",
 		}, false},
 
 		{"multi-line-ctxt", args{newReader([]string{`msgctxt "line1"`, `"line2"`})}, &Entry{
-			msgCtxt: "line1line2",
+			MsgCtxt: "line1line2",
 		}, true},
 		{"multi-line-id", args{newReader([]string{`msgid "line1"`, `"line2"`})}, &Entry{
-			msgID: "line1line2",
+			MsgID: "line1line2",
 		}, true},
 		{"multi-line-id2", args{newReader([]string{`msgid_plural "line1"`, `"line2"`})}, &Entry{
-			msgID2: "line1line2",
+			MsgID2: "line1line2",
 		}, true},
 		{"multi-line-str", args{newReader([]string{`msgstr "line1"`, `"line2"`})}, &Entry{
-			msgStr: "line1line2",
+			MsgStr: "line1line2",
 		}, true},
 		{"multi-line-strN", args{newReader([]string{`msgstr[0] "line1"`, `"line2"`})}, &Entry{
-			msgStrN: []string{"line1line2"},
+			MsgStrN: []string{"line1line2"},
 		}, true},
 		{"unquote-multi-line-ctxt", args{newReader([]string{`msgctxt "line1"`, `"line2`})}, nil, true},
 		{"unexpected-multi-line", args{newReader([]string{`msgctxt "line1"`, `line2`})}, nil, true},
 
 		{"case-1", args{newReader([]string{`msgid ""`, `msgstr ""`, `"Project-Id-Version: t\n"`})}, &Entry{
-			msgStr: "Project-Id-Version: t\n",
+			MsgStr: "Project-Id-Version: t\n",
 		}, true},
 		{"case-2", args{newReader([]string{
 			`#, c-format`,
@@ -190,11 +190,11 @@ func Test_readEntry(t *testing.T) {
 			`msgid "Open One"`,
 			`msgid_plural "Open %d"`,
 			`msgstr[0] "打开 %d 个工程"`})}, &Entry{
-			comments: []string{"#, c-format"},
-			msgCtxt:  "Project|",
-			msgID:    "Open One",
-			msgID2:   "Open %d",
-			msgStrN:  []string{"打开 %d 个工程"},
+			MsgCmts: []string{"#, c-format"},
+			MsgCtxt:  "Project|",
+			MsgID:    "Open One",
+			MsgID2:   "Open %d",
+			MsgStrN:  []string{"打开 %d 个工程"},
 		}, true},
 		{"case-3-invalid-entry", args{newReader([]string{
 			`#, c-format`,
@@ -203,11 +203,11 @@ func Test_readEntry(t *testing.T) {
 			`msgid_plural "Open %d"`,
 			`msgstr "打开"`,
 			`msgstr[0] "打开 %d 个工程"`})}, &Entry{
-			comments: []string{"#, c-format"},
-			msgCtxt:  "Project|",
-			msgID:    "Open One",
-			msgID2:   "Open %d",
-			msgStr:   "打开",
+			MsgCmts: []string{"#, c-format"},
+			MsgCtxt:  "Project|",
+			MsgID:    "Open One",
+			MsgID2:   "Open %d",
+			MsgStr:   "打开",
 		}, false},
 	}
 	for _, tt := range tests {
@@ -240,9 +240,9 @@ func TestReadPo(t *testing.T) {
 msgid "Hello, World"
 msgstr "你好，世界"`)}, &File{entries: map[string]*Entry{
 			key("", "Hello, World"): {
-				comments: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
-				msgID:    "Hello, World",
-				msgStr:   "你好，世界",
+				MsgCmts: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
+				MsgID:    "Hello, World",
+				MsgStr:   "你好，世界",
 			},
 		}}, false},
 		{"two-entry", args{[]byte(`#: lang_test.go:22 lang_test.go:23 main_test.go:37
@@ -254,14 +254,14 @@ msgid_plural "%d apples"
 msgstr[0] "%d 个苹果"
 `)}, &File{entries: map[string]*Entry{
 			key("", "Hello, World"): {
-				comments: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
-				msgID:    "Hello, World",
-				msgStr:   "你好，世界",
+				MsgCmts: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
+				MsgID:    "Hello, World",
+				MsgStr:   "你好，世界",
 			},
 			key("", "one apple"): {
-				msgID:   "one apple",
-				msgID2:  "%d apples",
-				msgStrN: []string{"%d 个苹果"},
+				MsgID:   "one apple",
+				MsgID2:  "%d apples",
+				MsgStrN: []string{"%d 个苹果"},
 			},
 		}}, false},
 		{"3-entry", args{[]byte(`#: lang_test.go:22 lang_test.go:23 main_test.go:37
@@ -277,19 +277,19 @@ msgid "Post"
 msgstr "发布"
 `)}, &File{entries: map[string]*Entry{
 			key("", "Hello, World"): {
-				comments: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
-				msgID:    "Hello, World",
-				msgStr:   "你好，世界",
+				MsgCmts: []string{"#: lang_test.go:22 lang_test.go:23 main_test.go:37"},
+				MsgID:    "Hello, World",
+				MsgStr:   "你好，世界",
 			},
 			key("", "one apple"): {
-				msgID:   "one apple",
-				msgID2:  "%d apples",
-				msgStrN: []string{"%d 个苹果"},
+				MsgID:   "one apple",
+				MsgID2:  "%d apples",
+				MsgStrN: []string{"%d 个苹果"},
 			},
 			key("verb", "Post"): {
-				msgCtxt: "verb",
-				msgID:   "Post",
-				msgStr:  "发布",
+				MsgCtxt: "verb",
+				MsgID:   "Post",
+				MsgStr:  "发布",
 			},
 		}}, false},
 		{"error", args{[]byte(`msgid hallo`)}, nil, true},

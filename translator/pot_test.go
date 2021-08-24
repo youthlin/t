@@ -26,8 +26,8 @@ func TestFile_SaveAsPot(t *testing.T) {
 		{"empty", fields{}, "", false},
 		{"header-2", fields{[]*Entry{
 			{
-				msgID: "",
-				msgStr: `Project-Id-Version: MyProject
+				MsgID: "",
+				MsgStr: `Project-Id-Version: MyProject
 Language: zh_CN
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,9 +40,9 @@ msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain
 `, false},
 		{"with-cmt", fields{[]*Entry{
 			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgID:    "hello",
-				msgStr:   "你好",
+				MsgCmts: []string{"# translators comment", "#: path/to/source"},
+				MsgID:    "hello",
+				MsgStr:   "你好",
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -52,11 +52,11 @@ msgstr ""
 `, false},
 		{"cmt-ctx-plural", fields{[]*Entry{
 			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgCtxt:  "ctx",
-				msgID:    "one apple",
-				msgID2:   "%d apples",
-				msgStrN:  []string{"%d 个苹果"},
+				MsgCmts: []string{"# translators comment", "#: path/to/source"},
+				MsgCtxt:  "ctx",
+				MsgID:    "one apple",
+				MsgID2:   "%d apples",
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -69,8 +69,8 @@ msgstr[1] ""
 `, false},
 		{"header-cmt-ctx-plural", fields{[]*Entry{
 			{
-				msgID: "",
-				msgStr: `Project-Id-Version: MyProject
+				MsgID: "",
+				MsgStr: `Project-Id-Version: MyProject
 Language: zh_CN
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -78,11 +78,11 @@ Plural-Forms: nplurals=1; plural=0;
 `,
 			},
 			{
-				comments: []string{"# translators comment", "#: path/to/source"},
-				msgCtxt:  "ctx",
-				msgID:    "one apple",
-				msgID2:   "%d apples",
-				msgStrN:  []string{"%d 个苹果"},
+				MsgCmts: []string{"# translators comment", "#: path/to/source"},
+				MsgCtxt:  "ctx",
+				MsgID:    "one apple",
+				MsgID2:   "%d apples",
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 		}}, `msgid ""
 msgstr "Project-Id-Version: MyProject\nLanguage: zh_CN\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\n"

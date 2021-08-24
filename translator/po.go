@@ -39,21 +39,21 @@ func ReadPo(content []byte) (*File, error) {
 func (f *File) SaveAsPo(w io.Writer) error {
 	var buf bytes.Buffer
 	for _, entry := range f.SortedEntry() {
-		for _, comment := range entry.comments {
+		for _, comment := range entry.MsgCmts {
 			buf.WriteString(comment)
 			buf.WriteString("\n")
 		}
-		if entry.msgCtxt != "" {
-			buf.WriteString(fmt.Sprintf("msgctxt %q\n", entry.msgCtxt))
+		if entry.MsgCtxt != "" {
+			buf.WriteString(fmt.Sprintf("msgctxt %q\n", entry.MsgCtxt))
 		}
-		buf.WriteString(fmt.Sprintf("msgid %q\n", entry.msgID))
-		if entry.msgID2 != "" {
-			buf.WriteString(fmt.Sprintf("msgid_plural %q\n", entry.msgID2))
+		buf.WriteString(fmt.Sprintf("msgid %q\n", entry.MsgID))
+		if entry.MsgID2 != "" {
+			buf.WriteString(fmt.Sprintf("msgid_plural %q\n", entry.MsgID2))
 		}
-		if entry.msgStr != "" {
-			buf.WriteString(fmt.Sprintf("msgstr %q\n", entry.msgStr))
+		if entry.MsgStr != "" {
+			buf.WriteString(fmt.Sprintf("msgstr %q\n", entry.MsgStr))
 		}
-		for i, str := range entry.msgStrN {
+		for i, str := range entry.MsgStrN {
 			buf.WriteString(fmt.Sprintf("msgstr[%d] %q\n", i, str))
 		}
 		buf.WriteString("\n")
@@ -108,7 +108,7 @@ func readEntry(r *reader) (*Entry, error) {
 				r.unGetLine()
 				return entry, nil
 			}
-			entry.comments = append(entry.comments, line)
+			entry.MsgCmts = append(entry.MsgCmts, line)
 			continue
 		}
 		// ctxt
@@ -123,7 +123,7 @@ func readEntry(r *reader) (*Entry, error) {
 				return nil, errors.WithSecondaryError(errInvalidEntry,
 					errors.Wrapf(err, "unquote msgctxt failed|line %d: %s", r.lineNo, line))
 			}
-			entry.msgCtxt += data
+			entry.MsgCtxt += data
 			continue
 		}
 		// msgid_plural
@@ -138,7 +138,7 @@ func readEntry(r *reader) (*Entry, error) {
 				return nil, errors.WithSecondaryError(errInvalidEntry,
 					errors.Wrapf(err, "unquote msgid_plural failed|line %d: %s", r.lineNo, line))
 			}
-			entry.msgID2 += data
+			entry.MsgID2 += data
 			continue
 		}
 		// msgid
@@ -153,11 +153,11 @@ func readEntry(r *reader) (*Entry, error) {
 				return nil, errors.WithSecondaryError(errInvalidEntry,
 					errors.Wrapf(err, "unquote msgid failed|line %d: %s", r.lineNo, line))
 			}
-			entry.msgID += data
+			entry.MsgID += data
 			continue
 		}
 		// msgstr[0]
-		if prefix := fmt.Sprintf(prefixStrN, len(entry.msgStrN)); strings.HasPrefix(line, prefix) {
+		if prefix := fmt.Sprintf(prefixStrN, len(entry.MsgStrN)); strings.HasPrefix(line, prefix) {
 			if equalsAny(previousLineState, stateStr) {
 				r.unGetLine()
 				return entry, nil
@@ -168,7 +168,7 @@ func readEntry(r *reader) (*Entry, error) {
 				return nil, errors.WithSecondaryError(errInvalidEntry,
 					errors.Wrapf(err, "unquote %s failed|line %d: %s", prefix, r.lineNo, line))
 			}
-			entry.msgStrN = append(entry.msgStrN, data)
+			entry.MsgStrN = append(entry.MsgStrN, data)
 			continue
 		}
 		// msgstr
@@ -183,7 +183,7 @@ func readEntry(r *reader) (*Entry, error) {
 				return nil, errors.WithSecondaryError(errInvalidEntry,
 					errors.Wrapf(err, "unquote msgstr failed|line %d: %s", r.lineNo, line))
 			}
-			entry.msgStr += data
+			entry.MsgStr += data
 			continue
 		}
 
@@ -197,15 +197,15 @@ func readEntry(r *reader) (*Entry, error) {
 			}
 			switch previousLineState {
 			case stateCtxt:
-				entry.msgCtxt += data
+				entry.MsgCtxt += data
 			case stateID2:
-				entry.msgID2 += data
+				entry.MsgID2 += data
 			case stateID:
-				entry.msgID += data
+				entry.MsgID += data
 			case stateStrN:
-				entry.msgStrN[len(entry.msgStrN)-1] += data
+				entry.MsgStrN[len(entry.MsgStrN)-1] += data
 			case stateStr:
-				entry.msgStr += data
+				entry.MsgStr += data
 			}
 		} else {
 			return nil, errors.WithSecondaryError(errInvalidEntry,

@@ -30,10 +30,10 @@ func (file *File) Lang() string {
 
 func (file *File) X(msgCtxt, msgID string, args ...interface{}) string {
 	entry, ok := file.entries[key(msgCtxt, msgID)]
-	if !ok || entry.msgStr == "" {
+	if !ok || entry.MsgStr == "" {
 		return f.Format(msgID, args...)
 	}
-	return f.Format(entry.msgStr, args...)
+	return f.Format(entry.MsgStr, args...)
 }
 
 func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
@@ -46,11 +46,11 @@ func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...inte
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
 	index := plural.fn(n)
-	if index < 0 || index >= int(plural.totalForms) || index > len(entry.msgStrN) || entry.msgStrN[index] == "" {
+	if index < 0 || index >= int(plural.totalForms) || index > len(entry.MsgStrN) || entry.MsgStrN[index] == "" {
 		// 超出范围
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
-	return f.Format(entry.msgStrN[index], args...)
+	return f.Format(entry.MsgStrN[index], args...)
 }
 
 // SortedEntry sort entry by key
@@ -87,7 +87,7 @@ func (file *File) initHeader() {
 	if file.headers == nil {
 		headers := make(map[string]string)
 		if headerEntry, ok := file.entries[key("", "")]; ok {
-			kvs := strings.Split(headerEntry.msgStr, "\n")
+			kvs := strings.Split(headerEntry.MsgStr, "\n")
 			for _, kv := range kvs {
 				if kv == "" {
 					continue
