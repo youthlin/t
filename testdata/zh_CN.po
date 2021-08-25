@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: t\n"
-"POT-Creation-Date: 2021-06-07 19:45+0800\n"
-"PO-Revision-Date: 2021-06-07 19:45+0800\n"
+"Project-Id-Version: testdata of github.com/youthlin/t\n"
+"POT-Creation-Date: 2021-08-24 13:45+0800\n"
+"PO-Revision-Date: 2021-08-24 13:45+0800\n"
 "Last-Translator: Lin <youthlinchen@outlook.com>\n"
 "Language-Team: https://youthlin.com/\n"
 "Language: zh_CN\n"
@@ -12,46 +12,53 @@ msgstr ""
 "X-Generator: Poedit 2.4.2\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-KeywordsList: T:1;N:1,2;N64:1,2;X:2,1c;XN:2,3,1c;XN64:2,3,1c;LT:2;"
-"LN:2,3;LN64:2,3;LX:3,2c;LXN:3,4,2c;LXN64:3,4,2c;DLT:3;DLN:3,4;DLN64:3,4;"
-"DLX:4,3c;DLXN:4,5,3c;DLXN64:4,5,3c\n"
+"X-Poedit-KeywordsList: T:1;N:1,2;N64:1,2;X:2,1c;XN:2,3,1c;XN64:2,3,1c\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: cmd\n"
 
-#: domain_test.go:15 main_test.go:102 main_test.go:103
-#, c-format
-msgctxt "Project|"
-msgid "Open One"
-msgid_plural "Open %d"
-msgstr[0] "打开 %d 个工程"
-
-#: lang_test.go:22 lang_test.go:23 main_test.go:37
+#: example_test.go:28 example_test.go:40 example_test.go:56 example_test.go:67
+#: example_test.go:72 example_test.go:114 example_test.go:116
+#: example_test.go:128
 msgid "Hello, World"
 msgstr "你好，世界"
 
-#: main_test.go:38 main_test.go:45
+#: example_test.go:96
+msgid "你好，世界"
+msgstr ""
+
+#: example_test.go:129
 #, c-format
 msgid "Hello, %s"
 msgstr "你好，%s"
 
-#: main_test.go:56
+#: example_test.go:130 example_test.go:131 example_test.go:132
+#: example_test.go:133
 #, c-format
 msgid "One apple"
 msgid_plural "%d apples"
 msgstr[0] "%d 个苹果"
 
-#: main_test.go:97
+#: example_test.go:135
 msgctxt "File|"
 msgid "Open"
 msgstr "打开文件"
 
-#: main_test.go:99
+#: example_test.go:136
 msgctxt "Project|"
 msgid "Open"
 msgstr "打开工程"
 
-#: main_test.go:100 main_test.go:101
+#: example_test.go:137
 #, c-format
 msgctxt "File|"
 msgid "Open One"
 msgid_plural "Open %d"
 msgstr[0] "打开 %d 个文件"
+
+#: example_test.go:138 example_test.go:139
+#, c-format
+msgctxt "Project|"
+msgid "Open One"
+msgid_plural "Open %d"
+msgstr[0] "打开 %d 个工程"

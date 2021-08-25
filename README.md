@@ -7,6 +7,7 @@ t: GNU gettext 的 Go 语言实现，Go 程序的国际化工具
 [![Go Report Card](https://goreportcard.com/badge/github.com/youthlin/t)](https://goreportcard.com/report/github.com/youthlin/t)
 [![Go Reference](https://pkg.go.dev/badge/github.com/youthlin/t.svg)](https://pkg.go.dev/github.com/youthlin/t)
 
+
 ## Install 安装
 
 ```bash
@@ -35,10 +36,10 @@ path := "path/to/filename.po" // .po, .mo file
 path = "path/to/po_mo/dir"    // or dir.
 // (mo po 同名的话，po 后加载，会覆盖 mo 文件，因为 po 是文本文件，方便修改生效)
 // 1 bind domain 绑定翻译文件
-t.BindTextDomain("my-domain", path)
-t.BindDefaultDomain(path) // or bind to default domain
+t.Load(path)
+t.Bind("my-domain", path)
 // 2 set current domain 设置使用的文本域
-t.TextDomain("my-domain")
+t.SetDomain("my-domain")
 // 3 set user language 设置用户语言
 // t.SetLocale("zh_CN")
 t.SetLocale("") // empty to use system default
@@ -66,42 +67,29 @@ T(msgID, args...)
 N(msgID, msgIDPlural, n, args...) // and N64
 X(msgCTxt, msgID, args...)
 XN(msgCTxt, msgID, msgIDPlural, n, args...) // and XN64
-
+D(domain)
+L(locale)
 // T:  gettext
 // N:  ngettext
 // X:  pgettext
 // XN: npgettext
-// D:  domain
-// L:  locale(language)
-
-DT(domain, msgID, args...)
-// and DN, DX, DXN, DN64, DXN64
-
-LT(lang, msgID, args...)
-// and LT, LX, LXN, LN64, LXN64
-
-DLT(domain, lang, msgID, args...)
-// and DLN, DLX, DLXN, DLN64, DLXN64
+// D:  with domain
+// L:  with locale(language)
 ```
 
 ## Domain 文本域
 ```go
-t.BindTextDomain(domain1, path1)
-t.BindTextDomain(domain2, path2)
+t.Bind(domain1, path1)
+t.Bind(domain2, path2)
 t.SetLocale("zh_CN")
 
 t.T("msg_id")           // use default domain
 
-t.TextDomain(domain1)
-t.T("msg_id")           // use domain1
+t.SetDomain(domain1)
+t.T("msg_id")            // use domain1
+t.D(domain2).T("msg_id") // use domain2
+t.D("unknown-domain").T("msg_id") // return "msg_id" directly
 
-t.DT(domain2, "msg_id") // use domain2
-
-t.DT("unknown-domain", "msg_id") // return "msg_id" directly
-
-// or use another domain
-d := t.UseDomain(domain1)
-d.T("msg_id")   // use domain1
 ```
 
 ## Language 指定语言
@@ -109,14 +97,14 @@ If you are building a web application, you may want each request use diffenrent 
 如果你写的是 web 应用而不是 cli 工具，你可能想让每个 request 使用不同的语言，请看：
 
 ```go
-t.BindDefaultDomain(path)
+t.Load(path)
 
 // a) Specify a language 可以指定语言
-t.LT("zh_CN", "msg_id")
+t.L("zh_CN").T("msg_id")
 
 // b) every one use his own language 每个用户使用他接受的语言
 // b.1) server supports 第一步，服务器支持的语言
-langs := t.SupportLangs(t.CurrentDomain())
+langs := t.Locales()
 // golang.org/x/text/language
 // EN: https://blog.golang.org/matchlang
 // 中文: https://learnku.com/docs/go-blog/matchlang/6525
@@ -138,15 +126,13 @@ matchedTag, index, confidence := matcher.Match(userAccept...)
 // 如服务器支持 英文、简体中文，如果用户是繁体中文，那匹配度就不是 Exact，
 // 这时根据实际需求决定是使用英文，还是简体中文。
 userLang := langs[index]
-t.LT(userLang, "msg_id")
-
-// or UseLocale
-l := t.UseLocale("zh_CN")
-l.T("msg_id")
+t.L(userLang).T("msg_id")
 
 // with domain, language 同时指定文本域、用户语言
-t.DLT(domain, userLang, "msg_id")
+t.D(domain).L(userLang).T("msg_id")
 ```
+
+> more examples can be find at: [example_test.go](example_test.go)
 
 ## How to extract string 提取翻译文本
 ```bash
@@ -154,17 +140,15 @@ t.DLT(domain, userLang, "msg_id")
 # 如果你使用 PoEdit，在设置-提取器中新增一个提取器
 # ‪xgettext -C --add-comments=TRANSLATORS: --force-po -o %o %C %K %F
 # keywords: 关键字这样设置：
-# T:1;N:1,2;N64:1,2;X:2,1c;XN:2,3,1c;XN64:2,3,1c;
-# LT:2;LN:2,3;LN64:2,3;LX:3,2c;LXN:3,4,2c;LXN64:3,4,2c;
-# DLT:3;DLN:3,4;DLN64:3,4;DLX:4,3c;DLXN:4,5,3c;DLXN64:4,5,3c
+# T:1;N:1,2;N64:1,2;X:2,1c;XN:2,3,1c;XN64:2,3,1c
 ‪xgettext -C --add-comments=TRANSLATORS: --force-po ‪-kT -kN:1,2 -kX:2,1c -kXN:2,3,1c  *.go
 ```
 
 ## Done 已完成
-- [x] ✅ mo file 支持 mo 二进制文件  
-- [x] ✅ extract from html templates 从模板文件中提取: [xtemplate](cmd/xtemplate/)  
+- ✅ mo file 支持 mo 二进制文件
+- ✅ extract from html templates 从模板文件中提取: [xtemplate](cmd/xtemplate/)
 ```bash
-go install github.com/youthlin/t/cmd/xtemplate
+go install github.com/youthlin/t/cmd/xtemplate@latest
 ```
 
 ## Links 链接

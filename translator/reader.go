@@ -1,9 +1,9 @@
-package po
+package translator
 
 import (
 	"io"
 
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 )
 
 type reader struct {
