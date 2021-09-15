@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/cockroachdb/errors v1.8.6
 	github.com/smartystreets/goconvey v1.6.4
-	github.com/youthlin/t v0.0.4-0.20210824120610-d51ba725decd
+	github.com/youthlin/t v0.0.5
 )
 
 require (
