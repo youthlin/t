@@ -54,7 +54,7 @@ func (tr *Translation) Get(lang string) (Translator, bool) {
 	return tor, ok
 }
 
-// GetOrNoop return the Translator of the specifed language
+// GetOrNoop return the Translator of the specified language
 // 获取指定语言的翻译
 func (tr *Translation) GetOrNoop(lang string) Translator {
 	if tor, ok := tr.langs[lang]; ok {

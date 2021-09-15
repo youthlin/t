@@ -37,7 +37,7 @@ func (r *reader) nextLine() (string, error) {
 
 func (r *reader) unGetLine() error {
 	if r.lineNo < 0 {
-		return errors.Errorf("already at the begining")
+		return errors.Errorf("already at the beginning")
 	}
 	r.lineNo--
 	return nil

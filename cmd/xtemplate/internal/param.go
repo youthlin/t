@@ -54,11 +54,12 @@ func newCtx(param *Param) (*Context, error) {
 	for _, k := range kw {
 		ctx.Functions[k.Name] = noopFun
 	}
-	if wr, err := Writer(param.OutputFile); err != nil {
+	wr, err := Writer(param.OutputFile)
+	if err != nil {
 		return nil, err
-	} else {
-		ctx.Output = wr
 	}
+	ctx.Output = wr
+
 	if ctx.Function != "" {
 		fun := strings.Split(ctx.Function, ",")
 		for _, name := range fun {
