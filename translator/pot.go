@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	msgctxt      = "msgctxt"
-	msgid        = "msgid"
-	msgid_plural = "msgid_plural"
-	msgstr       = "msgstr"
-	msgstrN      = "msgstr[%d]"
+	msgctxt     = "msgctxt"
+	msgid       = "msgid"
+	msgidPlural = "msgid_plural"
+	msgstr      = "msgstr"
+	msgstrN     = "msgstr[%d]"
 )
 
 func writeString(buf *bytes.Buffer, key, content string) {
@@ -21,6 +21,7 @@ func writeString(buf *bytes.Buffer, key, content string) {
 	}
 }
 
+// SaveAsPot save this File as pot format
 func (f *File) SaveAsPot(w io.Writer) error {
 	var buf = &bytes.Buffer{}
 	for _, entry := range f.SortedEntry() {
@@ -40,7 +41,7 @@ func (f *File) SaveAsPot(w io.Writer) error {
 				writeString(buf, msgstr, "")
 			}
 		} else {
-			writeString(buf, msgid_plural, entry.MsgID2)
+			writeString(buf, msgidPlural, entry.MsgID2)
 			writeString(buf, fmt.Sprintf(msgstrN, 0), "")
 			writeString(buf, fmt.Sprintf(msgstrN, 1), "")
 		}

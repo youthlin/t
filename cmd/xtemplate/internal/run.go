@@ -14,7 +14,7 @@ import (
 
 var noopFun = func() string { return "" }
 
-// run 运行解析任务
+// Run 运行解析任务
 func Run(param *Param) error {
 	param.debugPrint("run param=%+v", param)
 	ctx, err := newCtx(param)

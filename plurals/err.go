@@ -7,6 +7,7 @@ import (
 	"github.com/cockroachdb/errors"
 )
 
+// ErrAntlr is a error when antlr process fails
 var ErrAntlr = fmt.Errorf("err antlr")
 
 // errorListener handler lexer/parser errors

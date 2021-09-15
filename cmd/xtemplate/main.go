@@ -10,7 +10,8 @@ import (
 	"github.com/youthlin/t/cmd/xtemplate/internal"
 )
 
-var Version string = "v0.0.4"
+// Version the version
+var Version string = "v0.0.5"
 
 //go:embed lang
 var embedLangs embed.FS

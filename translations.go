@@ -7,7 +7,10 @@ import (
 	"github.com/youthlin/t/locale"
 )
 
+// DefaultDomain 默认的文本域
 const DefaultDomain = "default"
+
+// DefaultSourceCodeLocale 默认的源代码语言
 const DefaultSourceCodeLocale = "en_US"
 
 // Translations holds several translation domains
@@ -65,6 +68,7 @@ func (ts *Translations) SetDomain(domain string) {
 	ts.domain = domain
 }
 
+// HasDomain return true if ts has the specified domain
 func (ts *Translations) HasDomain(domain string) bool {
 	for d := range ts.domains {
 		if d == domain {
@@ -74,6 +78,7 @@ func (ts *Translations) HasDomain(domain string) bool {
 	return false
 }
 
+// Domains return all domains
 func (ts *Translations) Domains() (domains []string) {
 	for domain := range ts.domains {
 		domains = append(domains, domain)

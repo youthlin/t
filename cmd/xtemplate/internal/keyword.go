@@ -17,7 +17,7 @@ type Keyword struct {
 	MsgID2  int
 }
 
-// parseKeywords gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
+// ParseKeywords gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
 func ParseKeywords(str string) (result []Keyword, err error) {
 	kw := strings.Split(str, ";")
 	msg := t.T("invalid keywords: %s", str)
@@ -113,7 +113,7 @@ func ParseKeywords(str string) (result []Keyword, err error) {
 	return
 }
 
-// writer is fileName is empty or - use stdout, otherwise use file
+// Writer is fileName is empty or - use stdout, otherwise use file
 func Writer(fileName string) (wr *os.File, err error) {
 	wr = os.Stdout
 	if fileName != "" && fileName != "-" {

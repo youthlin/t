@@ -88,6 +88,7 @@ type lenOff struct {
 	OffSet uint32 // 偏移位置
 }
 
+// ReadMo read mo from []byte content
 func ReadMo(content []byte) (*File, error) {
 	file := new(File)
 	r := bytes.NewReader(content)

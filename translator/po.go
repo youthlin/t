@@ -14,6 +14,7 @@ import (
 
 var errEmptyPo = fmt.Errorf("empty po file")
 
+// ReadPo read po file
 func ReadPo(content []byte) (*File, error) {
 	if len(content) == 0 {
 		return nil, errors.Wrapf(errEmptyPo, "read po file failed")
@@ -36,6 +37,7 @@ func ReadPo(content []byte) (*File, error) {
 	}
 }
 
+// SaveAsPo save as a po file
 func (f *File) SaveAsPo(w io.Writer) error {
 	var buf = &bytes.Buffer{}
 	for _, entry := range f.SortedEntry() {
@@ -48,7 +50,7 @@ func (f *File) SaveAsPo(w io.Writer) error {
 		}
 		writeString(buf, msgid, entry.MsgID)
 		if entry.MsgID2 != "" {
-			writeString(buf, msgid_plural, entry.MsgID2)
+			writeString(buf, msgidPlural, entry.MsgID2)
 		}
 		if entry.MsgStr != "" {
 			writeString(buf, msgstr, entry.MsgStr)

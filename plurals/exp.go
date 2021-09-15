@@ -84,210 +84,225 @@ func (s *myListener) ExitExp(ctx *parser.ExpContext) {
 		bop     = ctx.GetBop()
 		postfix = ctx.GetPostfix()
 	)
-	if prefix != nil {
-		prefixText := prefix.GetText()
-		s.debug("prefix: %v stack=%v", prefixText, s.stack)
-		switch prefixText {
-		case "+":
-		case "-":
-			num, _ := s.stack.Pop()
-			s.stack.Push(-num)
-		case "++":
-			num, _ := s.stack.Pop()
-			s.stack.Push(num + 1)
-		case "--":
-			num, _ := s.stack.Pop()
-			s.stack.Push(num - 1)
-		case "~":
-			num, _ := s.stack.Pop()
-			s.stack.Push(^num) // go 使用 ^表示按位取反
-		case "!":
-			num, _ := s.stack.Pop()
-			if num == _TRUE {
-				s.stack.Push(_FALSE)
-			} else {
-				s.stack.Push(_TRUE)
-			}
-		default:
-			panic("assert error: unexpected text(prefix): " + prefixText)
-		}
-	}
-	if bop != nil {
-		bopText := bop.GetText()
-		s.debug("bop   : %v stack=%v", bopText, s.stack)
-		switch bopText {
-		case "*":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left * right)
-		case "/":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left / right)
-		case "%":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left % right)
-		case "+":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left + right)
-		case "-":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left - right)
-		case ">>":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left >> right)
-		case "<<":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left << right)
-		case ">":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left > right {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "<":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left < right {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case ">=":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left >= right {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "<=":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left <= right {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "==":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left == right {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "!=":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left != right {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "&":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left & right)
-		case "|":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left | right)
-		case "^":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			s.stack.Push(left & right) // 作为二元操作符，是异或
-		case "&&":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left == _TRUE && right == _TRUE {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "||":
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-			)
-			if left == _TRUE || right == _TRUE {
-				s.stack.Push(_TRUE)
-			} else {
-				s.stack.Push(_FALSE)
-			}
-		case "?":
-			s.debug("%v", s.stack)
-			var (
-				right, _ = s.stack.Pop()
-				left, _  = s.stack.Pop()
-				cond, _  = s.stack.Pop()
-			)
-			if cond == _TRUE {
-				s.stack.Push(left)
-			} else {
-				s.stack.Push(right)
-			}
-		default:
-			panic("assert error: unexpected text(bop): " + bopText)
-		}
-		s.debug("bop done stack=%v", s.stack)
-	}
-	if postfix != nil {
-		postText := postfix.GetText()
-		s.debug("postfix: %v stack=%v", postText, s.stack)
-		switch postText {
-		case "++":
-			num, _ := s.stack.Pop()
-			s.stack.Push(num + 1)
-		case "--":
-			num, _ := s.stack.Pop()
-			s.stack.Push(num - 1)
-		default:
-			panic("assert error: unexpected text(postfix): " + postText)
-		}
-	}
+	s.handleExpPrefix(prefix)
+	s.handleExpBop(bop)
+	s.handleExpPostfix(postfix)
 	// prefix, bop, postfix all nil, then it's a primary rule
+}
+
+func (s *myListener) handleExpPrefix(prefix antlr.Token) {
+	if prefix == nil {
+		return
+	}
+	prefixText := prefix.GetText()
+	s.debug("prefix: %v stack=%v", prefixText, s.stack)
+	switch prefixText {
+	case "+": // no-op
+	case "-":
+		num, _ := s.stack.Pop()
+		s.stack.Push(-num)
+	case "++":
+		num, _ := s.stack.Pop()
+		s.stack.Push(num + 1)
+	case "--":
+		num, _ := s.stack.Pop()
+		s.stack.Push(num - 1)
+	case "~":
+		num, _ := s.stack.Pop()
+		s.stack.Push(^num) // go 使用 ^ 表示按位取反
+	case "!":
+		num, _ := s.stack.Pop()
+		if num == _TRUE {
+			s.stack.Push(_FALSE)
+		} else {
+			s.stack.Push(_TRUE)
+		}
+	default:
+		panic("assert error: unexpected text(prefix): " + prefixText)
+	}
+}
+
+func (s *myListener) handleExpBop(bop antlr.Token) {
+	if bop == nil {
+		return
+	}
+	bopText := bop.GetText()
+	s.debug("bop   : %v stack=%v", bopText, s.stack)
+	switch bopText {
+	case "*":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left * right)
+	case "/":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left / right)
+	case "%":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left % right)
+	case "+":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left + right)
+	case "-":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left - right)
+	case ">>":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left >> right)
+	case "<<":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left << right)
+	case ">":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left > right {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "<":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left < right {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case ">=":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left >= right {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "<=":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left <= right {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "==":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left == right {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "!=":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left != right {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "&":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left & right)
+	case "|":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left | right)
+	case "^":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		s.stack.Push(left & right) // 作为二元操作符，是异或
+	case "&&":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left == _TRUE && right == _TRUE {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "||":
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+		)
+		if left == _TRUE || right == _TRUE {
+			s.stack.Push(_TRUE)
+		} else {
+			s.stack.Push(_FALSE)
+		}
+	case "?":
+		s.debug("%v", s.stack)
+		var (
+			right, _ = s.stack.Pop()
+			left, _  = s.stack.Pop()
+			cond, _  = s.stack.Pop()
+		)
+		if cond == _TRUE {
+			s.stack.Push(left)
+		} else {
+			s.stack.Push(right)
+		}
+	default:
+		panic("assert error: unexpected text(bop): " + bopText)
+	}
+	s.debug("bop done stack=%v", s.stack)
+}
+
+func (s *myListener) handleExpPostfix(postfix antlr.Token) {
+	if postfix == nil {
+		return
+	}
+	postText := postfix.GetText()
+	s.debug("postfix: %v stack=%v", postText, s.stack)
+	switch postText {
+	case "++":
+		num, _ := s.stack.Pop()
+		s.stack.Push(num + 1)
+	case "--":
+		num, _ := s.stack.Pop()
+		s.stack.Push(num - 1)
+	default:
+		panic("assert error: unexpected text(postfix): " + postText)
+	}
 }
 
 // ExitPrimary override

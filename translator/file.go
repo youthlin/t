@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	HeaderPluralForms = "Plural-Forms" // 表明该语言的复数形式
-	HeaderLanguage    = "Language"     // 表明该文件是什么语言
+	// HeaderPluralForms 表明该语言的复数形式
+	HeaderPluralForms = "Plural-Forms"
+	// HeaderLanguage 表明该文件是什么语言
+	HeaderLanguage = "Language"
 )
 
 var _ Translator = (*File)(nil) // 触发编译检查，是否实现接口
@@ -23,11 +25,13 @@ type File struct {
 	plural  *plural
 }
 
+// Lang get this translations' language
 func (file *File) Lang() string {
 	lang, _ := file.GetHeader(HeaderLanguage)
 	return lang
 }
 
+// X is ashort name for pgettext
 func (file *File) X(msgCtxt, msgID string, args ...interface{}) string {
 	entry, ok := file.entries[key(msgCtxt, msgID)]
 	if !ok || entry.MsgStr == "" {
@@ -36,12 +40,13 @@ func (file *File) X(msgCtxt, msgID string, args ...interface{}) string {
 	return f.Format(entry.MsgStr, args...)
 }
 
+// XN64 is ashort name for npgettext
 func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
 	entry, ok := file.entries[key(msgCtxt, msgID)]
 	if !ok {
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
-	plural := file.GetPlural()
+	plural := file.getPlural()
 	if plural.totalForms <= 0 || plural.fn == nil {
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
@@ -66,6 +71,7 @@ func (file *File) SortedEntry() (entries []*Entry) {
 	return
 }
 
+// AddEntry adds a Entry
 func (file *File) AddEntry(e *Entry) {
 	if file.entries == nil {
 		file.entries = map[string]*Entry{}
@@ -77,6 +83,7 @@ func (file *File) AddEntry(e *Entry) {
 	}
 }
 
+// GetHeader get header value by key
 func (file *File) GetHeader(key string) (value string, ok bool) {
 	file.initHeader()
 	value, ok = file.headers[key]
@@ -106,7 +113,7 @@ func (file *File) initHeader() {
 	}
 }
 
-func (file *File) GetPlural() *plural {
+func (file *File) getPlural() *plural {
 	file.initPlural()
 	return file.plural
 }

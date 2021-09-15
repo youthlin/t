@@ -46,13 +46,13 @@ func newCtx(param *Param) (*Context, error) {
 		Functions: make(template.FuncMap),
 		entries:   make(map[string]*translator.Entry),
 	}
-	if kw, err := ParseKeywords(param.Keyword); err != nil {
+	kw, err := ParseKeywords(param.Keyword)
+	if err != nil {
 		return nil, err
-	} else {
-		ctx.Keywords = kw
-		for _, k := range kw {
-			ctx.Functions[k.Name] = noopFun
-		}
+	}
+	ctx.Keywords = kw
+	for _, k := range kw {
+		ctx.Functions[k.Name] = noopFun
 	}
 	if wr, err := Writer(param.OutputFile); err != nil {
 		return nil, err
@@ -68,6 +68,7 @@ func newCtx(param *Param) (*Context, error) {
 	return ctx, nil
 }
 
+// Add add a message entry
 func (ctx *Context) Add(entry *translator.Entry) error {
 	plural := isPlural(entry)
 	key := entry.Key()
@@ -87,6 +88,7 @@ func (ctx *Context) Add(entry *translator.Entry) error {
 	return nil
 }
 
+// Write write pot file to output
 func (ctx *Context) Write() error {
 	pot := ctx.pot()
 	return pot.SaveAsPot(ctx.Output)
