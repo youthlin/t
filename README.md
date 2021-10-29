@@ -6,6 +6,7 @@ t: GNU gettext 的 Go 语言实现，Go 程序的国际化工具
 [![codecov](https://codecov.io/gh/youthlin/t/branch/main/graph/badge.svg?token=6RyU5nb3YT)](https://codecov.io/gh/youthlin/t)
 [![Go Report Card](https://goreportcard.com/badge/github.com/youthlin/t)](https://goreportcard.com/report/github.com/youthlin/t)
 [![Go Reference](https://pkg.go.dev/badge/github.com/youthlin/t.svg)](https://pkg.go.dev/github.com/youthlin/t)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyouthlin%2Ft.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyouthlin%2Ft?ref=badge_shield)
 
 
 ## Install 安装
@@ -158,3 +159,7 @@ go install github.com/youthlin/t/cmd/xtemplate@latest
 - https://blog.gopheracademy.com/advent-2017/parsing-with-antlr4-and-go/
 - https://xuanwo.io/2019/12/11/golang-i18n/ (中文)
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyouthlin%2Ft.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyouthlin%2Ft?ref=badge_large)
