@@ -41,6 +41,11 @@ func Locale() string {
 	return global.Locale()
 }
 
+// MostMatchLocale return the most match language 返回最匹配的语言
+func MostMatchLocale() string {
+	return global.MostMatchLocale()
+}
+
 // SetLocale set user language
 func SetLocale(locale string) {
 	global.SetLocale(locale)

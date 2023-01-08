@@ -86,7 +86,7 @@ func (ts *Translations) Domains() (domains []string) {
 	return
 }
 
-// Locale return current locale 返回当前使用的语言
+// Locale return current locale 返回设置的希望使用的语言
 func (ts *Translations) Locale() string {
 	return ts.locale
 }
@@ -106,6 +106,13 @@ func (ts *Translations) Locales() (locales []string) {
 	}
 	sort.Strings(locales)
 	return
+}
+
+// MostMatchLocale return the most match language 返回最匹配的语言
+func (ts *Translations) MostMatchLocale() string {
+	var supported = Locales()
+	_, index, _ := Match(supported, []string{Locale()})
+	return supported[index]
 }
 
 // UsedLocale return the locale that actually used

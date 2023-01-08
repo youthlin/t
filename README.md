@@ -37,13 +37,13 @@ path := "path/to/filename.po" // .po, .mo file
 path = "path/to/po_mo/dir"    // or dir.
 // (mo po 同名的话，po 后加载，会覆盖 mo 文件，因为 po 是文本文件，方便修改生效)
 // 1 bind domain 绑定翻译文件
-t.Load(path)
-t.Bind("my-domain", path)
+t.Load(path) // 默认绑定在 default 域 会自动搜索路径下的文件，读取 po/mo 里的语言标签进行注册
+t.Bind("my-domain", path) // 或者指定Ø文本域
 // 2 set current domain 设置使用的文本域
 t.SetDomain("my-domain")
 // 3 set user language 设置用户语言
 // t.SetLocale("zh_CN")
-t.SetLocale("") // empty to use system default
+t.SetLocale(t.MostMatchLocale()) // empty to use system default
 // 4 use the gettext api 使用 gettext 翻译接口
 fmt.Println(t.T("Hello, world"))
 fmt.Println(t.T("Hello, %v", "Tom"))
@@ -139,10 +139,15 @@ t.D(domain).L(userLang).T("msg_id")
 ```bash
 # if you use PoEdit, add a extractor
 # 如果你使用 PoEdit，在设置-提取器中新增一个提取器
-# ‪xgettext -C --add-comments=TRANSLATORS: --force-po -o %o %C %K %F
+# Language: Go, *.go 语言填 Go 扩展名填 *.go 提取翻译的命令填写
+# xgettext -C --add-comments=TRANSLATORS: --force-po -o %o %C %K %F
+# 最后的三个输入框分别填写
+# -k%k
+# %f
+# --from-code=%c
 # keywords: 关键字这样设置：
 # T:1;N:1,2;N64:1,2;X:2,1c;XN:2,3,1c;XN64:2,3,1c
-‪xgettext -C --add-comments=TRANSLATORS: --force-po ‪-kT -kN:1,2 -kX:2,1c -kXN:2,3,1c  *.go
+xgettext -C --add-comments=TRANSLATORS: --force-po -kT -kN:1,2 -kX:2,1c -kXN:2,3,1c  *.go
 ```
 
 ## Done 已完成
