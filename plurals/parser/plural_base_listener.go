@@ -1,8 +1,8 @@
-// Code generated from plural.g4 by ANTLR 4.9.2. DO NOT EDIT.
+// Code generated from plural.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package parser // plural
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import "github.com/antlr4-go/antlr/v4"
 
 // BasepluralListener is a complete listener for a parse tree produced by pluralParser.
 type BasepluralListener struct{}

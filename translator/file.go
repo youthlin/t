@@ -66,7 +66,7 @@ func (file *File) SortedEntry() (entries []*Entry) {
 	sort.Slice(entries, func(i, j int) bool {
 		left := entries[i]
 		right := entries[j]
-		return left.Key() < right.Key()
+		return left.getSortKey() < right.getSortKey()
 	})
 	return
 }

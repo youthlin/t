@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
+	"github.com/youthlin/t/errors"
 )
 
 // Keyword gettext keyword

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
+	"github.com/youthlin/t/errors"
 	"github.com/youthlin/t/translator"
 )
 

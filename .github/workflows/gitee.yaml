@@ -6,9 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source codes
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: sync to gitee
-        uses: Yikun/hub-mirror-action@mappings
+        uses: Yikun/hub-mirror-action@master
         with:
           src: github/youthLin
           dst: gitee/youthlin

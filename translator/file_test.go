@@ -1,6 +1,7 @@
 package translator
 
 import (
+	"os"
 	"testing"
 )
 
@@ -229,5 +230,24 @@ func TestFile_N(t *testing.T) {
 				t.Errorf("File.N() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSortedEntry(t *testing.T) {
+	content, err := os.ReadFile("../testdata/messages.pot")
+	if err != nil {
+		t.Fatalf("read file failed: %v", err)
+	}
+	f, err := ReadPot(content)
+	if err != nil {
+		t.Fatalf("read .po failed: %v", err)
+	}
+	w, err := os.OpenFile("../testdata/messages.new.pot", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0777)
+	if err != nil {
+		t.Fatalf("open save file failed: %v", err)
+	}
+	err = f.SaveAsPot(w)
+	if err != nil {
+		t.Fatalf("save file failed: %v", err)
 	}
 }
