@@ -4,8 +4,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/cockroachdb/errors"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/youthlin/t/errors"
 )
 
 func Test_newReader(t *testing.T) {
@@ -13,7 +13,7 @@ func Test_newReader(t *testing.T) {
 		Convey("nil-input", func() {
 			r := newReader(nil)
 			So(r, ShouldNotBeNil)
-			So(r.lines, ShouldEqual, nil)
+			So(r.lines, ShouldEqual, []string(nil))
 			So(r.lineNo, ShouldEqual, -1)
 			So(r.totalLine, ShouldEqual, 0)
 		})

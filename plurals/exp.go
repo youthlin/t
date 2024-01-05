@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"github.com/cockroachdb/errors"
+	"github.com/antlr4-go/antlr/v4"
+	"github.com/youthlin/t/errors"
 	"github.com/youthlin/t/plurals/parser"
 )
 
@@ -41,7 +41,7 @@ func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
 
 	// 4 遍历语法树计算表达式
 	l := newListener(ctx, n)
-	tree := p.Start()
+	tree := p.Start_()
 	antlr.ParseTreeWalkerDefault.Walk(l, tree)
 	return l.result, errListener.err
 }

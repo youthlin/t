@@ -1,94 +1,114 @@
-// Code generated from plural.g4 by ANTLR 4.9.2. DO NOT EDIT.
+// Code generated from plural.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package parser // plural
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
+	"sync"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr4-go/antlr/v4"
 )
 
 // Suppress unused import errors
 var _ = fmt.Printf
-var _ = reflect.Copy
 var _ = strconv.Itoa
-
-var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 31, 73, 4,
-	2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 5, 3, 17, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 7, 3, 60, 10,
-	3, 12, 3, 14, 3, 63, 11, 3, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 5, 4, 71,
-	10, 4, 3, 4, 2, 3, 4, 5, 2, 4, 6, 2, 11, 3, 2, 3, 6, 3, 2, 7, 8, 3, 2,
-	9, 11, 3, 2, 5, 6, 3, 2, 12, 13, 3, 2, 14, 15, 3, 2, 16, 17, 3, 2, 18,
-	19, 3, 2, 3, 4, 2, 86, 2, 8, 3, 2, 2, 2, 4, 16, 3, 2, 2, 2, 6, 70, 3, 2,
-	2, 2, 8, 9, 5, 4, 3, 2, 9, 3, 3, 2, 2, 2, 10, 11, 8, 3, 1, 2, 11, 17, 5,
-	6, 4, 2, 12, 13, 9, 2, 2, 2, 13, 17, 5, 4, 3, 16, 14, 15, 9, 3, 2, 2, 15,
-	17, 5, 4, 3, 15, 16, 10, 3, 2, 2, 2, 16, 12, 3, 2, 2, 2, 16, 14, 3, 2,
-	2, 2, 17, 61, 3, 2, 2, 2, 18, 19, 12, 14, 2, 2, 19, 20, 9, 4, 2, 2, 20,
-	60, 5, 4, 3, 15, 21, 22, 12, 13, 2, 2, 22, 23, 9, 5, 2, 2, 23, 60, 5, 4,
-	3, 14, 24, 25, 12, 12, 2, 2, 25, 26, 9, 6, 2, 2, 26, 60, 5, 4, 3, 13, 27,
-	28, 12, 11, 2, 2, 28, 29, 9, 7, 2, 2, 29, 60, 5, 4, 3, 12, 30, 31, 12,
-	10, 2, 2, 31, 32, 9, 8, 2, 2, 32, 60, 5, 4, 3, 11, 33, 34, 12, 9, 2, 2,
-	34, 35, 9, 9, 2, 2, 35, 60, 5, 4, 3, 10, 36, 37, 12, 8, 2, 2, 37, 38, 7,
-	20, 2, 2, 38, 60, 5, 4, 3, 9, 39, 40, 12, 7, 2, 2, 40, 41, 7, 21, 2, 2,
-	41, 60, 5, 4, 3, 8, 42, 43, 12, 6, 2, 2, 43, 44, 7, 22, 2, 2, 44, 60, 5,
-	4, 3, 7, 45, 46, 12, 5, 2, 2, 46, 47, 7, 23, 2, 2, 47, 60, 5, 4, 3, 6,
-	48, 49, 12, 4, 2, 2, 49, 50, 7, 24, 2, 2, 50, 60, 5, 4, 3, 5, 51, 52, 12,
-	3, 2, 2, 52, 53, 7, 25, 2, 2, 53, 54, 5, 4, 3, 2, 54, 55, 7, 26, 2, 2,
-	55, 56, 5, 4, 3, 3, 56, 60, 3, 2, 2, 2, 57, 58, 12, 17, 2, 2, 58, 60, 9,
-	10, 2, 2, 59, 18, 3, 2, 2, 2, 59, 21, 3, 2, 2, 2, 59, 24, 3, 2, 2, 2, 59,
-	27, 3, 2, 2, 2, 59, 30, 3, 2, 2, 2, 59, 33, 3, 2, 2, 2, 59, 36, 3, 2, 2,
-	2, 59, 39, 3, 2, 2, 2, 59, 42, 3, 2, 2, 2, 59, 45, 3, 2, 2, 2, 59, 48,
-	3, 2, 2, 2, 59, 51, 3, 2, 2, 2, 59, 57, 3, 2, 2, 2, 60, 63, 3, 2, 2, 2,
-	61, 59, 3, 2, 2, 2, 61, 62, 3, 2, 2, 2, 62, 5, 3, 2, 2, 2, 63, 61, 3, 2,
-	2, 2, 64, 65, 7, 27, 2, 2, 65, 66, 5, 4, 3, 2, 66, 67, 7, 28, 2, 2, 67,
-	71, 3, 2, 2, 2, 68, 71, 7, 29, 2, 2, 69, 71, 7, 30, 2, 2, 70, 64, 3, 2,
-	2, 2, 70, 68, 3, 2, 2, 2, 70, 69, 3, 2, 2, 2, 71, 7, 3, 2, 2, 2, 6, 16,
-	59, 61, 70,
-}
-var literalNames = []string{
-	"", "'++'", "'--'", "'+'", "'-'", "'~'", "'!'", "'*'", "'/'", "'%'", "'>>'",
-	"'<<'", "'>'", "'<'", "'>='", "'<='", "'=='", "'!='", "'&'", "'^'", "'|'",
-	"'&&'", "'||'", "'?'", "':'", "'('", "')'", "'n'",
-}
-var symbolicNames = []string{
-	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-	"", "", "", "", "", "", "", "", "", "", "INT", "WS",
-}
-
-var ruleNames = []string{
-	"start", "exp", "primary",
-}
+var _ = sync.Once{}
 
 type pluralParser struct {
 	*antlr.BaseParser
 }
 
-// NewpluralParser produces a new parser instance for the optional input antlr.TokenStream.
-//
-// The *pluralParser instance produced may be reused by calling the SetInputStream method.
-// The initial parser configuration is expensive to construct, and the object is not thread-safe;
-// however, if used within a Golang sync.Pool, the construction cost amortizes well and the
-// objects can be used in a thread-safe manner.
-func NewpluralParser(input antlr.TokenStream) *pluralParser {
-	this := new(pluralParser)
-	deserializer := antlr.NewATNDeserializer(nil)
-	deserializedATN := deserializer.DeserializeFromUInt16(parserATN)
-	decisionToDFA := make([]*antlr.DFA, len(deserializedATN.DecisionToState))
-	for index, ds := range deserializedATN.DecisionToState {
-		decisionToDFA[index] = antlr.NewDFA(ds, index)
-	}
-	this.BaseParser = antlr.NewBaseParser(input)
+var PluralParserStaticData struct {
+	once                   sync.Once
+	serializedATN          []int32
+	LiteralNames           []string
+	SymbolicNames          []string
+	RuleNames              []string
+	PredictionContextCache *antlr.PredictionContextCache
+	atn                    *antlr.ATN
+	decisionToDFA          []*antlr.DFA
+}
 
-	this.Interpreter = antlr.NewParserATNSimulator(this, deserializedATN, decisionToDFA, antlr.NewPredictionContextCache())
-	this.RuleNames = ruleNames
-	this.LiteralNames = literalNames
-	this.SymbolicNames = symbolicNames
+func pluralParserInit() {
+	staticData := &PluralParserStaticData
+	staticData.LiteralNames = []string{
+		"", "'++'", "'--'", "'+'", "'-'", "'~'", "'!'", "'*'", "'/'", "'%'",
+		"'>>'", "'<<'", "'>'", "'<'", "'>='", "'<='", "'=='", "'!='", "'&'",
+		"'^'", "'|'", "'&&'", "'||'", "'?'", "':'", "'('", "')'", "'n'",
+	}
+	staticData.SymbolicNames = []string{
+		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "", "", "", "", "INT", "WS",
+	}
+	staticData.RuleNames = []string{
+		"start", "exp", "primary",
+	}
+	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
+	staticData.serializedATN = []int32{
+		4, 1, 29, 71, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 1, 0, 1, 0, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 15, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		5, 1, 58, 8, 1, 10, 1, 12, 1, 61, 9, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1,
+		2, 3, 2, 69, 8, 2, 1, 2, 0, 1, 2, 3, 0, 2, 4, 0, 9, 1, 0, 1, 4, 1, 0, 5,
+		6, 1, 0, 7, 9, 1, 0, 3, 4, 1, 0, 10, 11, 1, 0, 12, 13, 1, 0, 14, 15, 1,
+		0, 16, 17, 1, 0, 1, 2, 84, 0, 6, 1, 0, 0, 0, 2, 14, 1, 0, 0, 0, 4, 68,
+		1, 0, 0, 0, 6, 7, 3, 2, 1, 0, 7, 1, 1, 0, 0, 0, 8, 9, 6, 1, -1, 0, 9, 15,
+		3, 4, 2, 0, 10, 11, 7, 0, 0, 0, 11, 15, 3, 2, 1, 14, 12, 13, 7, 1, 0, 0,
+		13, 15, 3, 2, 1, 13, 14, 8, 1, 0, 0, 0, 14, 10, 1, 0, 0, 0, 14, 12, 1,
+		0, 0, 0, 15, 59, 1, 0, 0, 0, 16, 17, 10, 12, 0, 0, 17, 18, 7, 2, 0, 0,
+		18, 58, 3, 2, 1, 13, 19, 20, 10, 11, 0, 0, 20, 21, 7, 3, 0, 0, 21, 58,
+		3, 2, 1, 12, 22, 23, 10, 10, 0, 0, 23, 24, 7, 4, 0, 0, 24, 58, 3, 2, 1,
+		11, 25, 26, 10, 9, 0, 0, 26, 27, 7, 5, 0, 0, 27, 58, 3, 2, 1, 10, 28, 29,
+		10, 8, 0, 0, 29, 30, 7, 6, 0, 0, 30, 58, 3, 2, 1, 9, 31, 32, 10, 7, 0,
+		0, 32, 33, 7, 7, 0, 0, 33, 58, 3, 2, 1, 8, 34, 35, 10, 6, 0, 0, 35, 36,
+		5, 18, 0, 0, 36, 58, 3, 2, 1, 7, 37, 38, 10, 5, 0, 0, 38, 39, 5, 19, 0,
+		0, 39, 58, 3, 2, 1, 6, 40, 41, 10, 4, 0, 0, 41, 42, 5, 20, 0, 0, 42, 58,
+		3, 2, 1, 5, 43, 44, 10, 3, 0, 0, 44, 45, 5, 21, 0, 0, 45, 58, 3, 2, 1,
+		4, 46, 47, 10, 2, 0, 0, 47, 48, 5, 22, 0, 0, 48, 58, 3, 2, 1, 3, 49, 50,
+		10, 1, 0, 0, 50, 51, 5, 23, 0, 0, 51, 52, 3, 2, 1, 0, 52, 53, 5, 24, 0,
+		0, 53, 54, 3, 2, 1, 1, 54, 58, 1, 0, 0, 0, 55, 56, 10, 15, 0, 0, 56, 58,
+		7, 8, 0, 0, 57, 16, 1, 0, 0, 0, 57, 19, 1, 0, 0, 0, 57, 22, 1, 0, 0, 0,
+		57, 25, 1, 0, 0, 0, 57, 28, 1, 0, 0, 0, 57, 31, 1, 0, 0, 0, 57, 34, 1,
+		0, 0, 0, 57, 37, 1, 0, 0, 0, 57, 40, 1, 0, 0, 0, 57, 43, 1, 0, 0, 0, 57,
+		46, 1, 0, 0, 0, 57, 49, 1, 0, 0, 0, 57, 55, 1, 0, 0, 0, 58, 61, 1, 0, 0,
+		0, 59, 57, 1, 0, 0, 0, 59, 60, 1, 0, 0, 0, 60, 3, 1, 0, 0, 0, 61, 59, 1,
+		0, 0, 0, 62, 63, 5, 25, 0, 0, 63, 64, 3, 2, 1, 0, 64, 65, 5, 26, 0, 0,
+		65, 69, 1, 0, 0, 0, 66, 69, 5, 27, 0, 0, 67, 69, 5, 28, 0, 0, 68, 62, 1,
+		0, 0, 0, 68, 66, 1, 0, 0, 0, 68, 67, 1, 0, 0, 0, 69, 5, 1, 0, 0, 0, 4,
+		14, 57, 59, 68,
+	}
+	deserializer := antlr.NewATNDeserializer(nil)
+	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
+	atn := staticData.atn
+	staticData.decisionToDFA = make([]*antlr.DFA, len(atn.DecisionToState))
+	decisionToDFA := staticData.decisionToDFA
+	for index, state := range atn.DecisionToState {
+		decisionToDFA[index] = antlr.NewDFA(state, index)
+	}
+}
+
+// pluralParserInit initializes any static state used to implement pluralParser. By default the
+// static state used to implement the parser is lazily initialized during the first call to
+// NewpluralParser(). You can call this function if you wish to initialize the static state ahead
+// of time.
+func PluralParserInit() {
+	staticData := &PluralParserStaticData
+	staticData.once.Do(pluralParserInit)
+}
+
+// NewpluralParser produces a new parser instance for the optional input antlr.TokenStream.
+func NewpluralParser(input antlr.TokenStream) *pluralParser {
+	PluralParserInit()
+	this := new(pluralParser)
+	this.BaseParser = antlr.NewBaseParser(input)
+	staticData := &PluralParserStaticData
+	this.Interpreter = antlr.NewParserATNSimulator(this, staticData.atn, staticData.decisionToDFA, staticData.PredictionContextCache)
+	this.RuleNames = staticData.RuleNames
+	this.LiteralNames = staticData.LiteralNames
+	this.SymbolicNames = staticData.SymbolicNames
 	this.GrammarFileName = "plural.g4"
 
 	return this
@@ -142,20 +162,28 @@ type IStartContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Exp() IExpContext
+
 	// IsStartContext differentiates from other interfaces.
 	IsStartContext()
 }
 
 type StartContext struct {
-	*antlr.BaseParserRuleContext
+	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
 func NewEmptyStartContext() *StartContext {
 	var p = new(StartContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
 	p.RuleIndex = pluralParserRULE_start
 	return p
+}
+
+func InitEmptyStartContext(p *StartContext) {
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = pluralParserRULE_start
 }
 
 func (*StartContext) IsStartContext() {}
@@ -163,7 +191,7 @@ func (*StartContext) IsStartContext() {}
 func NewStartContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *StartContext {
 	var p = new(StartContext)
 
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
 	p.RuleIndex = pluralParserRULE_start
@@ -174,7 +202,13 @@ func NewStartContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoki
 func (s *StartContext) GetParser() antlr.Parser { return s.parser }
 
 func (s *StartContext) Exp() IExpContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IExpContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -203,33 +237,26 @@ func (s *StartContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (p *pluralParser) Start() (localctx IStartContext) {
+func (p *pluralParser) Start_() (localctx IStartContext) {
 	localctx = NewStartContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 0, pluralParserRULE_start)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(6)
 		p.exp(0)
 	}
 
+errorExit:
+	if p.HasError() {
+		v := p.GetError()
+		localctx.SetException(v)
+		p.GetErrorHandler().ReportError(p, v)
+		p.GetErrorHandler().Recover(p, v)
+		p.SetError(nil)
+	}
+	p.ExitRule()
 	return localctx
+	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
 // IExpContext is an interface to support dynamic dispatch.
@@ -257,12 +284,17 @@ type IExpContext interface {
 	// SetPostfix sets the postfix token.
 	SetPostfix(antlr.Token)
 
+	// Getter signatures
+	Primary() IPrimaryContext
+	AllExp() []IExpContext
+	Exp(i int) IExpContext
+
 	// IsExpContext differentiates from other interfaces.
 	IsExpContext()
 }
 
 type ExpContext struct {
-	*antlr.BaseParserRuleContext
+	antlr.BaseParserRuleContext
 	parser  antlr.Parser
 	prefix  antlr.Token
 	bop     antlr.Token
@@ -271,9 +303,14 @@ type ExpContext struct {
 
 func NewEmptyExpContext() *ExpContext {
 	var p = new(ExpContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
 	p.RuleIndex = pluralParserRULE_exp
 	return p
+}
+
+func InitEmptyExpContext(p *ExpContext) {
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = pluralParserRULE_exp
 }
 
 func (*ExpContext) IsExpContext() {}
@@ -281,7 +318,7 @@ func (*ExpContext) IsExpContext() {}
 func NewExpContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ExpContext {
 	var p = new(ExpContext)
 
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
 	p.RuleIndex = pluralParserRULE_exp
@@ -304,7 +341,13 @@ func (s *ExpContext) SetBop(v antlr.Token) { s.bop = v }
 func (s *ExpContext) SetPostfix(v antlr.Token) { s.postfix = v }
 
 func (s *ExpContext) Primary() IPrimaryContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IPrimaryContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IPrimaryContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -314,12 +357,20 @@ func (s *ExpContext) Primary() IPrimaryContext {
 }
 
 func (s *ExpContext) AllExp() []IExpContext {
-	var ts = s.GetTypedRuleContexts(reflect.TypeOf((*IExpContext)(nil)).Elem())
-	var tst = make([]IExpContext, len(ts))
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IExpContext); ok {
+			len++
+		}
+	}
 
-	for i, t := range ts {
-		if t != nil {
+	tst := make([]IExpContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IExpContext); ok {
 			tst[i] = t.(IExpContext)
+			i++
 		}
 	}
 
@@ -327,7 +378,17 @@ func (s *ExpContext) AllExp() []IExpContext {
 }
 
 func (s *ExpContext) Exp(i int) IExpContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IExpContext)(nil)).Elem(), i)
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -362,6 +423,7 @@ func (p *pluralParser) Exp() (localctx IExpContext) {
 
 func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 	var _parentctx antlr.ParserRuleContext = p.GetParserRuleContext()
+
 	_parentState := p.GetState()
 	localctx = NewExpContext(p, p.GetParserRuleContext(), _parentState)
 	var _prevctx IExpContext = localctx
@@ -370,27 +432,14 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 	p.EnterRecursionRule(localctx, 2, pluralParserRULE_exp, _p)
 	var _la int
 
-	defer func() {
-		p.UnrollRecursionContexts(_parentctx)
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
 	p.SetState(14)
 	p.GetErrorHandler().Sync(p)
+	if p.HasError() {
+		goto errorExit
+	}
 
 	switch p.GetTokenStream().LA(1) {
 	case pluralParserT__24, pluralParserT__26, pluralParserINT:
@@ -409,7 +458,7 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 
 			_la = p.GetTokenStream().LA(1)
 
-			if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<pluralParserT__0)|(1<<pluralParserT__1)|(1<<pluralParserT__2)|(1<<pluralParserT__3))) != 0) {
+			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&30) != 0) {
 				var _ri = p.GetErrorHandler().RecoverInline(p)
 
 				localctx.(*ExpContext).prefix = _ri
@@ -448,13 +497,19 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 		}
 
 	default:
-		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+		p.SetError(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+		goto errorExit
 	}
 	p.GetParserRuleContext().SetStop(p.GetTokenStream().LT(-1))
 	p.SetState(59)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 2, p.GetParserRuleContext())
-
+	if p.HasError() {
+		goto errorExit
+	}
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 2, p.GetParserRuleContext())
+	if p.HasError() {
+		goto errorExit
+	}
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			if p.GetParseListeners() != nil {
@@ -463,14 +518,19 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 			_prevctx = localctx
 			p.SetState(57)
 			p.GetErrorHandler().Sync(p)
-			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 1, p.GetParserRuleContext()) {
+			if p.HasError() {
+				goto errorExit
+			}
+
+			switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 1, p.GetParserRuleContext()) {
 			case 1:
 				localctx = NewExpContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, pluralParserRULE_exp)
 				p.SetState(16)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 12)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 12)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 12)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(17)
@@ -481,7 +541,7 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 
 					_la = p.GetTokenStream().LA(1)
 
-					if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<pluralParserT__6)|(1<<pluralParserT__7)|(1<<pluralParserT__8))) != 0) {
+					if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&896) != 0) {
 						var _ri = p.GetErrorHandler().RecoverInline(p)
 
 						localctx.(*ExpContext).bop = _ri
@@ -501,7 +561,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(19)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 11)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 11)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 11)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(20)
@@ -532,7 +593,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(22)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 10)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 10)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 10)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(23)
@@ -563,7 +625,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(25)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 9)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 9)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 9)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(26)
@@ -594,7 +657,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(28)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 8)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 8)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 8)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(29)
@@ -625,7 +689,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(31)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 7)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 7)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 7)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(32)
@@ -656,7 +721,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(34)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 6)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 6)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 6)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(35)
@@ -664,6 +730,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					var _m = p.Match(pluralParserT__17)
 
 					localctx.(*ExpContext).bop = _m
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(36)
@@ -676,7 +746,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(37)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 5)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 5)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 5)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(38)
@@ -684,6 +755,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					var _m = p.Match(pluralParserT__18)
 
 					localctx.(*ExpContext).bop = _m
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(39)
@@ -696,7 +771,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(40)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 4)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 4)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 4)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(41)
@@ -704,6 +780,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					var _m = p.Match(pluralParserT__19)
 
 					localctx.(*ExpContext).bop = _m
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(42)
@@ -716,7 +796,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(43)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 3)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 3)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 3)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(44)
@@ -724,6 +805,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					var _m = p.Match(pluralParserT__20)
 
 					localctx.(*ExpContext).bop = _m
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(45)
@@ -736,7 +821,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(46)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 2)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 2)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 2)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(47)
@@ -744,6 +830,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					var _m = p.Match(pluralParserT__21)
 
 					localctx.(*ExpContext).bop = _m
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(48)
@@ -756,7 +846,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(49)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 1)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 1)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 1)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(50)
@@ -764,6 +855,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					var _m = p.Match(pluralParserT__22)
 
 					localctx.(*ExpContext).bop = _m
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(51)
@@ -772,6 +867,10 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				{
 					p.SetState(52)
 					p.Match(pluralParserT__23)
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
 				}
 				{
 					p.SetState(53)
@@ -784,7 +883,8 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 				p.SetState(55)
 
 				if !(p.Precpred(p.GetParserRuleContext(), 15)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 15)", ""))
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 15)", ""))
+					goto errorExit
 				}
 				{
 					p.SetState(56)
@@ -805,15 +905,33 @@ func (p *pluralParser) exp(_p int) (localctx IExpContext) {
 					}
 				}
 
+			case antlr.ATNInvalidAltNumber:
+				goto errorExit
 			}
 
 		}
 		p.SetState(61)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 2, p.GetParserRuleContext())
+		if p.HasError() {
+			goto errorExit
+		}
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 2, p.GetParserRuleContext())
+		if p.HasError() {
+			goto errorExit
+		}
 	}
 
+errorExit:
+	if p.HasError() {
+		v := p.GetError()
+		localctx.SetException(v)
+		p.GetErrorHandler().ReportError(p, v)
+		p.GetErrorHandler().Recover(p, v)
+		p.SetError(nil)
+	}
+	p.UnrollRecursionContexts(_parentctx)
 	return localctx
+	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
 // IPrimaryContext is an interface to support dynamic dispatch.
@@ -823,20 +941,29 @@ type IPrimaryContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Exp() IExpContext
+	INT() antlr.TerminalNode
+
 	// IsPrimaryContext differentiates from other interfaces.
 	IsPrimaryContext()
 }
 
 type PrimaryContext struct {
-	*antlr.BaseParserRuleContext
+	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
 func NewEmptyPrimaryContext() *PrimaryContext {
 	var p = new(PrimaryContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
 	p.RuleIndex = pluralParserRULE_primary
 	return p
+}
+
+func InitEmptyPrimaryContext(p *PrimaryContext) {
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = pluralParserRULE_primary
 }
 
 func (*PrimaryContext) IsPrimaryContext() {}
@@ -844,7 +971,7 @@ func (*PrimaryContext) IsPrimaryContext() {}
 func NewPrimaryContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *PrimaryContext {
 	var p = new(PrimaryContext)
 
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
 	p.RuleIndex = pluralParserRULE_primary
@@ -855,7 +982,13 @@ func NewPrimaryContext(parser antlr.Parser, parent antlr.ParserRuleContext, invo
 func (s *PrimaryContext) GetParser() antlr.Parser { return s.parser }
 
 func (s *PrimaryContext) Exp() IExpContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IExpContext)(nil)).Elem(), 0)
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
 
 	if t == nil {
 		return nil
@@ -891,25 +1024,11 @@ func (s *PrimaryContext) ExitRule(listener antlr.ParseTreeListener) {
 func (p *pluralParser) Primary() (localctx IPrimaryContext) {
 	localctx = NewPrimaryContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 4, pluralParserRULE_primary)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
 	p.SetState(68)
 	p.GetErrorHandler().Sync(p)
+	if p.HasError() {
+		goto errorExit
+	}
 
 	switch p.GetTokenStream().LA(1) {
 	case pluralParserT__24:
@@ -917,6 +1036,10 @@ func (p *pluralParser) Primary() (localctx IPrimaryContext) {
 		{
 			p.SetState(62)
 			p.Match(pluralParserT__24)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
 		}
 		{
 			p.SetState(63)
@@ -925,6 +1048,10 @@ func (p *pluralParser) Primary() (localctx IPrimaryContext) {
 		{
 			p.SetState(64)
 			p.Match(pluralParserT__25)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
 		}
 
 	case pluralParserT__26:
@@ -932,6 +1059,10 @@ func (p *pluralParser) Primary() (localctx IPrimaryContext) {
 		{
 			p.SetState(66)
 			p.Match(pluralParserT__26)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
 		}
 
 	case pluralParserINT:
@@ -939,13 +1070,28 @@ func (p *pluralParser) Primary() (localctx IPrimaryContext) {
 		{
 			p.SetState(67)
 			p.Match(pluralParserINT)
+			if p.HasError() {
+				// Recognition error - abort rule
+				goto errorExit
+			}
 		}
 
 	default:
-		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+		p.SetError(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+		goto errorExit
 	}
 
+errorExit:
+	if p.HasError() {
+		v := p.GetError()
+		localctx.SetException(v)
+		p.GetErrorHandler().ReportError(p, v)
+		p.GetErrorHandler().Recover(p, v)
+		p.SetError(nil)
+	}
+	p.ExitRule()
 	return localctx
+	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
 func (p *pluralParser) Sempred(localctx antlr.RuleContext, ruleIndex, predIndex int) bool {

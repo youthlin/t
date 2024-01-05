@@ -3,7 +3,7 @@ package translator
 import (
 	"io"
 
-	"github.com/cockroachdb/errors"
+	"github.com/youthlin/t/errors"
 )
 
 type reader struct {

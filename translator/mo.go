@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/cockroachdb/errors"
+	"github.com/youthlin/t/errors"
 )
 
 // https://www.gnu.org/software/gettext/manual/html_node/MO-Files.html#MO-Files
@@ -195,9 +195,11 @@ func ReadMo(content []byte) (*File, error) {
 }
 
 // SaveAsMo save as machine object file(.mo)
-//  0: magic number = 0x950412de
-//  4: version = 0
-//  8: count = count
+//
+//	0: magic number = 0x950412de
+//	4: version = 0
+//	8: count = count
+//
 // 12: offset of origin string table = O = 75
 // 16: offset of translation string table
 // 20: size of hash table = 0

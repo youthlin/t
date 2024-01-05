@@ -9,7 +9,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/cockroachdb/errors"
+	"github.com/youthlin/t/errors"
 )
 
 var errEmptyPo = fmt.Errorf("empty po file")
