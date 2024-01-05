@@ -16,6 +16,14 @@ var errEmptyPo = fmt.Errorf("empty po file")
 
 // ReadPo read po file
 func ReadPo(content []byte) (*File, error) {
+	return readPo(content, false)
+}
+
+func ReadPot(content []byte) (*File, error) {
+	return readPo(content, true)
+}
+
+func readPo(content []byte, pot bool) (*File, error) {
 	if len(content) == 0 {
 		return nil, errors.Wrapf(errEmptyPo, "read po file failed")
 	}
@@ -25,7 +33,7 @@ func ReadPo(content []byte) (*File, error) {
 	file := new(File)
 	for {
 		entry, err := readEntry(r)
-		if entry.isValid() {
+		if pot || entry.isValid() {
 			file.AddEntry(entry)
 		}
 		if errors.Is(err, io.EOF) {
