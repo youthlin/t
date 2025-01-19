@@ -1,4 +1,15 @@
 {{- template "header" . -}}
+{{- template "title" .T "Title" -}}
+{{- /*Comments*/ -}}
+
+{{with $foo := .T "foo"}}
+{{$foo}}
+{{end}}
+{{if .T "ok"}}
+{{end}}
+{{range .T "range"}}
+<li>{{.}}</li>
+{{end}}
 
 {{ .T "Hello, World" }}
 {{ .T "Hello, %v" }}
