@@ -3,10 +3,14 @@
 <html>
 
 <head>
-    <title>{{- .t.T "Hello, World" -}}</title>// FieldNode=[t, T], StringNode="txt"
-</head>
+{{- end -}}
 
+{{- define "title" -}}
+    <title>{{.}}</title> 
+</head>
 <body>
+{{- end -}}
+
     {{ "id2" | .XN "ctxt" "id" }}// Cmd | Cmd // StringNode | FieldNode=[XN], StringNode="ctxt", StringNOde="id"
     {{ .args | .XN "ctxt" "id" "id2" }}// FieldNode=[args] | FieldNode=[XN], StringNode=ctxt, id, id2
     {{ .XN "ctxt" "id" `id2` }}// FieldNode=[XN], StringNode=ctxt, id, id2
@@ -22,14 +26,13 @@
     {{ T ("id") }}// Ident PipeNode=() 不支持
     {{ or (T "id") (T "id") }}// Ident=or PipeNode=() PipeNode=()
 
-    {{- end -}}
 
     1. PipeNode
     2. Cmd.Args FieldNode[last] > StringNode
     3. Cmd.Args Ident, Ident > String
     4. Cmd.Args has PipeNode -> 1.
 
-    {{- define "footer" -}}
+{{- define "footer" -}}
 </body>
 
 </html>

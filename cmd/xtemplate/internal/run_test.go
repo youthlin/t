@@ -19,7 +19,7 @@ func TestGlob(t *testing.T) {
 
 func TestFile(t *testing.T) {
 	Convey("resolveOneFile", t, func() {
-		resolveOneFile("testdata/base.tmpl", &Context{
+		resolveOneFile("testdata/index.tmpl", &Context{
 			Param: &Param{
 				Left:  "{{",
 				Right: "}}",
@@ -36,6 +36,7 @@ func TestFile(t *testing.T) {
 		})
 	})
 }
+
 func Test_run(t *testing.T) {
 	Convey("run", t, func() {
 		Run(&Param{
@@ -45,6 +46,7 @@ func Test_run(t *testing.T) {
 			Keyword:    "T;X:1c,2;N:1,2;XN:1c,2,3",
 			Function:   "T",
 			OutputFile: "-",
+			Debug:      true,
 		})
 	})
 }

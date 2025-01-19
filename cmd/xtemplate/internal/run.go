@@ -76,12 +76,24 @@ func resolveTmpl(filename string, ctx *Context, tmpl *template.Template) {
 	}
 	root := tmpl.Tree.Root
 	for _, node := range root.Nodes {
-		// param.debugPrint("  > node=%#v", node)
+		ctx.debugPrint("  > node=%#v", node)
 		// comment 会被忽略，这里拿不到注释信息
-		if node.Type() == parse.NodeAction {
-			// 只需要关注 action 节点
+		switch node.Type() {
+		case parse.NodeAction:
 			actionNode := node.(*parse.ActionNode)
 			resolvePipe(filename, actionNode.Line, ctx, actionNode.Pipe)
+		case parse.NodeIf:
+			branchNode := node.(*parse.IfNode)
+			resolvePipe(filename, branchNode.Line, ctx, branchNode.Pipe)
+		case parse.NodeRange:
+			branchNode := node.(*parse.RangeNode)
+			resolvePipe(filename, branchNode.Line, ctx, branchNode.Pipe)
+		case parse.NodeWith:
+			withNode := node.(*parse.WithNode)
+			resolvePipe(filename, withNode.Line, ctx, withNode.Pipe)
+		case parse.NodeTemplate:
+			templateNode := node.(*parse.TemplateNode)
+			resolvePipe(filename, templateNode.Line, ctx, templateNode.Pipe)
 		}
 	}
 }
