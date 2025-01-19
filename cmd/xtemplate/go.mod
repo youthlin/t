@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/smartystreets/goconvey v1.8.1
-	github.com/youthlin/t v0.0.8
+	github.com/youthlin/t v0.0.9
 )
 
 require (
