@@ -11,7 +11,7 @@ import (
 )
 
 // Version the version
-var Version string = "v0.0.5"
+var Version string = "v0.0.9"
 
 //go:embed lang
 var embedLangs embed.FS
@@ -52,7 +52,7 @@ func buildParam() *internal.Param {
 		input    = flag.String("i", "", t.T("input file pattern"))
 		left     = flag.String("left", "{{", t.T("left delim"))
 		right    = flag.String("right", "}}", t.T("right delim"))
-		keywords = flag.String("k", "", t.T("keywords e.g.: gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"))
+		keywords = flag.String("k", "", t.T("keywords e.g.: gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3"))
 		fun      = flag.String("f", "", t.T("function names of template"))
 		output   = flag.String("o", "", t.T("output file, - is stdout"))
 		debug    = flag.Bool("d", false, t.T("debug mode"))
