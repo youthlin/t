@@ -3,10 +3,14 @@
 <html>
 
 <head>
-    <title>{{- .t.T "Hello, World" -}}</title>// FieldNode=[t, T], StringNode="txt"
-</head>
+{{- end -}}
 
+{{- define "title" -}}
+    <title>{{.}}</title> 
+</head>
 <body>
+{{- end -}}
+
     {{ "id2" | .XN "ctxt" "id" }}// Cmd | Cmd // StringNode | FieldNode=[XN], StringNode="ctxt", StringNOde="id"
     {{ .args | .XN "ctxt" "id" "id2" }}// FieldNode=[args] | FieldNode=[XN], StringNode=ctxt, id, id2
     {{ .XN "ctxt" "id" `id2` }}// FieldNode=[XN], StringNode=ctxt, id, id2
@@ -21,15 +25,24 @@
     {{ $arg = T "id" }}
     {{ T ("id") }}// Ident PipeNode=() 不支持
     {{ or (T "id") (T "id") }}// Ident=or PipeNode=() PipeNode=()
+    {{ if .cond }}{{ T "inside if" }}{{ else }}{{ T "inside else" }}{{ end }}
+    {{ range .list }}{{ T "inside range" }}{{ else }}{{ T "inside range else" }}{{ end }}
+    {{ with .arg }}{{ T "inside with" }}{{ else }}{{ T "inside with else" }}{{ end }}
+    {{ if .cond }}{{ $.t.T "inside if without else" }}{{ end }}
+    {{ range .list }}{{ $.t.T "inside range without else" }}{{ end }}
+    {{ with .arg }}{{ $.t.T "inside with without else" }}{{ end }}
+    {{ "piped through T" | T }}
+    {{ "piped through field T" | .t.T }}
+    {{ "id-pipe" | X "ctxt-pipe" }}
+    {{ T ("wrapped string arg") }}
 
-    {{- end -}}
 
     1. PipeNode
     2. Cmd.Args FieldNode[last] > StringNode
     3. Cmd.Args Ident, Ident > String
     4. Cmd.Args has PipeNode -> 1.
 
-    {{- define "footer" -}}
+{{- define "footer" -}}
 </body>
 
 </html>
