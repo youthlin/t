@@ -21,6 +21,12 @@
     {{ $arg = T "id" }}
     {{ T ("id") }}// Ident PipeNode=() 不支持
     {{ or (T "id") (T "id") }}// Ident=or PipeNode=() PipeNode=()
+    {{ if .cond }}{{ T "inside if" }}{{ else }}{{ T "inside else" }}{{ end }}
+    {{ range .list }}{{ T "inside range" }}{{ else }}{{ T "inside range else" }}{{ end }}
+    {{ with .arg }}{{ T "inside with" }}{{ else }}{{ T "inside with else" }}{{ end }}
+    {{ if .cond }}{{ $.t.T "inside if without else" }}{{ end }}
+    {{ range .list }}{{ $.t.T "inside range without else" }}{{ end }}
+    {{ with .arg }}{{ $.t.T "inside with without else" }}{{ end }}
 
     {{- end -}}
 

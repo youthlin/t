@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"text/template/parse"
 
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
-	"github.com/youthlin/t/errors"
 	"github.com/youthlin/t/translator"
 )
 
@@ -74,15 +74,52 @@ func resolveTmpl(filename string, ctx *Context, tmpl *template.Template) {
 		ctx.debugPrint("  > filename=%v, template=%v, tree or Root is nil", filename, tmpl.Name())
 		return
 	}
-	root := tmpl.Tree.Root
-	for _, node := range root.Nodes {
-		// param.debugPrint("  > node=%#v", node)
-		// comment 会被忽略，这里拿不到注释信息
-		if node.Type() == parse.NodeAction {
-			// 只需要关注 action 节点
-			actionNode := node.(*parse.ActionNode)
-			resolvePipe(filename, actionNode.Line, ctx, actionNode.Pipe)
+	resolveNode(filename, ctx, tmpl.Tree.Root)
+}
+
+func resolveNode(filename string, ctx *Context, node parse.Node) {
+	if node == nil {
+		return
+	}
+	switch node := node.(type) {
+	case *parse.ListNode:
+		if node == nil {
+			return
 		}
+		for _, child := range node.Nodes {
+			resolveNode(filename, ctx, child)
+		}
+	case *parse.ActionNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+	case *parse.IfNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+		resolveNode(filename, ctx, node.List)
+		resolveNode(filename, ctx, node.ElseList)
+	case *parse.RangeNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+		resolveNode(filename, ctx, node.List)
+		resolveNode(filename, ctx, node.ElseList)
+	case *parse.WithNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+		resolveNode(filename, ctx, node.List)
+		resolveNode(filename, ctx, node.ElseList)
+	case *parse.TemplateNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
 	}
 }
 
@@ -113,7 +150,22 @@ func resolveCmds(filename string, line int, ctx *Context, cmds []*parse.CommandN
 			case *parse.IdentifierNode:
 				filter(ctx, fmt.Sprintf("%v:%d", filename, line), arg.Ident, i, cmd.Args)
 			case *parse.FieldNode:
+				if len(arg.Ident) == 0 {
+					continue
+				}
 				lastID := arg.Ident[len(arg.Ident)-1]
+				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, cmd.Args)
+			case *parse.VariableNode:
+				if len(arg.Ident) == 0 {
+					continue
+				}
+				lastID := arg.Ident[len(arg.Ident)-1]
+				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, cmd.Args)
+			case *parse.ChainNode:
+				if len(arg.Field) == 0 {
+					continue
+				}
+				lastID := arg.Field[len(arg.Field)-1]
 				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, cmd.Args)
 			}
 		}

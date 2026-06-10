@@ -11,7 +11,7 @@ import (
 )
 
 // Version the version
-var Version string = "v0.0.5"
+var Version string = "v0.1.1"
 
 //go:embed lang
 var embedLangs embed.FS
