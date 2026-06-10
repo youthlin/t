@@ -5,11 +5,62 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/youthlin/t/errors"
+	parse2 "github.com/youthlin/t/plurals/parse"
 	"github.com/youthlin/t/plurals/parser"
 )
+
+type ParserEngine string
+
+const (
+	ParserEngineAuto        ParserEngine = "auto"
+	ParserEngineHandwritten ParserEngine = "handwritten"
+	ParserEngineANTLR       ParserEngine = "antlr"
+)
+
+var defaultParserEngine atomic.Value
+
+const ctxKeyParserEngine = ctxKey("plural-parser-engine")
+
+func init() {
+	defaultParserEngine.Store(ParserEngineAuto)
+}
+
+func WithParserEngine(ctx context.Context, engine ParserEngine) context.Context {
+	return context.WithValue(ctx, ctxKeyParserEngine, engine.normalize())
+}
+
+func SetDefaultParserEngine(engine ParserEngine) {
+	defaultParserEngine.Store(engine.normalize())
+}
+
+func DefaultParserEngine() ParserEngine {
+	if v, ok := defaultParserEngine.Load().(ParserEngine); ok {
+		return v.normalize()
+	}
+	return ParserEngineAuto
+}
+
+func (e ParserEngine) normalize() ParserEngine {
+	switch e {
+	case ParserEngineANTLR, ParserEngineHandwritten:
+		return e
+	default:
+		return ParserEngineAuto
+	}
+}
+
+func parserEngineFromContext(ctx context.Context) ParserEngine {
+	if ctx != nil {
+		if v, ok := ctx.Value(ctxKeyParserEngine).(ParserEngine); ok {
+			return v.normalize()
+		}
+	}
+	return DefaultParserEngine()
+}
 
 // Eval 传入复数表达式，返回 n 应该使用哪种复数形式
 func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
@@ -26,26 +77,56 @@ func Eval(ctx context.Context, exp string, n int64) (result int64, err error) {
 		return fun(n), nil
 	}
 
-	// 2 词法解析
+	switch parserEngineFromContext(ctx) {
+	case ParserEngineANTLR:
+		return evalANTLR(ctx, exp, n)
+	case ParserEngineHandwritten:
+		return evalHandwritten(exp, n)
+	default:
+		result, err := evalHandwritten(exp, n)
+		if err == nil {
+			return result, nil
+		}
+		result2, err2 := evalANTLR(ctx, exp, n)
+		if err2 == nil {
+			return result2, nil
+		}
+		return 0, errors.Wrapf(errors.WithSecondaryError(err, err2), "parse plural expression")
+	}
+}
+
+func evalHandwritten(exp string, n int64) (int64, error) {
+	fn, err := parse2.String(exp)
+	if err != nil {
+		return 0, errors.Wrapf(err, "handwritten parser")
+	}
+	return fn(n), nil
+}
+
+func evalANTLR(ctx context.Context, exp string, n int64) (result int64, err error) {
 	input := antlr.NewInputStream(exp)
 	lexer := parser.NewpluralLexer(input)
 	errListener := new(errorListener)
 	lexer.RemoveErrorListeners()
 	lexer.AddErrorListener(errListener)
 
-	// 3 语法树生成
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	p := parser.NewpluralParser(stream)
 	p.RemoveErrorListeners()
 	p.AddErrorListener(errListener)
 
-	// 4 遍历语法树计算表达式
 	l := newListener(ctx, n)
 	tree := p.Start_()
 	antlr.ParseTreeWalkerDefault.Walk(l, tree)
+	if errListener.err == nil && stream.LA(1) != antlr.TokenEOF {
+		errListener.addError(errors.Errorf("unexpected trailing token: %q", stream.LT(1).GetText()))
+	}
 	return l.result, errListener.err
 }
 
+// gettext plural expressions follow C-like operator syntax.
+// In particular, binary '^' means XOR and unary '~' means bitwise NOT.
+// Do not confuse this with Go's unary '^', which is also bitwise NOT.
 // c syntax accept int(0) as false, none-zero as true
 const (
 	_TRUE  = 1
@@ -56,12 +137,11 @@ const (
 // see https://blog.gopheracademy.com/advent-2017/parsing-with-antlr4-and-go/
 // 遍历语法树时操作一个栈来计算表达式
 type myListener struct {
-	// 实现这个父类上感兴趣的方法(相当于一个 adaptor)
 	*parser.BasepluralListener
-	stack  Int64Stack      // 操作数栈
-	ctx    context.Context // 外部传入的 ctx， 用于 debug
-	n      int64           // 参数 n
-	result int64           // 结果
+	stack  Int64Stack
+	ctx    context.Context
+	n      int64
+	result int64
 }
 
 func newListener(ctx context.Context, n int64) *myListener {
@@ -72,12 +152,10 @@ func newListener(ctx context.Context, n int64) *myListener {
 	}
 }
 
-// ExitStart override
 func (s *myListener) ExitStart(ctx *parser.StartContext) {
 	s.result, _ = s.stack.Pop()
 }
 
-// ExitExp override
 func (s *myListener) ExitExp(ctx *parser.ExpContext) {
 	var (
 		prefix  = ctx.GetPrefix()
@@ -87,7 +165,6 @@ func (s *myListener) ExitExp(ctx *parser.ExpContext) {
 	s.handleExpPrefix(prefix)
 	s.handleExpBop(bop)
 	s.handleExpPostfix(postfix)
-	// prefix, bop, postfix all nil, then it's a primary rule
 }
 
 func (s *myListener) handleExpPrefix(prefix antlr.Token) {
@@ -97,7 +174,7 @@ func (s *myListener) handleExpPrefix(prefix antlr.Token) {
 	prefixText := prefix.GetText()
 	s.debug("prefix: %v stack=%v", prefixText, s.stack)
 	switch prefixText {
-	case "+": // no-op
+	case "+":
 	case "-":
 		num, _ := s.stack.Pop()
 		s.stack.Push(-num)
@@ -109,7 +186,7 @@ func (s *myListener) handleExpPrefix(prefix antlr.Token) {
 		s.stack.Push(num - 1)
 	case "~":
 		num, _ := s.stack.Pop()
-		s.stack.Push(^num) // go 使用 ^ 表示按位取反
+		s.stack.Push(^num)
 	case "!":
 		num, _ := s.stack.Pop()
 		if num == _TRUE {
@@ -130,152 +207,113 @@ func (s *myListener) handleExpBop(bop antlr.Token) {
 	s.debug("bop   : %v stack=%v", bopText, s.stack)
 	switch bopText {
 	case "*":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left * right)
 	case "/":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left / right)
 	case "%":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left % right)
 	case "+":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left + right)
 	case "-":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left - right)
 	case ">>":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left >> right)
 	case "<<":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left << right)
 	case ">":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left > right {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "<":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left < right {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case ">=":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left >= right {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "<=":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left <= right {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "==":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left == right {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "!=":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left != right {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "&":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left & right)
 	case "|":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		s.stack.Push(left | right)
 	case "^":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
-		s.stack.Push(left & right) // 作为二元操作符，是异或
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
+		s.stack.Push(left ^ right)
 	case "&&":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left == _TRUE && right == _TRUE {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "||":
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
 		if left == _TRUE || right == _TRUE {
 			s.stack.Push(_TRUE)
 		} else {
 			s.stack.Push(_FALSE)
 		}
 	case "?":
-		s.debug("%v", s.stack)
-		var (
-			right, _ = s.stack.Pop()
-			left, _  = s.stack.Pop()
-			cond, _  = s.stack.Pop()
-		)
+		var right, _ = s.stack.Pop()
+		var left, _ = s.stack.Pop()
+		var cond, _ = s.stack.Pop()
 		if cond == _TRUE {
 			s.stack.Push(left)
 		} else {
@@ -305,15 +343,12 @@ func (s *myListener) handleExpPostfix(postfix antlr.Token) {
 	}
 }
 
-// ExitPrimary override
 func (s *myListener) ExitPrimary(ctx *parser.PrimaryContext) {
-	// primary: '(' exp ')' | 'n' | INT;
 	start := ctx.GetStart()
 	switch start.GetText() {
 	case "n":
-		s.stack.Push(s.n) // the only variable n
+		s.stack.Push(s.n)
 	case "(":
-		// 不用出入栈
 		s.debug("primary: (exp) stack=%v", s.stack)
 	default:
 		num := ctx.GetText()
@@ -326,8 +361,6 @@ func (s *myListener) ExitPrimary(ctx *parser.PrimaryContext) {
 	s.debug("primary: %v stack=%v", ctx.GetText(), s.stack)
 }
 
-// debug if ctx has a debug key, then print msg.
-// see DebugContext
 func (s *myListener) debug(format string, args ...interface{}) {
 	if s.ctx.Value(ctxKeyDebug) != nil {
 		fmt.Printf(format+"\n", args...)

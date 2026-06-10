@@ -224,7 +224,7 @@ func myCase() []tCase {
 		{"custom-case21", args{ctx, "n!=1", 1}, 0, false},
 		{"custom-case22", args{ctx, "n&1", 1}, 1, false},
 		{"custom-case23", args{ctx, "n|1", 1}, 1, false},
-		{"custom-case24", args{ctx, "n^1", 1}, 1, false},
+		{"custom-case24", args{ctx, "n^1", 1}, 0, false},
 		{"custom-case25", args{ctx, "n||1", 0}, 1, false},
 		{"custom-case26", args{ctx, "n&&1", 0}, 0, false},
 		{"custom-case27", args{ctx, "n&&1", 1}, 1, false},
@@ -238,8 +238,8 @@ func myCase() []tCase {
 }
 func errCase() []tCase {
 	return []tCase{
-		{"err0", args{}, 0, true},              // SyntaxError: EOF
-		{"err1", args{ctx, `nn`, 1}, 1, false}, // todo why 这个不太符合预期。应该返回错误才对
+		{"err0", args{}, 0, true},
+		{"err1", args{ctx, `nn`, 1}, 0, true},
 	}
 }
 
@@ -273,4 +273,32 @@ func TestEval2(t *testing.T) {
 			So(err, ShouldNotBeNil)
 		})
 	})
+}
+
+func TestEval_WithParserEngine(t *testing.T) {
+	tests := []struct {
+		name    string
+		ctx     context.Context
+		exp     string
+		n       int64
+		want    int64
+		wantErr bool
+	}{
+		{name: "handwritten", ctx: WithParserEngine(ctx, ParserEngineHandwritten), exp: "n==1?0:n==2?1:2", n: 2, want: 1},
+		{name: "antlr", ctx: WithParserEngine(ctx, ParserEngineANTLR), exp: "n==1?0:n==2?1:2", n: 2, want: 1},
+		{name: "auto", ctx: WithParserEngine(ctx, ParserEngineAuto), exp: "n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2", n: 21, want: 0},
+		{name: "handwritten-invalid", ctx: WithParserEngine(ctx, ParserEngineHandwritten), exp: "nn", n: 1, wantErr: true},
+		{name: "antlr-invalid", ctx: WithParserEngine(ctx, ParserEngineANTLR), exp: "nn", n: 1, wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Eval(tt.ctx, tt.exp, tt.n)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Eval() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err == nil && got != tt.want {
+				t.Fatalf("Eval() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

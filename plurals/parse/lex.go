@@ -332,7 +332,7 @@ func (l *lexer) unread(ch rune) {
 }
 
 func debug(msg string, args ...any) {
-	fmt.Printf(msg+"\n", args...)
+	// no-op by default; keep the hook for local parser debugging.
 }
 
 func isAlpha(ch rune) bool {

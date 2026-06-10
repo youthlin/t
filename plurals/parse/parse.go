@@ -23,22 +23,25 @@ func ParseToken(input []*Token) (tree *Node, err error) {
 }
 
 type Node struct {
-	// A->a 非终极符 A, 终极符
 	Name     string
-	Token    *Token // 终极符
+	Token    *Token
 	Parent   *Node
 	Children []*Node
 	Value    int64
 }
 
 const (
-	nameExp     = "exp"
-	namePrimary = "primary"
-	nameExpMore = "expMore"
+	nameInt     = "int"
+	nameID      = "id"
+	nameGroup   = "group"
+	namePrefix  = "prefix"
+	namePostfix = "postfix"
+	nameBinary  = "binary"
+	nameTernary = "ternary"
 )
 
 func (n *Node) add(child *Node) {
-	if child.Name == nameExpMore && len(child.Children) == 0 {
+	if child == nil {
 		return
 	}
 	child.Parent = n
@@ -68,206 +71,192 @@ type parser struct {
 }
 
 func (p *parser) parse() (tree *Node, err error) {
-	return p.exp()
-}
-
-func (p *parser) exp() (node *Node, err error) {
-	node = &Node{Name: nameExp}
-	var (
-		child *Node
-		tok   = p.peekToken()
-	)
-	debug("exp. peek=%v", tok)
-	if tok = p.peekToken(); tok != nil {
-		tt := tok.Type
-		switch tt {
-		case TokenTypeParenL, TokenTypeID, TokenTypeInt: // primary
-			child, err = p.primary()
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-
-			child, err = p.expMore()
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		case TokenTypePlus, TokenTypeMinus,
-			TokenTypeIncr, TokenTypeDecr,
-			TokenTypeBitNot, TokenTypeNot: // 一元前缀操作符
-			child, err = p.match(tt)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-
-			child, err = p.exp()
-			if err != nil {
-				return nil, fmt.Errorf("expected exp of unary operator %q: %w", tt, err)
-			}
-			if tt == TokenTypeIncr || tt == TokenTypeDecr { // 自增自减操作符 只能作用在标识符上
-				if len(child.Children) == 0 {
-					return nil, fmt.Errorf("prefix operator %v can only before ID, got %v", tt, child)
-				}
-				pri := child.Children[0]
-				if pri.Name != namePrimary {
-					return nil, fmt.Errorf("prefix operator %v can only before ID, got %v", tt, child)
-				}
-				if len(pri.Children) == 0 {
-					return nil, fmt.Errorf("prefix operator %v can only before ID, got %v", tt, child)
-				}
-				t := pri.Children[0].Token
-				if t == nil {
-					return nil, fmt.Errorf("prefix operator %v can only before ID, got %v", tt, child)
-				}
-				if t.Type != TokenTypeID {
-					return nil, fmt.Errorf("prefix operator %v can only before ID, got %v", tt, child)
-				}
-			}
-			node.add(child)
-
-			child, err = p.expMore()
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		default:
-			return nil, fmt.Errorf(`unexpected %q when parse exp, expected primary["(", ID, INT] or unaray opertor`, tt)
-		}
-	} else {
-		return nil, fmt.Errorf(`unexpected EOF when parse exp, expected primary["(", ID, INT]  or unaray operator`)
+	tree, err = p.parseConditional()
+	if err != nil {
+		return nil, err
 	}
-	return node, nil
+	if tok := p.peekToken(); tok != nil {
+		return nil, fmt.Errorf("unexpected token %q after expression", tok)
+	}
+	return tree, nil
 }
 
-func (p *parser) primary() (node *Node, err error) {
-	node = &Node{Name: namePrimary}
-	var (
-		child *Node
-		tok   = p.peekToken()
-	)
-	debug("primary. peek=%v", tok)
-	if tok = p.peekToken(); tok != nil {
-		tt := tok.Type
-		switch tt {
-		case TokenTypeParenL:
-			child, err = p.match(TokenTypeParenL)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-
-			child, err = p.exp()
-			if err != nil {
-				return nil, fmt.Errorf(`failed to parse primary "(exp)", expected exp after "(": %w`, err)
-			}
-			node.add(child)
-
-			child, err = p.match(TokenTypeParenR)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		case TokenTypeID, TokenTypeInt:
-			child, err = p.match(tt)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		default:
-			return nil, fmt.Errorf(`unexpected %q when parse primary, expected "(", ID, INT`, tt)
+func (p *parser) parseConditional() (*Node, error) {
+	cond, err := p.parseBinary(0)
+	if err != nil {
+		return nil, err
+	}
+	if tok := p.peekToken(); tok != nil && tok.Type == TokenTypeQst {
+		op, err := p.match(TokenTypeQst)
+		if err != nil {
+			return nil, err
 		}
-	} else {
+		thenNode, err := p.parseConditional()
+		if err != nil {
+			return nil, fmt.Errorf(`expected expression after "?": %w`, err)
+		}
+		if _, err := p.match(TokenTypeCol); err != nil {
+			return nil, fmt.Errorf(`expected ":" in conditional expression: %w`, err)
+		}
+		elseNode, err := p.parseConditional()
+		if err != nil {
+			return nil, fmt.Errorf(`expected expression after ":": %w`, err)
+		}
+		node := &Node{Name: nameTernary, Token: op.Token}
+		node.add(cond)
+		node.add(thenNode)
+		node.add(elseNode)
+		return node, nil
+	}
+	return cond, nil
+}
+
+func (p *parser) parseBinary(minPrec int) (*Node, error) {
+	left, err := p.parsePrefix()
+	if err != nil {
+		return nil, err
+	}
+	for {
+		tok := p.peekToken()
+		if tok == nil {
+			return left, nil
+		}
+		prec := binaryPrecedence(tok.Type)
+		if prec < minPrec {
+			return left, nil
+		}
+		op, err := p.match(tok.Type)
+		if err != nil {
+			return nil, err
+		}
+		right, err := p.parseBinary(prec + 1)
+		if err != nil {
+			return nil, fmt.Errorf("expected right expression of operator %q: %w", tok.Type, err)
+		}
+		node := &Node{Name: nameBinary, Token: op.Token}
+		node.add(left)
+		node.add(right)
+		left = node
+	}
+}
+
+func (p *parser) parsePrefix() (*Node, error) {
+	tok := p.peekToken()
+	if tok == nil {
+		return nil, fmt.Errorf("unexpected EOF when parse expression")
+	}
+	switch tok.Type {
+	case TokenTypePlus, TokenTypeMinus, TokenTypeIncr, TokenTypeDecr, TokenTypeBitNot, TokenTypeNot:
+		op, err := p.match(tok.Type)
+		if err != nil {
+			return nil, err
+		}
+		child, err := p.parsePrefix()
+		if err != nil {
+			return nil, fmt.Errorf("expected expression of unary operator %q: %w", tok.Type, err)
+		}
+		if (tok.Type == TokenTypeIncr || tok.Type == TokenTypeDecr) && !child.isID() {
+			return nil, fmt.Errorf("prefix operator %v can only before ID", tok.Type)
+		}
+		node := &Node{Name: namePrefix, Token: op.Token}
+		node.add(child)
+		return node, nil
+	default:
+		return p.parsePostfix()
+	}
+}
+
+func (p *parser) parsePostfix() (*Node, error) {
+	node, err := p.parsePrimary()
+	if err != nil {
+		return nil, err
+	}
+	for {
+		tok := p.peekToken()
+		if tok == nil || (tok.Type != TokenTypeIncr && tok.Type != TokenTypeDecr) {
+			return node, nil
+		}
+		if !node.isID() {
+			return nil, fmt.Errorf("postfix operator %v can only after ID", tok.Type)
+		}
+		op, err := p.match(tok.Type)
+		if err != nil {
+			return nil, err
+		}
+		parent := &Node{Name: namePostfix, Token: op.Token}
+		parent.add(node)
+		node = parent
+	}
+}
+
+func (p *parser) parsePrimary() (*Node, error) {
+	tok := p.peekToken()
+	if tok == nil {
 		return nil, fmt.Errorf(`unexpected EOF when parse primary, expected "(" or ID or INT`)
 	}
-	return node, nil
+	switch tok.Type {
+	case TokenTypeParenL:
+		if _, err := p.match(TokenTypeParenL); err != nil {
+			return nil, err
+		}
+		child, err := p.parseConditional()
+		if err != nil {
+			return nil, fmt.Errorf(`failed to parse primary "(exp)": %w`, err)
+		}
+		if _, err := p.match(TokenTypeParenR); err != nil {
+			return nil, err
+		}
+		node := &Node{Name: nameGroup}
+		node.add(child)
+		return node, nil
+	case TokenTypeID:
+		node, err := p.match(TokenTypeID)
+		if err != nil {
+			return nil, err
+		}
+		node.Name = nameID
+		return node, nil
+	case TokenTypeInt:
+		node, err := p.match(TokenTypeInt)
+		if err != nil {
+			return nil, err
+		}
+		node.Name = nameInt
+		return node, nil
+	default:
+		return nil, fmt.Errorf(`unexpected %q when parse primary, expected "(", ID, INT`, tok.Type)
+	}
 }
 
-func (p *parser) expMore() (node *Node, err error) {
-	node = &Node{Name: nameExpMore}
-	var (
-		child *Node
-		tok   = p.peekToken()
-	)
-	debug("expMore. peek=%v", tok)
-	if tok != nil {
-		tt := tok.Type
-		switch tt {
-		case TokenTypeIncr, TokenTypeDecr: // 后缀 ++ --
-			pre := p.previous()
-			if pre.Type != TokenTypeID {
-				return nil, fmt.Errorf("postfix operator %v can only after ID, previous token is %v", tt, pre)
-			}
-			child, err = p.match(tt)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
+func (n *Node) isID() bool {
+	return n != nil && n.Name == nameID && n.Token != nil && n.Token.Type == TokenTypeID
+}
 
-			child, err = p.expMore()
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		case TokenTypeTimes, TokenTypeOver, TokenTypeMod,
-			TokenTypePlus, TokenTypeMinus,
-			TokenTypeShiftL, TokenTypeShiftR,
-			TokenTypeGt, TokenTypeLt,
-			TokenTypeGe, TokenTypeLe,
-			TokenTypeEq, TokenTypeNe,
-			TokenTypeBitAnd, TokenTypeBitXor, TokenTypeBitOr,
-			TokenTypeAnd, TokenTypeOr: // 中缀操作符
-			child, err = p.match(tt)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-
-			child, err = p.exp()
-			if err != nil {
-				return nil, fmt.Errorf("expected right exp of operator %q: %w", tt, err)
-			}
-			node.add(child)
-
-			child, err = p.expMore()
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		case TokenTypeQst: // 三元操作符 ? :
-			child, err = p.match(tt)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-
-			child, err = p.exp()
-			if err != nil {
-				return nil, fmt.Errorf(`expected first exp of operator "?:" after "?": %w`, err)
-			}
-			node.add(child)
-
-			child, err = p.match(TokenTypeCol)
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-
-			child, err = p.exp()
-			if err != nil {
-				return nil, fmt.Errorf(`expected second exp of operator "?:" after ":": %w`, err)
-			}
-			node.add(child)
-
-			child, err = p.expMore()
-			if err != nil {
-				return nil, err
-			}
-			node.add(child)
-		}
+func binaryPrecedence(tt TokenType) int {
+	switch tt {
+	case TokenTypeTimes, TokenTypeOver, TokenTypeMod:
+		return 9
+	case TokenTypePlus, TokenTypeMinus:
+		return 8
+	case TokenTypeShiftL, TokenTypeShiftR:
+		return 7
+	case TokenTypeGt, TokenTypeLt, TokenTypeGe, TokenTypeLe:
+		return 6
+	case TokenTypeEq, TokenTypeNe:
+		return 5
+	case TokenTypeBitAnd:
+		return 4
+	case TokenTypeBitXor:
+		return 3
+	case TokenTypeBitOr:
+		return 2
+	case TokenTypeAnd:
+		return 1
+	case TokenTypeOr:
+		return 0
+	default:
+		return -1
 	}
-	return node, nil
 }
 
 func (p *parser) match(expected TokenType) (node *Node, err error) {
@@ -281,14 +270,6 @@ func (p *parser) match(expected TokenType) (node *Node, err error) {
 		return &Node{Name: tok.Type.String(), Token: tok}, nil
 	}
 	return nil, io.EOF
-}
-
-func (p *parser) previous() *Token {
-	i := p.index - 1
-	if i >= 0 && i < p.size {
-		return p.tokens[i]
-	}
-	return nil
 }
 
 func (p *parser) peekToken() *Token {
