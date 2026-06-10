@@ -106,7 +106,9 @@ func (file *File) initHeader() {
 				kv := find[0]
 				k := strings.TrimSpace(kv[1])
 				v := strings.TrimSpace(kv[2])
-				headers[k] = v
+				if _, ok := headers[k]; !ok {
+					headers[k] = v
+				}
 			}
 		}
 		file.headers = headers

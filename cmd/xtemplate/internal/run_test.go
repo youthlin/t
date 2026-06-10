@@ -56,6 +56,17 @@ func TestFile(t *testing.T) {
 	})
 }
 
+func TestTemplateAndControlNodes(t *testing.T) {
+	Convey("resolve template and control nodes", t, func() {
+		ctx := newTestContext()
+		So(resolveOneFile("testdata/index.tmpl", ctx), ShouldBeNil)
+		So(ctx.entries[key("", "Title")], ShouldNotBeNil)
+		So(ctx.entries[key("", "foo")], ShouldNotBeNil)
+		So(ctx.entries[key("", "ok")], ShouldNotBeNil)
+		So(ctx.entries[key("", "range")], ShouldNotBeNil)
+	})
+}
+
 // Test_run 验证整体入口 Run 能按测试模板完成一次提取流程。
 func Test_run(t *testing.T) {
 	Convey("run", t, func() {
