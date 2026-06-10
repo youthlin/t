@@ -14,7 +14,6 @@ func newTestContext() *Context {
 		Param: &Param{
 			Left:  "{{",
 			Right: "}}",
-			Debug: true,
 		},
 		Keywords: []Keyword{
 			{Name: "T", MsgID: 1},
@@ -27,6 +26,7 @@ func newTestContext() *Context {
 	}
 }
 
+// TestGlob 只验证测试数据模式能正常匹配，避免后续因为路径调整导致测试数据没被读到。
 func TestGlob(t *testing.T) {
 	Convey("glob", t, func() {
 		filenames, err := filepath.Glob("testdata/*.tmpl")
@@ -35,6 +35,7 @@ func TestGlob(t *testing.T) {
 	})
 }
 
+// TestFile 验证 resolveOneFile 能从控制结构、管道和括号包裹参数中抽取翻译文本。
 func TestFile(t *testing.T) {
 	Convey("resolveOneFile", t, func() {
 		ctx := newTestContext()
@@ -48,11 +49,17 @@ func TestFile(t *testing.T) {
 		So(ctx.entries[key("", "inside if without else")], ShouldNotBeNil)
 		So(ctx.entries[key("", "inside range without else")], ShouldNotBeNil)
 		So(ctx.entries[key("", "inside with without else")], ShouldNotBeNil)
+		So(ctx.entries[key("", "piped through T")], ShouldNotBeNil)
+		So(ctx.entries[key("", "piped through field T")], ShouldNotBeNil)
+		So(ctx.entries[key("ctxt-pipe", "id-pipe")], ShouldNotBeNil)
+		So(ctx.entries[key("", "wrapped string arg")], ShouldNotBeNil)
 	})
 }
+
+// Test_run 验证整体入口 Run 能按测试模板完成一次提取流程。
 func Test_run(t *testing.T) {
 	Convey("run", t, func() {
-		Run(&Param{
+		err := Run(&Param{
 			Input:      "testdata/*.tmpl",
 			Left:       "{{",
 			Right:      "}}",
@@ -60,5 +67,6 @@ func Test_run(t *testing.T) {
 			Function:   "T",
 			OutputFile: "-",
 		})
+		So(err, ShouldBeNil)
 	})
 }

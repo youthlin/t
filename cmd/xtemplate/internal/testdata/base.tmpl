@@ -27,6 +27,10 @@
     {{ if .cond }}{{ $.t.T "inside if without else" }}{{ end }}
     {{ range .list }}{{ $.t.T "inside range without else" }}{{ end }}
     {{ with .arg }}{{ $.t.T "inside with without else" }}{{ end }}
+    {{ "piped through T" | T }}
+    {{ "piped through field T" | .t.T }}
+    {{ "id-pipe" | X "ctxt-pipe" }}
+    {{ T ("wrapped string arg") }}
 
     {{- end -}}
 

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -22,6 +23,10 @@ func TestParseKeywords(t *testing.T) {
 		{"N:1,2", args{"N:1,2"}, []Keyword{{Name: "N", MsgID: 1, MsgID2: 2}}, false},
 		{"X:1c,2", args{"X:1c,2"}, []Keyword{{Name: "X", MsgCtxt: 1, MsgID: 2}}, false},
 		{"XN:1c,2,3", args{"XN:1c,2,3"}, []Keyword{{Name: "XN", MsgCtxt: 1, MsgID: 2, MsgID2: 3}}, false},
+		{"trim-space", args{" T ; XN:1c, 2, 3 "}, []Keyword{
+			{Name: "T", MsgID: 1},
+			{Name: "XN", MsgCtxt: 1, MsgID: 2, MsgID2: 3},
+		}, false},
 		{"T;XN:1c,2,3", args{"T;XN:1c,2,3"}, []Keyword{
 			{Name: "T", MsgID: 1},
 			{Name: "XN", MsgCtxt: 1, MsgID: 2, MsgID2: 3},
@@ -39,6 +44,7 @@ func TestParseKeywords(t *testing.T) {
 		{"invalid-3-id", args{"XN:1c,a,3"}, nil, true},
 		{"invalid-3-missing-id2", args{"XN:1c,2,"}, nil, true},
 		{"invalid-3-id2", args{"XN:1c,2,a"}, nil, true},
+		{"invalid-empty-name", args{":1"}, nil, true},
 
 		{"no-arg", args{"XN:"}, nil, true},
 		{"much-arg", args{"XN:1,2,3,4"}, nil, true},
@@ -58,43 +64,47 @@ func TestParseKeywords(t *testing.T) {
 }
 
 func TestWriter(t *testing.T) {
-	want, err := os.OpenFile("param_test.go", os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		t.Log(err)
-	}
-	type args struct {
-		fileName string
-	}
+	tmpDir := t.TempDir()
+	outputFile := filepath.Join(tmpDir, "messages.pot")
+
 	tests := []struct {
-		name    string
-		args    args
-		wantWr  *os.File
-		wantErr bool
+		name     string
+		fileName string
+		wantNil  bool
+		wantErr  bool
 	}{
-		{"empty", args{}, os.Stdout, false},
-		{"-", args{"-"}, os.Stdout, false},
-		{"file", args{"param_test.go"}, want, false},
-		{"can-not-create-if-dir-not-exist", args{"no-such-dir/file.pot"}, nil, true},
+		{"empty", "", false, false},
+		{"-", "-", false, false},
+		{"file", outputFile, false, false},
+		{"can-not-create-if-dir-not-exist", filepath.Join(tmpDir, "no-such-dir", "file.pot"), true, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotWr, err := Writer(tt.args.fileName)
+			gotWr, err := Writer(tt.fileName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Writer() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if (tt.wantWr == nil) == (gotWr == nil) {
+			if tt.wantNil {
+				if gotWr != nil {
+					t.Errorf("Writer() = %v, want nil", gotWr)
+				}
 				return
 			}
-			if (tt.wantWr == nil) != (gotWr == nil) {
-				t.Errorf("Writer() = %v, want %v", gotWr, tt.wantWr)
+			if gotWr == nil {
+				t.Fatalf("Writer() = nil, want non-nil")
+			}
+			if tt.fileName == "" || tt.fileName == "-" {
+				if gotWr != os.Stdout {
+					t.Errorf("Writer() = %v, want stdout", gotWr)
+				}
 				return
 			}
-			gotF, e1 := gotWr.Stat()
-			wantF, e2 := tt.wantWr.Stat()
-
-			if e1 != nil || e2 != nil || !os.SameFile(gotF, wantF) {
-				t.Errorf("Writer() = %v, want %v", gotWr, tt.wantWr)
+			if gotWr.Name() != outputFile {
+				t.Errorf("Writer() file = %v, want %v", gotWr.Name(), outputFile)
+			}
+			if err := gotWr.Close(); err != nil {
+				t.Fatalf("close output file: %v", err)
 			}
 		})
 	}
