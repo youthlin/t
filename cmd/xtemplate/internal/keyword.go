@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
-	"github.com/youthlin/t/errors"
 )
 
 // Keyword gettext keyword
@@ -17,11 +17,13 @@ type Keyword struct {
 	MsgID2  int
 }
 
-// ParseKeywords gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
+// ParseKeywords 解析 xgettext 风格的关键字声明，例如：
+// gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
 func ParseKeywords(str string) (result []Keyword, err error) {
 	kw := strings.Split(str, ";")
 	msg := t.T("invalid keywords: %s", str)
 	for _, key := range kw {
+		key = strings.TrimSpace(key)
 		// T
 		// T:1
 		// N:1,2
@@ -29,7 +31,7 @@ func ParseKeywords(str string) (result []Keyword, err error) {
 		// XN:1c,2,3
 		nameIndex := strings.Split(key, ":")
 		if len(nameIndex) == 1 {
-			name := nameIndex[0]
+			name := strings.TrimSpace(nameIndex[0])
 			if name == "" {
 				return nil, errors.Errorf(msg)
 			}
@@ -40,9 +42,15 @@ func ParseKeywords(str string) (result []Keyword, err error) {
 			return nil, errors.Errorf(msg)
 		}
 		k := Keyword{
-			Name: nameIndex[0],
+			Name: strings.TrimSpace(nameIndex[0]),
+		}
+		if k.Name == "" {
+			return nil, errors.Errorf(msg)
 		}
 		index := strings.Split(nameIndex[1], ",")
+		for i := range index {
+			index[i] = strings.TrimSpace(index[i])
+		}
 		switch len(index) {
 		case 1:
 			i, err := strconv.ParseInt(index[0], 10, 64)
@@ -106,18 +114,19 @@ func ParseKeywords(str string) (result []Keyword, err error) {
 			}
 			k.MsgID2 = int(index)
 		default:
-			return nil, errors.Errorf(msg + t.T("tow much keyword index"))
+			return nil, errors.Errorf(msg + t.T("too much keyword index"))
 		}
 		result = append(result, k)
 	}
 	return
 }
 
-// Writer is fileName is empty or - use stdout, otherwise use file
+// Writer 根据输出参数返回写入目标。
+// fileName 为空或为 - 时输出到 stdout，否则覆盖写入指定文件。
 func Writer(fileName string) (wr *os.File, err error) {
 	wr = os.Stdout
 	if fileName != "" && fileName != "-" {
-		wr, err = os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+		wr, err = os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 		if err != nil {
 			err = errors.Wrapf(err, t.T("can not open output file: %s", fileName))
 		}

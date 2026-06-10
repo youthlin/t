@@ -7,26 +7,33 @@ import (
 	"path/filepath"
 	"text/template/parse"
 
+	"github.com/cockroachdb/errors"
 	"github.com/youthlin/t"
-	"github.com/youthlin/t/errors"
 	"github.com/youthlin/t/translator"
 )
 
 var noopFun = func() string { return "" }
 
 // Run 运行解析任务
-func Run(param *Param) error {
+func Run(param *Param) (err error) {
 	param.debugPrint("run param=%+v", param)
 	ctx, err := newCtx(param)
 	if err != nil {
 		return err
 	}
+	defer func() {
+		closeErr := ctx.Close()
+		if err == nil {
+			err = closeErr
+		}
+	}()
 	filenames, err := filepath.Glob(param.Input)
 	param.debugPrint("Glob files=%v err=%+v", filenames, err)
 	if err != nil {
 		return errors.Wrapf(err, t.T("invalid input pattern"))
 	}
 
+	var firstErr error
 	for _, filename := range filenames {
 		if err := resolveOneFile(filename, ctx); err != nil {
 			if param.Debug {
@@ -34,15 +41,18 @@ func Run(param *Param) error {
 			} else {
 				printErr(t.T("failed to process file %v. error message: %v"), filename, err)
 			}
+			if firstErr == nil {
+				firstErr = err
+			}
 		}
+	}
+	if firstErr != nil {
+		return firstErr
 	}
 
 	ctx.debugPrint("extract done, %d entries", len(ctx.entries))
 
-	if err := ctx.Write(); err != nil {
-		return err
-	}
-	return ctx.Output.Close()
+	return ctx.Write()
 }
 
 // printErr print message to stderr
@@ -74,27 +84,55 @@ func resolveTmpl(filename string, ctx *Context, tmpl *template.Template) {
 		ctx.debugPrint("  > filename=%v, template=%v, tree or Root is nil", filename, tmpl.Name())
 		return
 	}
-	root := tmpl.Tree.Root
-	for _, node := range root.Nodes {
-		ctx.debugPrint("  > node=%#v", node)
-		// comment 会被忽略，这里拿不到注释信息
-		switch node.Type() {
-		case parse.NodeAction:
-			actionNode := node.(*parse.ActionNode)
-			resolvePipe(filename, actionNode.Line, ctx, actionNode.Pipe)
-		case parse.NodeIf:
-			branchNode := node.(*parse.IfNode)
-			resolvePipe(filename, branchNode.Line, ctx, branchNode.Pipe)
-		case parse.NodeRange:
-			branchNode := node.(*parse.RangeNode)
-			resolvePipe(filename, branchNode.Line, ctx, branchNode.Pipe)
-		case parse.NodeWith:
-			withNode := node.(*parse.WithNode)
-			resolvePipe(filename, withNode.Line, ctx, withNode.Pipe)
-		case parse.NodeTemplate:
-			templateNode := node.(*parse.TemplateNode)
-			resolvePipe(filename, templateNode.Line, ctx, templateNode.Pipe)
+	resolveNode(filename, ctx, tmpl.Tree.Root)
+}
+
+// resolveNode 递归遍历模板 AST。
+// 这里显式处理控制结构节点，确保 if/range/with/template 中的翻译调用都能继续向下扫描。
+// 注意 parse.Node 里可能出现 typed nil，因此每个具体分支里都要再做一次 nil 保护。
+func resolveNode(filename string, ctx *Context, node parse.Node) {
+	if node == nil {
+		return
+	}
+	switch node := node.(type) {
+	case *parse.ListNode:
+		if node == nil {
+			return
 		}
+		for _, child := range node.Nodes {
+			resolveNode(filename, ctx, child)
+		}
+	case *parse.ActionNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+	case *parse.IfNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+		resolveNode(filename, ctx, node.List)
+		resolveNode(filename, ctx, node.ElseList)
+	case *parse.RangeNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+		resolveNode(filename, ctx, node.List)
+		resolveNode(filename, ctx, node.ElseList)
+	case *parse.WithNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
+		resolveNode(filename, ctx, node.List)
+		resolveNode(filename, ctx, node.ElseList)
+	case *parse.TemplateNode:
+		if node == nil {
+			return
+		}
+		resolvePipe(filename, node.Line, ctx, node.Pipe)
 	}
 }
 
@@ -110,28 +148,65 @@ func resolvePipe(filename string, line int, ctx *Context, pipe *parse.PipeNode) 
 
 // resolveCmds 处理 Cmd
 func resolveCmds(filename string, line int, ctx *Context, cmds []*parse.CommandNode) {
-	for _, cmd := range cmds {
+	for cmdIndex, cmd := range cmds {
 		if cmd == nil {
 			continue
 		}
 		ctx.debugPrint("  >  >  Cmd: Line=%v Pos=%v", line, cmd.Pos)
-		argC := len(cmd.Args)
+		args := cmd.Args
+		if pipedArg := pipedStringArg(cmds, cmdIndex); pipedArg != nil {
+			args = append(append([]parse.Node{}, cmd.Args...), pipedArg)
+		}
+		argC := len(args)
 		for i := 0; i < argC; i++ {
-			arg := cmd.Args[i]
+			arg := args[i]
 			ctx.debugPrint("  >  >  >  Cmd.Arg: %#v", arg)
 			switch arg := arg.(type) {
 			case *parse.PipeNode:
 				resolvePipe(filename, line, ctx, arg) // 递归
 			case *parse.IdentifierNode:
-				filter(ctx, fmt.Sprintf("%v:%d", filename, line), arg.Ident, i, cmd.Args)
+				filter(ctx, fmt.Sprintf("%v:%d", filename, line), arg.Ident, i, args)
 			case *parse.FieldNode:
+				if len(arg.Ident) == 0 {
+					continue
+				}
 				lastID := arg.Ident[len(arg.Ident)-1]
-				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, cmd.Args)
+				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, args)
+			case *parse.VariableNode:
+				if len(arg.Ident) == 0 {
+					continue
+				}
+				lastID := arg.Ident[len(arg.Ident)-1]
+				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, args)
+			case *parse.ChainNode:
+				if len(arg.Field) == 0 {
+					continue
+				}
+				lastID := arg.Field[len(arg.Field)-1]
+				filter(ctx, fmt.Sprintf("%v:%d", filename, line), lastID, i, args)
 			}
 		}
 	}
 }
 
+// pipedStringArg 处理 "foo" | T 这类管道写法。
+// 在模板 AST 中，前一个 command 的输出并不会直接出现在后一个 command 的 Args 里，
+// 因此这里把上一段单字符串字面量补回当前命令参数中，统一复用后面的提取逻辑。
+func pipedStringArg(cmds []*parse.CommandNode, cmdIndex int) parse.Node {
+	if cmdIndex <= 0 {
+		return nil
+	}
+	prev := cmds[cmdIndex-1]
+	if prev == nil || len(prev.Args) != 1 {
+		return nil
+	}
+	if _, ok := stringLiteral(prev.Args[0]); !ok {
+		return nil
+	}
+	return prev.Args[0]
+}
+
+// filter 在命令参数中识别是否命中了 gettext 风格关键字，若命中则尝试抽取 entry。
 func filter(ctx *Context, line, name string, nameIndex int, args []parse.Node) {
 	argLength := len(args)
 	for _, kw := range ctx.Keywords {
@@ -152,13 +227,13 @@ func filter(ctx *Context, line, name string, nameIndex int, args []parse.Node) {
 			m := make(map[int]string)
 			for i := nameIndex + 1; i <= lastIndex; i++ {
 				arg := args[i]
-				str, ok := arg.(*parse.StringNode)
+				text, ok := stringLiteral(arg)
 				if !ok {
 					ctx.debugPrint("  >  >  >  ID=%v args[%d] is not string node", name, i)
 					argOK = false
 					break
 				}
-				m[i-nameIndex] = str.Text
+				m[i-nameIndex] = text
 			}
 			if !argOK {
 				continue
@@ -169,15 +244,39 @@ func filter(ctx *Context, line, name string, nameIndex int, args []parse.Node) {
 			}
 			if err := ctx.Add(entry); err != nil {
 				if ctx.Debug {
-					printErr(t.T("Waringing: %+v"), err)
+					printErr(t.T("Warning: %+v"), err)
 				} else {
-					printErr(t.T("Waringing: %v"), err)
+					printErr(t.T("Warning: %v"), err)
 				}
 			}
 		}
 	}
 }
 
+// stringLiteral 尝试把一个 AST 节点解析成字符串字面量。
+// 除了直接的 StringNode，也支持 T ("wrapped") 这种被 PipeNode 再包一层的情况。
+func stringLiteral(node parse.Node) (string, bool) {
+	switch node := node.(type) {
+	case *parse.StringNode:
+		if node == nil {
+			return "", false
+		}
+		return node.Text, true
+	case *parse.PipeNode:
+		if node == nil || len(node.Cmds) != 1 {
+			return "", false
+		}
+		cmd := node.Cmds[0]
+		if cmd == nil || len(cmd.Args) != 1 {
+			return "", false
+		}
+		return stringLiteral(cmd.Args[0])
+	default:
+		return "", false
+	}
+}
+
+// extract 根据 keyword 定义的参数位置，把当前命令转换成 translator.Entry。
 func extract(ctx *Context, line, name string, kw Keyword, m map[int]string) (*translator.Entry, bool) {
 	entry := new(translator.Entry)
 	entry.MsgCmts = append(entry.MsgCmts, fmt.Sprintf("#: %v", line))

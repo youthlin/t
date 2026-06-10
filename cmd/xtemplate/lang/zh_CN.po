@@ -47,8 +47,8 @@ msgstr "翻译上下文的位置必须以 ‘c’ 结尾"
 msgid "msg context index is not a number: %v"
 msgstr "翻译上下文的位置应该是数字：%v"
 
-#: internal/keyword.go:109
-msgid "tow much keyword index"
+#: internal/keyword.go:118
+msgid "too much keyword index"
 msgstr "关键字指示的位置太多"
 
 #: internal/keyword.go:122
@@ -82,12 +82,12 @@ msgstr "处理文件 %v 失败。错误消息： %v"
 msgid "failed to parse file %v"
 msgstr "处理文件 %v 失败"
 
-#: internal/run.go:160
-msgid "Waringing: %+v"
+#: internal/run.go:250
+msgid "Warning: %+v"
 msgstr "警告：%+v"
 
-#: internal/run.go:162
-msgid "Waringing: %v"
+#: internal/run.go:252
+msgid "Warning: %v"
 msgstr "警告：%v"
 
 #: main.go:32
@@ -114,9 +114,9 @@ msgstr "左分隔符"
 msgid "right delim"
 msgstr "右分隔符"
 
-#: main.go:54
-msgid "keywords e.g.: gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"
-msgstr "关键字，例： gettext;T:1;N1,2;X:1c,2;XN:1c,2,3"
+#: main.go:58
+msgid "keywords e.g.: gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3"
+msgstr "关键字，例： gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3"
 
 #: main.go:55
 msgid "function names of template"
@@ -146,3 +146,7 @@ msgid ""
 msgstr ""
 "%s 的用法：\n"
 "xtemplate -i 输入文件 -k 关键字 [-f 模版中函数] [-o 输出文件]\n"
+
+#: main.go:90
+msgid "flags -i and -k are required"
+msgstr "-i 和 -k 参数是必填的"

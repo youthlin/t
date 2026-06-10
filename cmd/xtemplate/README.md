@@ -25,7 +25,7 @@ xtemplate -i input-pattern -k keywords [-f functions] [-o output]
   -i string
         input file pattern
   -k string
-        keywords e.g.: gettext;T:1;N1,2;X:1c,2;XN:1c,2,3
+        keywords e.g.: gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
   -left string
         left delim (default "{{")
   -o string
@@ -44,7 +44,7 @@ xtemplate -i 输入文件 -k 关键字 [-f 模版中函数] [-o 输出文件]
   -i string
         输入文件
   -k string
-        关键字，例： gettext;T:1;N1,2;X:1c,2;XN:1c,2,3
+        关键字，例： gettext;T:1;N:1,2;X:1c,2;XN:1c,2,3
   -left string
         左分隔符 (default "{{")
   -o string
@@ -56,8 +56,8 @@ xtemplate -i 输入文件 -k 关键字 [-f 模版中函数] [-o 输出文件]
 
 ## translations of this project
 本项目的 `lang` 目录包含一个 po 文件，可以将其翻译为需要的语言，
-然后设置环境变量 `LANG_PATH` 以加载翻译，默认的加载路径是 `./lang` 目录。
+然后设置环境变量 `LANG_PATH` 以加载翻译；若未设置，则默认使用二进制内嵌的 `lang` 目录。
 
 You can find a po file in `lang` dir.
 set `LANG_PATH=/path/to/po/dir` to load your translations.
-the default dir is `./lang`.
+If `LANG_PATH` is not set, xtemplate loads the embedded `lang` directory by default.
