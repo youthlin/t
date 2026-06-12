@@ -22,8 +22,12 @@ func Format(format string, args ...interface{}) string {
 	return fmt.Sprintf(format, args...)
 }
 
-// DefaultPlural if n == 1 return singular form, else return plural form
+// DefaultPlural 根据 n 选择单数或复数形式。
+// 当 msgIDPlural 为空时（例如源语言本身没有复数区分），直接使用 msgID。
 func DefaultPlural(msgID, msgIDPlural string, n int64, args ...interface{}) string {
+	if msgIDPlural == "" {
+		return Format(msgID, args...)
+	}
 	if n != 1 {
 		return Format(msgIDPlural, args...)
 	}

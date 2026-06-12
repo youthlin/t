@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"regexp"
 	"text/template/parse"
 
 	"github.com/cockroachdb/errors"
@@ -13,6 +14,27 @@ import (
 )
 
 var noopFun = func() string { return "" }
+
+// templateBuiltins 是 Go template 内置关键字，不应被当作自定义函数注册。
+var templateBuiltins = map[string]bool{
+	"if": true, "else": true, "end": true, "range": true, "with": true,
+	"template": true, "define": true, "block": true, "break": true, "continue": true,
+}
+
+// identPattern 匹配模板中所有合法 Go 标识符（字母或下划线开头）。
+// 扫描所有标识符并注册为 noop 函数，比精确匹配函数调用位置更简单可靠。
+var identPattern = regexp.MustCompile(`[a-zA-Z_]\w*`)
+
+// scanFuncNames 从模板源码中扫描所有标识符，排除内置关键字，作为候选函数名。
+func scanFuncNames(src string) map[string]bool {
+	names := make(map[string]bool)
+	for _, name := range identPattern.FindAllString(src, -1) {
+		if !templateBuiltins[name] {
+			names[name] = true
+		}
+	}
+	return names
+}
 
 // Run 运行解析任务
 func Run(param *Param) (err error) {
@@ -63,10 +85,27 @@ func printErr(format string, args ...interface{}) {
 // resolveOneFile 处理每个文件
 func resolveOneFile(filename string, ctx *Context) error {
 	ctx.debugPrint("resolve one file: filename=%v", filename)
+
+	// 读取文件内容，自动扫描模板中使用的函数名并注册为 noop，
+	// 避免用户必须通过 -f 手动指定所有模板函数。
+	src, err := os.ReadFile(filename)
+	if err != nil {
+		return errors.Wrapf(err, t.T("failed to read file %v"), filename)
+	}
+	funcs := make(template.FuncMap, len(ctx.Functions)+8)
+	for k, v := range ctx.Functions {
+		funcs[k] = v
+	}
+	for name := range scanFuncNames(string(src)) {
+		if _, ok := funcs[name]; !ok {
+			funcs[name] = noopFun
+		}
+	}
+
 	tmpl, err := template.New("").
 		Delims(ctx.Left, ctx.Right).
-		Funcs(ctx.Functions).
-		ParseFiles(filename)
+		Funcs(funcs).
+		Parse(string(src))
 	if err != nil {
 		return errors.Wrapf(err, t.T("failed to parse file %v"), filename)
 	}

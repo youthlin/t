@@ -21,7 +21,7 @@ func newTestContext() *Context {
 			{Name: "X", MsgCtxt: 1, MsgID: 2},
 			{Name: "XN", MsgCtxt: 1, MsgID: 2, MsgID2: 3},
 		},
-		Functions: template.FuncMap{"T": noopFun, "X": noopFun},
+		Functions: template.FuncMap{},
 		entries:   make(map[string]*translator.Entry),
 	}
 }
@@ -75,7 +75,6 @@ func Test_run(t *testing.T) {
 			Left:       "{{",
 			Right:      "}}",
 			Keyword:    "T;X:1c,2;N:1,2;XN:1c,2,3",
-			Function:   "T",
 			OutputFile: "-",
 		})
 		So(err, ShouldBeNil)
