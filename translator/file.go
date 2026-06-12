@@ -46,6 +46,13 @@ func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...inte
 	if !ok {
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 	}
+	// 条目存在但没有复数形式（MsgID2 为空且 MsgStrN 也为空），直接使用单数翻译。
+	if entry.MsgID2 == "" && len(entry.MsgStrN) == 0 {
+		if entry.MsgStr != "" {
+			return f.Format(entry.MsgStr, args...)
+		}
+		return f.Format(msgID, args...)
+	}
 	plural := file.getPlural()
 	if plural.totalForms <= 0 || plural.fn == nil {
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)
