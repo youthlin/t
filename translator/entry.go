@@ -8,12 +8,13 @@ import (
 
 // Entry 一个翻译条目
 type Entry struct {
-	MsgCmts []string
-	MsgCtxt string
-	MsgID   string
-	MsgID2  string
-	MsgStr  string
-	MsgStrN []string
+	MsgCmts  []string
+	MsgCtxt  string
+	MsgID    string
+	IsPlural bool
+	MsgID2   string
+	MsgStr   string
+	MsgStrN  []string
 }
 
 // Key 一个翻译条目的 Key

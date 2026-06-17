@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
-func Errorf(format string, args ...interface{}) error {
+func Errorf(format string, args ...any) error {
 	return fmt.Errorf(format, args...)
 }
 
-func Wrapf(err error, format string, args ...interface{}) error {
+func Wrapf(err error, format string, args ...any) error {
 	args = append(args, err)
 	return fmt.Errorf(format+": %w", args...)
 }

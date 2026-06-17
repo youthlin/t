@@ -16,9 +16,9 @@ var noopTranslator Translator = (*nooptor)(nil)
 type nooptor struct{}
 
 func (tor *nooptor) Lang() string { return "" }
-func (tor *nooptor) X(msgCtxt, msgID string, args ...interface{}) string {
+func (tor *nooptor) X(msgCtxt, msgID string, args ...any) string {
 	return f.Format(msgID, args...)
 }
-func (tor *nooptor) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+func (tor *nooptor) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...any) string {
 	return f.DefaultPlural(msgID, msgIDPlural, n, args...)
 }

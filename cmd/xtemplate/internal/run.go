@@ -78,7 +78,7 @@ func Run(param *Param) (err error) {
 }
 
 // printErr print message to stderr
-func printErr(format string, args ...interface{}) {
+func printErr(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }
 
@@ -343,6 +343,7 @@ func extract(ctx *Context, line, name string, kw Keyword, m map[int]string) (*tr
 
 		}
 		entry.MsgID2 = txt
+		entry.IsPlural = true
 	}
 	if isGoFormat(entry) {
 		entry.MsgCmts = append(entry.MsgCmts, "#, go-format")

@@ -178,34 +178,39 @@ func (ts *Translations) L(locale string) *Translations {
 }
 
 // T is a short name of gettext
-func (ts *Translations) T(msgID string, args ...interface{}) string {
+func (ts *Translations) T(msgID string, args ...any) string {
 	return ts.X("", msgID, args...)
 }
 
 // N is a short name of nettext
-func (ts *Translations) N(msgID, msgIDPlural string, n int, args ...interface{}) string {
+func (ts *Translations) N(msgID, msgIDPlural string, n int, args ...any) string {
 	return ts.XN64("", msgID, msgIDPlural, int64(n), args...)
 }
 
+// N1 用于单复数同形的语言
+func (ts *Translations) N1(msgID string, n int, args ...any) string {
+	return ts.XN64("", msgID, "", int64(n), args...)
+}
+
 // N64 is a short name of nettext
-func (ts *Translations) N64(msgID, msgIDPlural string, n int64, args ...interface{}) string {
+func (ts *Translations) N64(msgID, msgIDPlural string, n int64, args ...any) string {
 	return ts.XN64("", msgID, msgIDPlural, n, args...)
 }
 
 // X is a short name of pgettext
-func (ts *Translations) X(msgCtxt, msgID string, args ...interface{}) string {
+func (ts *Translations) X(msgCtxt, msgID string, args ...any) string {
 	tr := ts.GetOrNoop(ts.domain)
 	tor := tr.GetOrNoop(ts.locale)
 	return tor.X(msgCtxt, msgID, args...)
 }
 
 // XN is a short name of npgettext
-func (ts *Translations) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...interface{}) string {
+func (ts *Translations) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...any) string {
 	return ts.XN64(msgCtxt, msgID, msgIDPlural, int64(n), args...)
 }
 
 // XN64 is a short name of npgettext
-func (ts *Translations) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+func (ts *Translations) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...any) string {
 	tr := ts.GetOrNoop(ts.domain)
 	tor := tr.GetOrNoop(ts.locale)
 	return tor.XN64(msgCtxt, msgID, msgIDPlural, n, args...)

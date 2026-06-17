@@ -4,3 +4,5 @@ output/
 *.interp
 *.tokens
 .DS_Store
+go.work
+go.work.sum

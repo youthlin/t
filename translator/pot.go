@@ -17,7 +17,7 @@ const (
 func writeString(buf *bytes.Buffer, key, content string) {
 	buf.WriteString(key + " ")
 	for _, line := range split(content, lineThreshold) {
-		buf.WriteString(fmt.Sprintf("%q\n", line))
+		fmt.Fprintf(buf, "%q\n", line)
 	}
 }
 
@@ -34,7 +34,7 @@ func (f *File) SaveAsPot(w io.Writer) error {
 		}
 		writeString(buf, msgid, entry.MsgID)
 
-		if entry.MsgID2 == "" {
+		if !entry.IsPlural {
 			if entry.MsgID == "" { // header
 				writeString(buf, msgstr, entry.MsgStr)
 			} else {

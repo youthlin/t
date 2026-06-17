@@ -10,11 +10,6 @@ import (
 // 这样既能复用一个 map，又不会把不同上下文但相同文案的条目混在一起。
 const eot = "\x04"
 
-// isPlural 判断当前条目是否包含复数形式。
-func isPlural(e *translator.Entry) bool {
-	return e.MsgID2 != ""
-}
-
 // key 生成内部去重使用的唯一键：msgctxt + EOT + msgid。
 func key(ctxt, msgid string) string {
 	return ctxt + eot + msgid

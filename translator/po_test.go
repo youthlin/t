@@ -67,6 +67,7 @@ msgstr "你好"
 				MsgCtxt: "ctx",
 				MsgID:   "one apple",
 				MsgID2:  "%d apples",
+				IsPlural: true,
 				MsgStrN: []string{"%d 个苹果"},
 			},
 		}}, `msgid ""
@@ -146,7 +147,8 @@ func Test_readEntry(t *testing.T) {
 		}, false},
 
 		{"split-msg_plural", args{newReader([]string{`msgid_plural "ctxt"`, `msgid_plural "你好"`})}, &Entry{
-			MsgID2: "ctxt",
+			MsgID2:   "ctxt",
+			IsPlural: true,
 		}, false},
 		{"unquote-msg_plural", args{newReader([]string{`msgid_plural id2`, `msgid_plural "你好"`})}, nil, true},
 		{"unquote-msg_id", args{newReader([]string{`msgid id2`, `msgid_plural "你好"`})}, nil, true},
@@ -175,7 +177,8 @@ func Test_readEntry(t *testing.T) {
 			MsgID: "line1line2",
 		}, true},
 		{"multi-line-id2", args{newReader([]string{`msgid_plural "line1"`, `"line2"`})}, &Entry{
-			MsgID2: "line1line2",
+			MsgID2:   "line1line2",
+			IsPlural: true,
 		}, true},
 		{"multi-line-str", args{newReader([]string{`msgstr "line1"`, `"line2"`})}, &Entry{
 			MsgStr: "line1line2",
@@ -199,6 +202,7 @@ func Test_readEntry(t *testing.T) {
 			MsgCtxt: "Project|",
 			MsgID:   "Open One",
 			MsgID2:  "Open %d",
+			IsPlural: true,
 			MsgStrN: []string{"打开 %d 个工程"},
 		}, true},
 		{"case-3-invalid-entry", args{newReader([]string{
@@ -212,6 +216,7 @@ func Test_readEntry(t *testing.T) {
 			MsgCtxt: "Project|",
 			MsgID:   "Open One",
 			MsgID2:  "Open %d",
+			IsPlural: true,
 			MsgStr:  "打开",
 		}, false},
 	}
@@ -264,9 +269,10 @@ msgstr[0] "%d 个苹果"
 				MsgStr:  "你好，世界",
 			},
 			key("", "one apple"): {
-				MsgID:   "one apple",
-				MsgID2:  "%d apples",
-				MsgStrN: []string{"%d 个苹果"},
+				MsgID:    "one apple",
+				MsgID2:   "%d apples",
+				IsPlural: true,
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 		}}, false},
 		{"3-entry", args{[]byte(`#: lang_test.go:22 lang_test.go:23 main_test.go:37
@@ -287,9 +293,10 @@ msgstr "发布"
 				MsgStr:  "你好，世界",
 			},
 			key("", "one apple"): {
-				MsgID:   "one apple",
-				MsgID2:  "%d apples",
-				MsgStrN: []string{"%d 个苹果"},
+				MsgID:    "one apple",
+				MsgID2:   "%d apples",
+				IsPlural: true,
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 			key("verb", "Post"): {
 				MsgCtxt: "verb",

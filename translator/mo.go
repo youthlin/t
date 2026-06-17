@@ -186,6 +186,7 @@ func ReadMo(content []byte) (*File, error) {
 		// 0x00 分割 msgId 和 msgIdPlural
 		if index := strings.Index(entry.MsgID, nul); index >= 0 {
 			entry.MsgID, entry.MsgID2 = entry.MsgID[:index], entry.MsgID[index+1:]
+			entry.IsPlural = true
 			entry.MsgStrN = strings.Split(entry.MsgStr, nul)
 			entry.MsgStr = ""
 		}
@@ -319,7 +320,7 @@ func moMsgID(entry *Entry) string {
 	if entry.MsgCtxt != "" {
 		msgID = entry.MsgCtxt + eot + msgID
 	}
-	if entry.MsgID2 != "" {
+	if entry.IsPlural {
 		msgID += nul + entry.MsgID2
 	}
 	return msgID
