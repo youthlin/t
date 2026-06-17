@@ -192,6 +192,11 @@ func (ts *Translations) N1(msgID string, n int, args ...any) string {
 	return ts.XN64("", msgID, "", int64(n), args...)
 }
 
+// N1_64 用于单复数同形的语言, n 为 int64
+func (ts *Translations) N1_64(msgID string, n int64, args ...any) string {
+	return ts.XN64("", msgID, "", n, args...)
+}
+
 // N64 is a short name of nettext
 func (ts *Translations) N64(msgID, msgIDPlural string, n int64, args ...any) string {
 	return ts.XN64("", msgID, msgIDPlural, n, args...)
@@ -209,9 +214,19 @@ func (ts *Translations) XN(msgCtxt, msgID, msgIDPlural string, n int, args ...an
 	return ts.XN64(msgCtxt, msgID, msgIDPlural, int64(n), args...)
 }
 
+// XN1 单复数同形简写, n 为 int
+func (ts *Translations) XN1(msgCtxt, msgID string, n int, args ...any) string {
+	return ts.XN64(msgCtxt, msgID, "", int64(n), args...)
+}
+
 // XN64 is a short name of npgettext
 func (ts *Translations) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...any) string {
 	tr := ts.GetOrNoop(ts.domain)
 	tor := tr.GetOrNoop(ts.locale)
 	return tor.XN64(msgCtxt, msgID, msgIDPlural, n, args...)
+}
+
+// XN1_64 单复数同形简写, n 为 int64
+func (ts *Translations) XN1_64(msgCtxt, msgID string, n int64, args ...any) string {
+	return ts.XN64(msgCtxt, msgID, "", n, args...)
 }

@@ -23,6 +23,11 @@ func N1(msgId string, n int, args ...any) string {
 	return global.XN64("", msgId, "", int64(n), args...)
 }
 
+// N1_64 用于单复数同形的简写, n 为 int64
+func N1_64(msgId string, n int64, args ...any) string {
+	return global.XN64("", msgId, "", n, args...)
+}
+
 // N64 is a short name of ngettext
 func N64(msgID, msgIDPlural string, n int64, args ...any) string {
 	return global.XN64("", msgID, msgIDPlural, n, args...)
@@ -38,7 +43,17 @@ func XN(msgCtxt, msgID, msgIDPlural string, n int, args ...any) string {
 	return global.XN64(msgCtxt, msgID, msgIDPlural, int64(n), args...)
 }
 
+// XN1 用于单复数同形的简写, n 为 int
+func XN1(msgCtxt, msgID string, n int, args ...any) string {
+	return global.XN64(msgCtxt, msgID, "", int64(n), args...)
+}
+
 // XN64 is a short name of npgettext
 func XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...any) string {
 	return global.XN64(msgCtxt, msgID, msgIDPlural, n, args...)
+}
+
+// XN1_64 用于单复数同形的简写, n 为 int64
+func XN1_64(msgCtxt, msgID string, n int64, args ...any) string {
+	return global.XN64(msgCtxt, msgID, "", n, args...)
 }
