@@ -57,7 +57,7 @@ func (f *File) SaveAsPo(w io.Writer) error {
 			writeString(buf, msgctxt, entry.MsgCtxt)
 		}
 		writeString(buf, msgid, entry.MsgID)
-		if entry.MsgID2 != "" {
+		if entry.IsPlural {
 			writeString(buf, msgidPlural, entry.MsgID2)
 		}
 		if entry.MsgStr != "" {
@@ -149,6 +149,7 @@ func readEntry(r *reader) (*Entry, error) {
 					errors.Wrapf(err, "unquote msgid_plural failed|line %d: %s", r.lineNo, line))
 			}
 			entry.MsgID2 += data
+			entry.IsPlural = true
 			continue
 		}
 		// msgid

@@ -24,7 +24,7 @@ type Param struct {
 }
 
 // debugPrint 只在 debug 模式下输出调试日志。
-func (p *Param) debugPrint(format string, args ...interface{}) {
+func (p *Param) debugPrint(format string, args ...any) {
 	if p.Debug {
 		fmt.Printf(format+"\n", args...)
 	}
@@ -77,11 +77,11 @@ func newCtx(param *Param) (*Context, error) {
 
 // Add 合并一条抽取结果；相同 msgid 会合并来源注释。
 func (ctx *Context) Add(entry *translator.Entry) error {
-	plural := isPlural(entry)
+	plural := entry.IsPlural
 	key := entry.Key()
 	pre, ok := ctx.entries[key]
 	if ok {
-		if isPlural(pre) != plural {
+		if pre.IsPlural != plural {
 			return errors.Errorf(t.T("msgid '%v' is used without plural and with plural.\nLine    =%v\nPrevious=%v"),
 				entry.MsgID, entry.MsgCmts, pre.MsgCmts)
 		}

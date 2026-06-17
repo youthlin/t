@@ -328,7 +328,7 @@ func (s *myListener) ExitPrimary(ctx *parser.PrimaryContext) {
 
 // debug if ctx has a debug key, then print msg.
 // see DebugContext
-func (s *myListener) debug(format string, args ...interface{}) {
+func (s *myListener) debug(format string, args ...any) {
 	if s.ctx.Value(ctxKeyDebug) != nil {
 		fmt.Printf(format+"\n", args...)
 	}

@@ -60,8 +60,9 @@ msgstr ""
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
 				MsgCtxt: "ctx",
 				MsgID:   "one apple",
-				MsgID2:  "%d apples",
-				MsgStrN: []string{"%d 个苹果"},
+				MsgID2:   "%d apples",
+				IsPlural: true,
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 		}}, `# translators comment
 #: path/to/source
@@ -86,8 +87,9 @@ Plural-Forms: nplurals=1; plural=0;
 				MsgCmts: []string{"# translators comment", "#: path/to/source"},
 				MsgCtxt: "ctx",
 				MsgID:   "one apple",
-				MsgID2:  "%d apples",
-				MsgStrN: []string{"%d 个苹果"},
+				MsgID2:   "%d apples",
+				IsPlural: true,
+				MsgStrN:  []string{"%d 个苹果"},
 			},
 		}}, `msgid ""
 msgstr ""
@@ -102,6 +104,20 @@ msgstr ""
 msgctxt "ctx"
 msgid "one apple"
 msgid_plural "%d apples"
+msgstr[0] ""
+msgstr[1] ""
+
+`, false},
+		{"empty-plural", fields{[]*Entry{
+			{
+				MsgCmts:  []string{"#: test.go:42"},
+				MsgID:    "%d 个苹果",
+				MsgID2:   "",
+				IsPlural: true,
+			},
+		}}, `#: test.go:42
+msgid "%d 个苹果"
+msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 

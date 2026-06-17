@@ -16,7 +16,7 @@ type errorListener struct {
 	err error
 }
 
-func (d *errorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{}, line, column int, msg string, e antlr.RecognitionException) {
+func (d *errorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol any, line, column int, msg string, e antlr.RecognitionException) {
 	d.addError(errors.Errorf("SyntaxError(line %v:%v): %v", line, column, msg)) // SyntaxError 语法错误
 }
 

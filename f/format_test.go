@@ -14,7 +14,7 @@ func TestFormat(t *testing.T) {
 	}
 	type args struct {
 		format string
-		args   []interface{}
+		args   []any
 	}
 	tests := []struct {
 		name string
@@ -22,16 +22,16 @@ func TestFormat(t *testing.T) {
 		want string
 	}{
 		{"empty-nil", args{"", nil}, ""},
-		{"empty-empty", args{"", []interface{}{}}, ""},
-		{"nonempty-empty", args{"hello", []interface{}{}}, "hello"},
-		{"one-apple", args{"one apple", []interface{}{1}}, "one apple"},
-		{"2-apples", args{"%d apples", []interface{}{2}}, "2 apples"},
-		{"verb-but-no-args", args{"%d apples", []interface{}{}}, "%d apples"},
-		{"args-too-few-1", args{"%s have %[1]d apples", []interface{}{1}}, "%!s(int=1) have 1 apples"},
-		{"args-too-few-2", args{"%s have %d apples", []interface{}{"Tom"}}, "Tom have %!d(string=) apples"},
-		{"position-index", args{"%[2]s have %[1]d apples", []interface{}{2, "Tom"}}, "Tom have 2 apples"},
+		{"empty-empty", args{"", []any{}}, ""},
+		{"nonempty-empty", args{"hello", []any{}}, "hello"},
+		{"one-apple", args{"one apple", []any{1}}, "one apple"},
+		{"2-apples", args{"%d apples", []any{2}}, "2 apples"},
+		{"verb-but-no-args", args{"%d apples", []any{}}, "%d apples"},
+		{"args-too-few-1", args{"%s have %[1]d apples", []any{1}}, "%!s(int=1) have 1 apples"},
+		{"args-too-few-2", args{"%s have %d apples", []any{"Tom"}}, "Tom have %!d(string=) apples"},
+		{"position-index", args{"%[2]s have %[1]d apples", []any{2, "Tom"}}, "Tom have 2 apples"},
 
-		{"", args{"%d 个苹果", []interface{}{1}}, "1 个苹果"},
+		{"", args{"%d 个苹果", []any{1}}, "1 个苹果"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,7 +47,7 @@ func TestDefaultPlural(t *testing.T) {
 		msgID       string
 		msgIDPlural string
 		n           int64
-		args        []interface{}
+		args        []any
 	}
 	tests := []struct {
 		name string
@@ -57,8 +57,8 @@ func TestDefaultPlural(t *testing.T) {
 		{"en-1-is-singular", args{"singular", "plural", 1, nil}, "singular"},
 		{"en-other-is-plural-0", args{"singular", "plural", 0, nil}, "plural"},
 		{"en-other-is-plural-n", args{"singular", "plural", 2, nil}, "plural"},
-		{"format", args{"one apple", "%d apples", 1, []interface{}{1}}, "one apple"},
-		{"format2", args{"one apple", "%d apples", 2, []interface{}{2}}, "2 apples"},
+		{"format", args{"one apple", "%d apples", 1, []any{1}}, "one apple"},
+		{"format2", args{"one apple", "%d apples", 2, []any{2}}, "2 apples"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

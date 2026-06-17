@@ -32,7 +32,7 @@ func (file *File) Lang() string {
 }
 
 // X is ashort name for pgettext
-func (file *File) X(msgCtxt, msgID string, args ...interface{}) string {
+func (file *File) X(msgCtxt, msgID string, args ...any) string {
 	entry, ok := file.entries[key(msgCtxt, msgID)]
 	if !ok || entry.MsgStr == "" {
 		return f.Format(msgID, args...)
@@ -41,7 +41,7 @@ func (file *File) X(msgCtxt, msgID string, args ...interface{}) string {
 }
 
 // XN64 is ashort name for npgettext
-func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...interface{}) string {
+func (file *File) XN64(msgCtxt, msgID, msgIDPlural string, n int64, args ...any) string {
 	entry, ok := file.entries[key(msgCtxt, msgID)]
 	if !ok {
 		return f.DefaultPlural(msgID, msgIDPlural, n, args...)

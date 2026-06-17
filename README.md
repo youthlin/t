@@ -38,7 +38,7 @@ path = "path/to/po_mo/dir"    // or dir.
 // (mo po 同名的话，po 后加载，会覆盖 mo 文件，因为 po 是文本文件，方便修改生效)
 // 1 bind domain 绑定翻译文件
 t.Load(path) // 默认绑定在 default 域 会自动搜索路径下的文件，读取 po/mo 里的语言标签进行注册
-t.Bind("my-domain", path) // 或者指定Ø文本域
+t.Bind("my-domain", path) // 或者指定文本域
 // 2 set current domain 设置使用的文本域
 t.SetDomain("my-domain")
 // 3 set user language 设置用户语言

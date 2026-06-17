@@ -9,7 +9,7 @@ import "fmt"
 // 格式化字符串，功能同 fmt.Sprintf, 但是当参数多于占位符时，
 // 不会输出额外的 %!(EXTRA type=value)；
 // 当 args 为空时直接返回原字符串（若包含格式化动词也原样返回而不会打印 MISSING 错误）
-func Format(format string, args ...interface{}) string {
+func Format(format string, args ...any) string {
 	var length = len(args)
 	if length == 0 {
 		return format
@@ -24,7 +24,7 @@ func Format(format string, args ...interface{}) string {
 
 // DefaultPlural 根据 n 选择单数或复数形式。
 // 当 msgIDPlural 为空时（例如源语言本身没有复数区分），直接使用 msgID。
-func DefaultPlural(msgID, msgIDPlural string, n int64, args ...interface{}) string {
+func DefaultPlural(msgID, msgIDPlural string, n int64, args ...any) string {
 	if msgIDPlural == "" {
 		return Format(msgID, args...)
 	}

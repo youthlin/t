@@ -44,7 +44,7 @@ func TestFile_T(t *testing.T) {
 	}
 	type args struct {
 		msgID string
-		args  []interface{}
+		args  []any
 	}
 	tests := []struct {
 		name   string
@@ -52,18 +52,18 @@ func TestFile_T(t *testing.T) {
 		args   args
 		want   string
 	}{
-		{"empty", fields{}, args{"hello", []interface{}{}}, "hello"},
-		{"empty-args", fields{}, args{"hello %s", []interface{}{"world"}}, "hello world"},
+		{"empty", fields{}, args{"hello", []any{}}, "hello"},
+		{"empty-args", fields{}, args{"hello %s", []any{"world"}}, "hello world"},
 		{"t", fields{
 			entries: map[string]*Entry{
 				key("", "hello"): {MsgStr: "你好"},
 			},
-		}, args{"hello", []interface{}{}}, "你好"},
+		}, args{"hello", []any{}}, "你好"},
 		{"t-args", fields{
 			entries: map[string]*Entry{
 				key("", "hello %s"): {MsgStr: "你好 %s"},
 			},
-		}, args{"hello %s", []interface{}{"world"}}, "你好 world"},
+		}, args{"hello %s", []any{"world"}}, "你好 world"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestFile_N(t *testing.T) {
 		msgID       string
 		msgIDPlural string
 		n           int
-		args        []interface{}
+		args        []any
 	}
 	tests := []struct {
 		name   string
@@ -101,25 +101,25 @@ func TestFile_N(t *testing.T) {
 			"one apple",
 			"%d apples",
 			1,
-			[]interface{}{},
+			[]any{},
 		}, "one apple"},
 		{"empty-no-arg-plural", fields{}, args{
 			"one apple",
 			"%d apples",
 			2,
-			[]interface{}{},
+			[]any{},
 		}, "%d apples"},
 		{"empty-no-arg-single-args", fields{}, args{
 			"one apple",
 			"%d apples",
 			1,
-			[]interface{}{1},
+			[]any{1},
 		}, "one apple"},
 		{"empty-no-arg-plural-args", fields{}, args{
 			"one apple",
 			"%d apples",
 			2,
-			[]interface{}{2},
+			[]any{2},
 		}, "2 apples"},
 
 		{
@@ -133,7 +133,7 @@ func TestFile_N(t *testing.T) {
 				"one apple",
 				"%d apples",
 				1,
-				[]interface{}{},
+				[]any{},
 			},
 			"one apple",
 		},
@@ -148,7 +148,7 @@ func TestFile_N(t *testing.T) {
 				"one apple",
 				"%d apples",
 				2,
-				[]interface{}{2},
+				[]any{2},
 			},
 			"2 apples",
 		},
@@ -165,7 +165,7 @@ func TestFile_N(t *testing.T) {
 				"one apple",
 				"%d apples",
 				1,
-				[]interface{}{},
+				[]any{},
 			},
 			"%d 个苹果",
 		},
@@ -181,7 +181,7 @@ func TestFile_N(t *testing.T) {
 				"one apple",
 				"%d apples",
 				2,
-				[]interface{}{},
+				[]any{},
 			},
 			"%d 个苹果",
 		},
@@ -197,7 +197,7 @@ func TestFile_N(t *testing.T) {
 				"one apple",
 				"%d apples",
 				1,
-				[]interface{}{1},
+				[]any{1},
 			},
 			"1 个苹果",
 		},
@@ -214,7 +214,7 @@ func TestFile_N(t *testing.T) {
 				"one apple",
 				"%d apples",
 				1,
-				[]interface{}{1},
+				[]any{1},
 			},
 			"one apple",
 		},
