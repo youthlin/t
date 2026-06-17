@@ -5,10 +5,9 @@ go 1.25.0
 require (
 	github.com/cockroachdb/errors v1.13.0
 	github.com/smartystreets/goconvey v1.8.1
-	github.com/youthlin/t v0.1.3
+	github.com/youthlin/t v0.1.4
 )
 
-replace github.com/youthlin/t => ../..
 
 require (
 	github.com/Xuanwo/go-locale v1.1.0 // indirect
