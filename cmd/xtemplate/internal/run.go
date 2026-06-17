@@ -250,11 +250,11 @@ func filter(ctx *Context, line, name string, nameIndex int, args []parse.Node) {
 	argLength := len(args)
 	for _, kw := range ctx.Keywords {
 		if kw.Name == name {
-			argCount := 1
-			if kw.MsgCtxt > 0 {
+			argCount := 1 // MsgID 始终需要
+			if kw.MsgCtxt > 0 && kw.MsgCtxt != kw.MsgID {
 				argCount++
 			}
-			if kw.MsgID2 > 0 {
+			if kw.MsgID2 > 0 && kw.MsgID2 != kw.MsgID && kw.MsgID2 != kw.MsgCtxt {
 				argCount++
 			}
 			lastIndex := argCount + nameIndex

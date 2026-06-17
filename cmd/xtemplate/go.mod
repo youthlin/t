@@ -2,12 +2,21 @@ module github.com/youthlin/t/cmd/xtemplate
 
 go 1.25.0
 
+// 发布流程（同仓库多模块）：
+// 1. 修改此处 t 版本号为新版本（如 v0.1.5）
+// 2. 临时添加 replace github.com/youthlin/t => ../.. 到本文件末尾
+// 3. cd cmd/xtemplate && go mod tidy
+// 4. 删除 replace 行
+// 5. 回到仓库根目录，提交所有改动
+// 6. git tag v0.1.5 && git tag cmd/xtemplate/v0.1.5
+// 7. git push && git push --tags
+// 注意：两个 tag 必须在同一个 commit 上，否则 go install xtemplate 时需要下载两次 git 仓库。
+
 require (
 	github.com/cockroachdb/errors v1.13.0
 	github.com/smartystreets/goconvey v1.8.1
-	github.com/youthlin/t v0.1.4
+	github.com/youthlin/t v0.1.5
 )
-
 
 require (
 	github.com/Xuanwo/go-locale v1.1.0 // indirect
