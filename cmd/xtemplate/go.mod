@@ -13,7 +13,7 @@ go 1.25.0
 require (
 	github.com/cockroachdb/errors v1.13.0
 	github.com/smartystreets/goconvey v1.8.1
-	github.com/youthlin/t v0.1.7
+	github.com/youthlin/t v0.1.9
 )
 
 require (
