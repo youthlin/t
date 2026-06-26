@@ -2,6 +2,12 @@ module github.com/youthlin/t
 
 go 1.23.0
 
+// 发布流程：
+// 1. 完成改动并测试通过
+// 2. 如果同时发布 cmd/xtemplate，更新 cmd/xtemplate/go.mod 中 github.com/youthlin/t 的版本到本次版本
+// 3. 在同一个 commit 上创建 tag：v0.1.10 与 cmd/xtemplate/v0.1.10
+// 4. git push && git push --tags
+
 require (
 	github.com/Xuanwo/go-locale v1.1.0
 	github.com/antlr4-go/antlr/v4 v4.13.0

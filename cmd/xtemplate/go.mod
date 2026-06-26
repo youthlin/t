@@ -3,17 +3,17 @@ module github.com/youthlin/t/cmd/xtemplate
 go 1.25.0
 
 // 发布流程（同仓库多模块，go.sum 无需包含 t 的 hash，Go 自动从同仓库解析）：
-// 1. 修改此处 t 版本号为新版本（如 v0.1.7）
+// 1. 修改此处 t 版本号为新版本（如 v0.1.10）
 // 2. 确保已删除 replace 指令（本地开发请用 go.work，不要用 replace）
 // 3. 回到仓库根目录，提交所有改动
-// 4. git tag v0.1.7 && git tag cmd/xtemplate/v0.1.7
+// 4. git tag v0.1.10 && git tag cmd/xtemplate/v0.1.10
 // 5. git push && git push --tags
 // 注意：两个 tag 必须在同一个 commit 上。
 
 require (
 	github.com/cockroachdb/errors v1.13.0
 	github.com/smartystreets/goconvey v1.8.1
-	github.com/youthlin/t v0.1.9
+	github.com/youthlin/t v0.1.10
 )
 
 require (

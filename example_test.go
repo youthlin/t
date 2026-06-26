@@ -3,6 +3,7 @@ package t_test
 import (
 	"embed"
 	"fmt"
+	"sort"
 	"sync"
 
 	"github.com/youthlin/t"
@@ -183,4 +184,50 @@ func Example_locales() {
 	// [en_US zh_CN]
 	// [en_US zh_CN]
 	// [en_US]
+}
+
+func Example_removeDomain() {
+	defer markSeq()()
+	t.Bind("main", "testdata")
+	t.Bind("extra", "testdata/zh_CN.po")
+	t.SetLocale("zh_CN")
+	t.SetDomain("main")
+
+	before := t.Domains()
+	sort.Strings(before)
+	fmt.Println("Before =", before)
+	fmt.Println("Remove main =", t.RemoveDomain("main"))
+	fmt.Println("Current domain =", t.Domain())
+	after := t.Domains()
+	sort.Strings(after)
+	fmt.Println("After =", after)
+	fmt.Println(t.T("Hello, World"))
+	// Output:
+	// Before = [extra main]
+	// Remove main = true
+	// Current domain = default
+	// After = [extra]
+	// Hello, World
+}
+
+func Example_clearDomains() {
+	defer markSeq()()
+	t.Bind("main", "testdata")
+	t.SetLocale("zh_CN")
+	t.SetDomain("main")
+
+	before := t.Domains()
+	sort.Strings(before)
+	fmt.Println("Before =", before)
+	t.ClearDomains()
+	fmt.Println("After =", t.Domains())
+	fmt.Println("Current domain =", t.Domain())
+	fmt.Println("Locale =", t.Locale())
+	fmt.Println(t.T("Hello, World"))
+	// Output:
+	// Before = [main]
+	// After = []
+	// Current domain = default
+	// Locale = zh_CN
+	// Hello, World
 }

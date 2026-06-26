@@ -58,6 +58,30 @@ func (ts *Translations) BindFS(domain string, fsys fs.FS) {
 	}
 }
 
+// RemoveDomain removes the specified domain.
+// 删除指定文本域；如果删除的是当前 domain，则自动回退到默认文本域。
+func (ts *Translations) RemoveDomain(domain string) bool {
+	if domain == "" {
+		return false
+	}
+	if !ts.HasDomain(domain) {
+		return false
+	}
+	delete(ts.domains, domain)
+	if ts.domain == domain {
+		ts.domain = DefaultDomain
+	}
+	return true
+}
+
+// ClearDomains removes all loaded domains.
+// 清空所有已加载的文本域，并把当前 domain 重置为默认文本域。
+// locale/sourceCodeLocale 保持不变。
+func (ts *Translations) ClearDomains() {
+	ts.domains = make(map[string]*Translation)
+	ts.domain = DefaultDomain
+}
+
 // Domain return current domain 返回当前使用的文本域
 func (ts *Translations) Domain() string {
 	return ts.domain

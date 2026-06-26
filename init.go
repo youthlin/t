@@ -36,6 +36,18 @@ func BindFS(domain string, fsys fs.FS) {
 	global.BindFS(domain, fsys)
 }
 
+// RemoveDomain removes the specified domain from global translations.
+// 如果删除的是当前 domain，则会自动回退到默认文本域。
+func RemoveDomain(domain string) bool {
+	return global.RemoveDomain(domain)
+}
+
+// ClearDomains removes all loaded domains from global translations.
+// 它会把当前 domain 重置为默认文本域，但保留 locale/sourceCodeLocale。
+func ClearDomains() {
+	global.ClearDomains()
+}
+
 // Locale return current locale(it may not be used locale)
 func Locale() string {
 	return global.Locale()

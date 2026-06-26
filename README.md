@@ -91,6 +91,24 @@ t.T("msg_id")            // use domain1
 t.D(domain2).T("msg_id") // use domain2
 t.D("unknown-domain").T("msg_id") // return "msg_id" directly
 
+t.RemoveDomain(domain1) // 删除指定 domain
+t.ClearDomains()        // 清空所有已加载 domain，保留 locale/sourceCodeLocale
+
+```
+
+### Remove / Clear domains
+
+```go
+t.Bind("main", path)
+t.Bind("extra", path)
+t.SetDomain("main")
+
+t.RemoveDomain("main") // true
+fmt.Println(t.Domain()) // default
+
+t.ClearDomains()
+fmt.Println(t.Domains()) // []
+// locale/sourceCodeLocale will be kept
 ```
 
 ## Language 指定语言
